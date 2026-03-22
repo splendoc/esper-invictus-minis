@@ -418,6 +418,32 @@
                     </div>
                 </div>
 
+                <!-- ─── Section 3: Contact (ESI 3-5 only) ─── -->
+                <div class="card p-6 mb-5" id="tel-section" style="display:none">
+                    <div class="sec-hdr" style="margin-bottom:14px">
+                        <i class="fas fa-phone text-sky-400"></i>
+                        <span>ข้อมูลติดต่อ <span class="text-inv-muted font-normal text-sm" style="font-family:'Sarabun',sans-serif;text-transform:none;letter-spacing:0">(Contact — optional)</span></span>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <!-- TEL 1 -->
+                        <div>
+                            <label class="lbl">เบอร์โทร 1</label>
+                            <div class="flex gap-2">
+                                <input type="tel" id="tel-num-0" placeholder="000-000-0000" maxlength="12" autocomplete="off" class="field mono" style="flex:1" oninput="fmtRegPhone(this)">
+                                <input type="text" id="tel-lbl-0" placeholder="ระบุ เช่น ผู้ป่วย, แม่" maxlength="10" autocomplete="off" class="field" style="width:130px;flex-shrink:0">
+                            </div>
+                        </div>
+                        <!-- TEL 2 -->
+                        <div>
+                            <label class="lbl">เบอร์โทร 2</label>
+                            <div class="flex gap-2">
+                                <input type="tel" id="tel-num-1" placeholder="000-000-0000" maxlength="12" autocomplete="off" class="field mono" style="flex:1" oninput="fmtRegPhone(this)">
+                                <input type="text" id="tel-lbl-1" placeholder="ระบุ เช่น พ่อ, ญาติ" maxlength="10" autocomplete="off" class="field" style="width:130px;flex-shrink:0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Actions -->
                 <div class="flex justify-end gap-3 mt-2">
                     <button type="button" class="btn-cancel">Cancel</button>
@@ -554,6 +580,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const setCaseType = (val) => {};
 
+    // ── Tel section visibility (ESI ≥ 3 only) ────────────
+    const telSection = document.getElementById('tel-section');
+    const updateTelVisibility = () => {
+        const v = parseInt(esiSelect.value);
+        telSection.style.display = (v >= 3) ? '' : 'none';
+    };
+
     ftContainer.addEventListener('click', (e) => {
         const btn = e.target.closest('.ft-btn');
         if (!btn) return;
@@ -563,6 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
         esiSelect.value = btn.dataset.esi;
         esiSelect.disabled = true;
         updateESIColor();
+        updateTelVisibility();
         setCaseType(btn.dataset.track === 'Trauma' ? 'Trauma' : 'Non-Trauma');
         document.getElementById('esi-error').classList.remove('show');
     });
@@ -573,10 +607,12 @@ document.addEventListener('DOMContentLoaded', () => {
         esiSelect.disabled = false;
         esiSelect.value = '';
         updateESIColor();
+        updateTelVisibility();
     });
 
     esiSelect.addEventListener('change', () => {
         updateESIColor();
+        updateTelVisibility();
         document.getElementById('esi-error').classList.remove('show');
     });
 
@@ -682,10 +718,24 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (esiLevel == 1) setStatus('กู้ชีพ');
         else                    setStatus('รอตรวจ');
 
-        console.log('Patient registered (simulation)');
+        // Collect phones (same {num,lbl} shape as FLOOR view)
+        const phones = [0,1].map(i => ({
+            num: document.getElementById(`tel-num-${i}`).value.replace(/\D/g,''),
+            lbl: document.getElementById(`tel-lbl-${i}`).value.trim()
+        }));
+
+        console.log('Patient registered (simulation)', { phones });
     });
 
 });
+
+// ── Phone auto-format (global for oninput) ───────────
+function fmtRegPhone(el){
+    const d = el.value.replace(/\D/g,'').slice(0,10);
+    if (d.length <= 3)      el.value = d;
+    else if (d.length <= 6) el.value = d.slice(0,3)+'-'+d.slice(3);
+    else                    el.value = d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6);
+}
 </script>
 </body>
 </html>
