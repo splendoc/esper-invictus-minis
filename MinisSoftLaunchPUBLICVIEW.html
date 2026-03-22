@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER Live Patient Status - Public Display</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <style>
+        body {
+            background-color: #f0f9ff;
+            font-family: 'Sarabun', sans-serif;
+            overflow: hidden;
+        }
+        .dark body { background-color: #0c1421; }
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+        .raj  { font-family: 'Rajdhani', sans-serif; }
+
+        /* Mobile: scroll freely */
+        @media (max-width: 767px) {
+            body { overflow-y: auto !important; }
+            #app  { height: auto !important; }
+            #main-content { height: auto !important; display: flex !important; flex-direction: column !important; }
+            .section-wrap { height: auto !important; min-height: 400px; }
+        }
+
+        /* Landscape: side by side */
+        @media (orientation: landscape) and (min-width: 768px) {
+            #main-content { grid-template-rows: none !important; grid-template-columns: 1fr 1fr !important; }
+        }
+
+        /* ESI Colors — ORIGINAL UNTOUCHED */
+        .esi-1 { background-color: #ef4444; color: white; }
+        .esi-2 { background-color: #ec4899; color: white; }
+        .esi-3 { background-color: #eab308; color: white; }
+        .esi-4 { background-color: #22c55e; color: white; }
+        .esi-5 { background-color: #3b82f6; color: white; }
+        .dark .esi-1 { background-color: #991b1b; }
+        .dark .esi-2 { background-color: #be185d; }
+        .dark .esi-3 { background-color: #a16207; }
+        .dark .esi-4 { background-color: #166534; }
+        .dark .esi-5 { background-color: #1e40af; }
+
+        /* gEDWIN Banner */
+        #gedwin-banner {
+            border-left: 4px solid #16a34a;
+            background-color: #f0fdf4;
+            transition: opacity 1.5s ease, background-color 1.5s ease, border-color 1.5s ease;
+        }
+        .dark #gedwin-banner { background-color: rgba(5,46,22,0.5); }
+
+        /* Wait time cards */
+        .wcard { flex:1; border-radius:8px; border:1px solid; border-top-width:3px; padding:6px 6px; text-align:center; }
+        .wcard-3 { border-color:#d97706; background:rgba(217,119,6,0.07); }
+        .wcard-4 { border-color:#16a34a; background:rgba(22,163,74,0.07); }
+        .wcard-5 { border-color:#2563eb; background:rgba(37,99,235,0.07); }
+        .dark .wcard-3 { background:rgba(217,119,6,0.12); }
+        .dark .wcard-4 { background:rgba(22,163,74,0.12); }
+        .dark .wcard-5 { background:rgba(37,99,235,0.12); }
+
+        /* Active disclaimer box */
+        .active-note {
+            border-radius:8px; padding:10px 12px;
+            background:rgba(34,197,94,0.06);
+            border:1px solid rgba(34,197,94,0.2);
+            font-family:'Sarabun',sans-serif;
+            font-size:0.88rem; line-height:1.7;
+            color:#374151;
+        }
+        .dark .active-note { color:#d1fae5; background:rgba(34,197,94,0.08); border-color:rgba(34,197,94,0.15); }
+
+        /* Section wrapper — fixed height, nothing jumps */
+        .section-wrap { display:flex; flex-direction:column; overflow:hidden; }
+
+        /* Fixed equal height for both section headers */
+        .sec-hdr { height: 175px; flex-shrink:0; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; gap:8px; }
+
+        /* Fixed card height — consistent across waiting and active */
+        .patient-card-fixed {
+            height: 100px;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        /* gEDWIN level pill badge */
+        .level-pill {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:5px 16px; border-radius:20px;
+            font-family:'Sarabun',sans-serif;
+            font-size:0.9rem; font-weight:700;
+            border:2px solid; white-space:nowrap;
+            transition: all 0.8s ease;
+            flex-shrink:0;
+        }
+        .level-pill .pill-en {
+            font-family:'IBM Plex Mono',monospace;
+            font-size:0.78rem; font-weight:700;
+            letter-spacing:.04em;
+        }
+
+        /* Pagination */
+        .page-area { flex:1; min-height:0; overflow:hidden; position:relative; }
+        .page-slide {
+            position:absolute; inset:0; padding:10px 12px;
+            display:flex; flex-direction:column; gap:10px;
+            transition:opacity 1.5s ease;
+        }
+        .page-dots { flex-shrink:0; display:flex; justify-content:center; gap:6px; padding:5px 0; }
+        .pdot { height:5px; border-radius:3px; background:#d1d5db; transition:all 0.5s ease; }
+        .dark .pdot { background:#374151; }
+        .pdot.on  { width:16px; }
+        .pdot.off { width:6px;  }
+    </style>
+</head>
+<body class="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+<div class="flex flex-col h-screen" id="app">
+
+    <!-- HEADER — original structure kept -->
+    <header class="flex-shrink-0 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-md">
+
+        <!-- Top bar -->
+        <div class="flex justify-between items-center p-3 px-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-sky-100 dark:bg-sky-900/50 p-2 rounded-xl">
+                    <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
+                        <circle cx="40" cy="40" r="38" stroke="url(#lg1p)" stroke-width="2" fill="none" opacity="0.7"/>
+                        <circle cx="40" cy="40" r="28" fill="url(#lg2p)" opacity="0.92"/>
+                        <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+                        <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+                        <defs>
+                            <linearGradient id="lg1p" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/>
+                            </linearGradient>
+                            <linearGradient id="lg2p" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0369a1"/><stop offset="100%" stop-color="#0ea5e9"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-600 to-teal-500 dark:from-sky-400 dark:to-teal-300" style="letter-spacing:-0.5px">ESPER INVICTUS</div>
+                    <div class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">ห้องฉุกเฉิน · Emergency Department</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <div id="time" class="text-3xl font-semibold text-gray-800 dark:text-white font-mono"></div>
+                    <div id="date" class="text-sm text-gray-500 dark:text-gray-400"></div>
+                </div>
+                <button id="themeToggle" class="px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    <i id="themeIcon" class="fas fa-sun text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- gEDWIN Banner — replaces crowding bar -->
+        <div id="gedwin-banner" class="px-6 py-2">
+            <div class="flex items-center gap-3">
+                <span id="banner-icon" class="text-lg flex-shrink-0">✓</span>
+                <div class="flex-1 min-w-0">
+                    <p id="banner-th" class="font-bold text-sm text-gray-800 dark:text-gray-100 leading-snug" style="font-family:'Sarabun',sans-serif">ห้องฉุกเฉินพร้อมให้บริการ</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5" style="font-family:'Sarabun',sans-serif">
+                        <i class="fas fa-bell mr-1 opacity-60"></i>หากอาการเปลี่ยนแปลง กรุณาแจ้งเจ้าหน้าที่
+                    </p>
+                </div>
+                <span id="level-pill" class="level-pill flex-shrink-0" style="color:#16a34a;border-color:#16a34a;background:rgba(22,163,74,0.15)">ปกติ <span class="pill-en">Normal</span></span>
+            </div>
+        </div>
+
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="flex-grow grid grid-rows-2 gap-3 p-3 min-h-0">
+
+        <!-- WAITING PATIENTS — first, majority audience -->
+        <section class="section-wrap bg-gray-50 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="sec-hdr flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">
+                <!-- Title -->
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-clock text-amber-500 text-lg"></i>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white" style="font-family:'Sarabun',sans-serif">
+                        รอรับการรักษา <span class="text-base font-normal text-gray-400 dark:text-gray-500">· Waiting Patients</span>
+                    </h2>
+                    <span id="wait-count" class="ml-auto text-sm font-bold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400">0</span>
+                </div>
+                <!-- Wait time cards -->
+                <div style="display:flex;gap:8px">
+                    <div class="wcard wcard-3">
+                        <div class="font-bold mb-1" style="color:#d97706;font-family:'Sarabun',sans-serif;font-size:0.95rem;font-weight:700">ระดับ 3</div>
+                        <div class="font-bold text-gray-800 dark:text-white" id="wt3" style="font-family:'Sarabun',sans-serif;font-size:1.3rem">~2.5–3 ชม.</div>
+                    </div>
+                    <div class="wcard wcard-4">
+                        <div class="font-bold mb-1" style="color:#16a34a;font-family:'Sarabun',sans-serif;font-size:0.95rem;font-weight:700">ระดับ 4</div>
+                        <div class="font-bold text-gray-800 dark:text-white" id="wt4" style="font-family:'Sarabun',sans-serif;font-size:1.3rem">~3–4 ชม.</div>
+                    </div>
+                    <div class="wcard wcard-5">
+                        <div class="font-bold mb-1" style="color:#2563eb;font-family:'Sarabun',sans-serif;font-size:0.95rem;font-weight:700">ระดับ 5</div>
+                        <div class="font-bold text-gray-800 dark:text-white" id="wt5" style="font-family:'Sarabun',sans-serif;font-size:1.3rem">~4–5 ชม.</div>
+                    </div>
+                </div>
+                <!-- Priority subtitle -->
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center" style="font-family:'Sarabun',sans-serif;margin-top:6px">
+                    ทีมแพทย์จะดูแลท่านตามความเร่งด่วนทางการแพทย์
+                </p>
+            </div>
+            <div class="page-area"><div class="page-slide" id="waiting-slide"></div></div>
+            <div class="page-dots" id="waiting-dots"></div>
+        </section>
+
+        <!-- ACTIVE PATIENTS — second -->
+        <section class="section-wrap bg-gray-50 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="sec-hdr flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">
+                <!-- Title -->
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-stethoscope text-green-500 text-lg"></i>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white" style="font-family:'Sarabun',sans-serif">
+                        กำลังรับการรักษา <span class="text-base font-normal text-gray-400 dark:text-gray-500">· Active Patients</span>
+                    </h2>
+                    <span id="active-count" class="ml-auto text-sm font-bold px-2.5 py-0.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400">0</span>
+                </div>
+                <!-- Disclaimer -->
+                <div class="active-note">
+                    <i class="fas fa-info-circle text-green-500 mr-2"></i>ทีมแพทย์กำลังดูแลผู้ป่วยอย่างเต็มที่
+                    หากมีความคืบหน้า จะมีการแจ้งและเรียกญาติเป็นระยะ
+                    ขอความกรุณารอในบริเวณที่จัดไว้
+                    และกรุณาฝากเบอร์ติดต่อที่เคาเตอร์พยาบาล
+                </div>
+            </div>
+            <div class="page-area"><div class="page-slide" id="active-slide"></div></div>
+            <div class="page-dots" id="active-dots"></div>
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const ER_CAPACITY        = 8;
+    const CARD_H             = 110; // card height (100px) + gap (10px)
+    function getPageSize(slideId) {
+        const el = document.getElementById(slideId);
+        if (!el) return 3;
+        return Math.max(1, Math.floor(el.clientHeight / CARD_H));
+    }
+    const PAGE_HOLD_MS       = 10000;
+    const FADE_MS            = 800;
+    const DISPOSITION_TTL_MS = 30 * 60 * 1000;
+    const MIN_WAIT           = { 3:150, 4:180, 5:240 };
+    const ESI5_OFFSET        = 75; // +75 min so ESI 5 always slower than ESI 4
+    const FLOOR_AVG_WAIT     = { 3:90,  4:150, 5:180 }; // replace with live floor data
+
+    const esiLabels = {
+        1:{ th:'กู้ชีพ',      en:'Resuscitation' },
+        2:{ th:'เร่งด่วน',    en:'Emergent'      },
+        3:{ th:'กึ่งฉุกเฉิน', en:'Urgent'        },
+        4:{ th:'ไม่ฉุกเฉิน', en:'Less Urgent'   },
+        5:{ th:'ทั่วไป',      en:'Non-Urgent'    }
+    };
+
+    // ── Status config — mirrors Floor SC; pub = what the public board shows ──
+    const SC = {
+        'กู้ชีพ':                      {dot:'#ef4444', pub:'กู้ชีพ'},
+        'เข้าห้องตรวจ':                {dot:'#22c55e', pub:'เข้าห้องตรวจ'},
+        'สังเกตอาการ':                 {dot:'#f59e0b', pub:'สังเกตอาการ'},
+        'ส่งเอ็กซ์เรย์':              {dot:'#60a5fa', pub:'ส่งเอ็กซ์เรย์ (X-Rays)'},
+        'ส่งเอ็กซ์เรย์คอมพิวเตอร์':  {dot:'#818cf8', pub:'ส่งเอ็กซ์เรย์คอมพิวเตอร์ (CT)'},
+        'ทำหัตถการ':                   {dot:'#f59e0b', pub:'ทำหัตถการ'},
+        'ปรึกษาแพทย์เฉพาะทาง':       {dot:'#60a5fa', pub:'ปรึกษาแพทย์เฉพาะทาง'},
+        'ติดต่อส่งตัวโรงพยาบาลอื่น': {dot:'#60a5fa', pub:'ติดต่อส่งตัวโรงพยาบาลอื่น'},
+        'รอผลตรวจ':                   {dot:'#818cf8', pub:'รอผลตรวจ'},
+        'รอขึ้นหอผู้ป่วย':            {dot:'#a78bfa', pub:'รอขึ้นหอผู้ป่วย'},
+        'รอส่งตัวโรงพยาบาลอื่น':     {dot:'#a78bfa', pub:'รอส่งตัวโรงพยาบาลอื่น'},
+        'รอทำหัตถการ':                {dot:'#f59e0b', pub:'รอทำหัตถการ'},
+        // finalized — multiple floor statuses collapse to one public label
+        'ICU':                         {dot:'#a78bfa', pub:'ขึ้นหอผู้ป่วย'},
+        'วอร์ดชาย':                    {dot:'#22c55e', pub:'ขึ้นหอผู้ป่วย'},
+        'วอร์ดหญิง':                   {dot:'#22c55e', pub:'ขึ้นหอผู้ป่วย'},
+        'วอร์ดพิเศษชั้น 6':           {dot:'#22c55e', pub:'ขึ้นหอผู้ป่วย'},
+        'วอร์ดพิเศษชั้น 7':           {dot:'#22c55e', pub:'ขึ้นหอผู้ป่วย'},
+        'วอร์ดตา':                     {dot:'#22c55e', pub:'ขึ้นหอผู้ป่วย'},
+        'Discharge':                   {dot:'#22c55e', pub:'สิ้นสุดการรักษา'},
+        'ส่งแผนกผู้ป่วยนอก':         {dot:'#60a5fa', pub:'ส่งแผนกผู้ป่วยนอก'},
+        'ส่งห้องผ่าตัด':              {dot:'#818cf8', pub:'ส่งห้องผ่าตัด'},
+        'ส่งคลินิกโรคเรื้อรัง':      {dot:'#60a5fa', pub:'ส่งคลินิกโรคเรื้อรัง'},
+        'ส่งแผนกตา':                  {dot:'#60a5fa', pub:'ส่งแผนกตา'},
+        'ส่งตัวโรงพยาบาลอื่น':       {dot:'#a78bfa', pub:'ส่งตัวโรงพยาบาลอื่น'},
+        'ปฏิเสธการรักษา':             {dot:'#f59e0b', pub:'สิ้นสุดการรักษา'},
+        'เสียชีวิต':                  {dot:'#6b8ba4', pub:'สิ้นสุดการรักษา'},
+        // waiting
+        'รอตรวจ':                     {dot:'#60a5fa', pub:'รอเข้าห้องตรวจ'},
+        'เรียกไม่พบ':                 {dot:'#f59e0b', pub:'เรียกไม่พบ'},
+    };
+    const FINAL_STATUSES = new Set(['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา','Discharge','ส่งแผนกผู้ป่วยนอก','ส่งห้องผ่าตัด','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา','ส่งตัวโรงพยาบาลอื่น','ปฏิเสธการรักษา','เสียชีวิต']);
+    function sc(s) { return SC[s] || {dot:'#6b8ba4', pub:s}; }
+
+    const LEVELS = [
+        { max:2.06,     bdr:'#16a34a', bgl:'#dcfce7', bgd:'rgba(5,46,22,0.5)',   icon:'✓',  pill:'ปกติ',         pillEn:'Normal',       pillBg:'rgba(22,163,74,0.15)',  pillC:'#16a34a',
+          th:'ห้องฉุกเฉินพร้อมให้บริการ',                                         mult:1.0 },
+        { max:2.34,     bdr:'#d97706', bgl:'#fef3c7', bgd:'rgba(28,20,0,0.65)',  icon:'ℹ️', pill:'ปานกลาง',      pillEn:'Medium',       pillBg:'rgba(217,119,6,0.15)',  pillC:'#b45309',
+          th:'ห้องฉุกเฉินมีผู้ป่วยในระดับปานกลาง',                                mult:1.3 },
+        { max:3.50,     bdr:'#ea580c', bgl:'#ffedd5', bgd:'rgba(28,10,0,0.65)',  icon:'⚠️', pill:'หนาแน่น',      pillEn:'Crowded',      pillBg:'rgba(234,88,12,0.15)',  pillC:'#c2410c',
+          th:'ห้องฉุกเฉินมีผู้ป่วยค่อนข้างมาก  เวลารออาจนานกว่าปกติ',             mult:1.6 },
+        { max:5.00,     bdr:'#dc2626', bgl:'#fee2e2', bgd:'rgba(28,0,0,0.65)',   icon:'⚠️', pill:'หนาแน่นมาก',   pillEn:'Very Crowded', pillBg:'rgba(220,38,38,0.15)',  pillC:'#b91c1c',
+          th:'ห้องฉุกเฉินมีผู้ป่วยหนาแน่น  กรุณาเตรียมใจรอนานกว่าปกติ',          mult:2.0 },
+        { max:Infinity, bdr:'#991b1b', bgl:'#fecaca', bgd:'rgba(21,0,0,0.65)',   icon:'🚨', pill:'วิกฤต',         pillEn:'Critical',     pillBg:'rgba(153,27,27,0.2)',   pillC:'#991b1b',
+          th:'ขณะนี้มีผู้ป่วยวิกฤตฉุกเฉินหลายราย  กรุณาเตรียมใจรอนานมากกว่าปกติ', mult:2.5 }
+    ];
+
+    function minsToRange(m) {
+        if      (m < 180) return { th:'~2.5–3 ชม.',  en:'~2.5–3 hrs' };
+        else if (m < 210) return { th:'~3–3.5 ชม.',  en:'~3–3.5 hrs' };
+        else if (m < 240) return { th:'~3.5–4 ชม.',  en:'~3.5–4 hrs' };
+        else if (m < 300) return { th:'~4–5 ชม.',    en:'~4–5 hrs'   };
+        else if (m < 360) return { th:'~5–6 ชม.',    en:'~5–6 hrs'   };
+        else              return { th:'~6+ ชม.',      en:'~6+ hrs'    };
+    }
+
+    // Mock data — original names/logic
+    const firstNames     = ['Somsak','Malee','Pravit','Sunee','Arthit','Darunee','Chaiya','Malisa','Thongchai','Buakaew'];
+    const lastNames      = ['Chaimanee','Koonsap','Suthiphan','Pongpan','Tanaka','Leelasom','Mongkol','Nakaroj','Visuthipat','Rungrat'];
+    const statusesActive = ['เข้าห้องตรวจ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์','รอผลตรวจ','สังเกตอาการ','ทำหัตถการ','ปรึกษาแพทย์เฉพาะทาง','รอขึ้นหอผู้ป่วย'];
+    let patientCounter   = 100;
+
+    function maskName(fn, ln) {
+        const mk = (s,k) => s.length<=k ? s : s.substring(0,k)+'*'.repeat(s.length-k);
+        return `${mk(fn,3)} ${mk(ln,3)}`;
+    }
+
+    function generatePatient(isActive) {
+        patientCounter++;
+        const esi    = Math.floor(Math.random()*5)+1;
+        const fn     = firstNames[Math.floor(Math.random()*firstNames.length)];
+        const ln     = lastNames[Math.floor(Math.random()*lastNames.length)];
+        const hnFull = String(60000000+Math.floor(Math.random()*9999999));
+        const status = isActive ? statusesActive[Math.floor(Math.random()*statusesActive.length)] : 'รอตรวจ';
+        const sex    = Math.random() > 0.5 ? 'M' : 'F';
+        const age    = Math.floor(Math.random() * 75) + 5;
+        return { id:patientCounter, name:maskName(fn,ln), hn:hnFull, hnLast3:hnFull.slice(-3), esi, status, sex, age,
+                 dispositionAt: FINAL_STATUSES.has(status) ? Date.now() : null };
+    }
+
+    let activePatients  = Array.from({length:12}, () => generatePatient(true));
+    let waitingPatients = Array.from({length:18}, () => generatePatient(false));
+
+    // Patient card — ORIGINAL FORMAT UNTOUCHED, showStatus flag added
+    function createPatientCard(patient, showStatus = true) {
+        const label         = esiLabels[patient.esi];
+        const cfg           = sc(patient.status);
+        const isDisposition = FINAL_STATUSES.has(patient.status);
+        const cardOpacity   = isDisposition ? 'opacity-50' : '';
+        const borderStyle   = isDisposition ? 'border-l-4 border-amber-400' : '';
+        return `
+            <div class="patient-card-fixed flex items-center p-3 rounded-lg shadow-md bg-white dark:bg-gray-900/50 transition-shadow duration-300 hover:shadow-xl ${cardOpacity} ${borderStyle}">
+                <div class="esi-${patient.esi} rounded-lg w-20 h-20 flex-shrink-0 flex flex-col items-center justify-center mr-3 shadow-inner text-center gap-1">
+                    <div class="font-bold text-xl tracking-widest leading-none">**${patient.hnLast3}</div>
+                    <div class="text-xs font-bold tracking-widest uppercase opacity-80 w-full text-center mt-1">ESI ${patient.esi}</div>
+                </div>
+                <div class="flex-shrink-0 w-28 mr-3 flex flex-col items-center justify-center h-20 border-r border-gray-200 dark:border-gray-700 pr-3">
+                    <div class="esi-${patient.esi} rounded-lg px-2 py-1 mb-1 text-center w-full">
+                        <div class="font-bold text-base leading-tight" style="font-family:'Sarabun',sans-serif">${label.th}</div>
+                    </div>
+                    <div class="text-xs text-gray-400 dark:text-gray-500 font-medium text-center">${label.en}</div>
+                </div>
+                <div class="flex-grow min-w-0 pl-1">
+                    <p class="font-bold text-2xl text-gray-800 dark:text-white truncate" style="font-family:'Sarabun',sans-serif">${patient.name}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5" style="font-family:'Sarabun',sans-serif">
+                        ${patient.sex === 'M' ? 'ชาย' : patient.sex === 'F' ? 'หญิง' : 'เด็ก'} · ${patient.age} ปี
+                    </p>
+                    ${showStatus ? `<p class="text-base font-semibold text-gray-600 dark:text-gray-300 mt-0.5 flex items-center gap-2">
+                        <i class="fas fa-circle-dot text-sm flex-shrink-0" style="color:${cfg.dot}"></i>
+                        <span class="truncate">${cfg.pub}</span>
+                    </p>` : ''}
+                </div>
+            </div>`;
+    }
+
+    // Pagination
+    let waitPage = 0, activePage = 0;
+
+    function renderSlide(patients, slideId, dotsId, page, dotColor, showStatus=true) {
+        const ps     = getPageSize(slideId);
+        const sorted = [...patients].sort((a,b) => a.esi - b.esi);
+        const total  = Math.max(1, Math.ceil(sorted.length/ps));
+        const pg     = Math.min(page, total-1);
+        const slice  = sorted.slice(pg*ps, pg*ps+ps);
+        document.getElementById(slideId).innerHTML = slice.length
+            ? slice.map(p => createPatientCard(p, showStatus)).join('')
+            : `<div class="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                 <i class="fas fa-inbox text-3xl"></i><span class="text-sm">ไม่มีผู้ป่วย</span>
+               </div>`;
+        const dotsEl = document.getElementById(dotsId);
+        if (total > 1) {
+            dotsEl.style.display = 'flex';
+            dotsEl.innerHTML = Array.from({length:total},(_,i) =>
+                `<div class="pdot ${i===pg?'on':'off'}" style="${i===pg?'background:'+dotColor:''}"></div>`
+            ).join('');
+        } else { dotsEl.style.display = 'none'; }
+    }
+
+    function doPage(slideId, dotsId, patients, isWaiting, dotColor, showStatus=true) {
+        const el    = document.getElementById(slideId);
+        const ps    = getPageSize(slideId);
+        const total = Math.max(1, Math.ceil(patients.length/ps));
+        el.style.opacity = '0';
+        setTimeout(() => {
+            if (isWaiting) waitPage   = (waitPage   + 1) % total;
+            else            activePage = (activePage + 1) % total;
+            renderSlide(patients, slideId, dotsId, isWaiting?waitPage:activePage, dotColor, showStatus);
+            el.style.opacity = '1';
+        }, FADE_MS);
+    }
+
+    // gEDWIN
+    function calcGEDWIN() {
+        const all = [...waitingPatients, ...activePatients];
+        const B_A = all.length;
+        if (!B_A) return 0;
+        const OR = Math.min(B_A/ER_CAPACITY, 0.99);
+        const wm = {1:5,2:4,3:3,4:2,5:1};
+        const AR = all.reduce((s,p) => s+(wm[p.esi]||3), 0) / B_A;
+        return Math.log(OR/(1-OR)) + Math.log(AR);
+    }
+
+    function getLevel(score) {
+        return LEVELS.find(l => score < l.max) || LEVELS[LEVELS.length-1];
+    }
+
+    let lastLevelIdx = -1;
+    function updateBanner() {
+        const score = calcGEDWIN();
+        const level = getLevel(score);
+        const idx   = LEVELS.indexOf(level);
+        if (idx === lastLevelIdx) return;
+        lastLevelIdx = idx;
+        const isDark  = document.documentElement.classList.contains('dark');
+        const banner  = document.getElementById('gedwin-banner');
+        banner.style.opacity = '0';
+        setTimeout(() => {
+            banner.style.borderLeftColor = level.bdr;
+            banner.style.backgroundColor = isDark ? level.bgd : level.bgl;
+            document.getElementById('banner-icon').textContent = level.icon;
+            document.getElementById('banner-th').textContent   = level.th;
+            const pill = document.getElementById('level-pill');
+            pill.innerHTML         = `${level.pill} <span class="pill-en">${level.pillEn}</span>`;
+            pill.style.color       = level.pillC;
+            pill.style.borderColor = level.pillC;
+            pill.style.background  = level.pillBg;
+            banner.style.opacity = '1';
+            updateWaitTimes(level.mult);
+        }, FADE_MS);
+    }
+
+    function updateWaitTimes(mult) {
+        [3,4,5].forEach(esi => {
+            const raw    = Math.round(FLOOR_AVG_WAIT[esi] * mult);
+            const offset = esi === 5 ? ESI5_OFFSET : 0;
+            const final  = Math.max(raw + offset, MIN_WAIT[esi] + (esi === 5 ? ESI5_OFFSET : 0));
+            const r      = minsToRange(final);
+            document.getElementById('wt'+esi).textContent = r.th;
+        });
+    }
+
+    // Clock
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('time').textContent = now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        document.getElementById('date').textContent = now.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // Theme — original logic
+    function applyTheme(isDark) {
+        document.documentElement.classList.toggle('dark', isDark);
+        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+        localStorage.setItem('darkMode', isDark);
+        lastLevelIdx = -1;
+        updateBanner();
+    }
+    const saved = localStorage.getItem('darkMode');
+    applyTheme(saved === null ? true : saved === 'true');
+    document.getElementById('themeToggle').addEventListener('click', () =>
+        applyTheme(!document.documentElement.classList.contains('dark'))
+    );
+
+    // Counts
+    function updateCounts() {
+        document.getElementById('wait-count').textContent   = waitingPatients.length;
+        document.getElementById('active-count').textContent = activePatients.length;
+    }
+
+    // Simulate data — original logic
+    function simulateDataUpdate() {
+        activePatients = activePatients.filter(p =>
+            !FINAL_STATUSES.has(p.status) || (Date.now()-p.dispositionAt) < DISPOSITION_TTL_MS
+        );
+        if (waitingPatients.length > 0 && Math.random() > 0.3) {
+            const p = waitingPatients.shift();
+            p.status = statusesActive[Math.floor(Math.random()*statusesActive.length)];
+            if (FINAL_STATUSES.has(p.status)) p.dispositionAt = Date.now();
+            activePatients.push(p);
+        }
+        if (activePatients.length > 8 && Math.random() > 0.5) activePatients.shift();
+        if (waitingPatients.length < 25 && Math.random() > 0.2) waitingPatients.push(generatePatient(false));
+        renderSlide(waitingPatients,'waiting-slide','waiting-dots',waitPage, '#d97706', false);
+        renderSlide(activePatients, 'active-slide', 'active-dots', activePage,'#22c55e', true);
+        updateCounts();
+        updateBanner();
+    }
+
+    // Init
+    renderSlide(waitingPatients,'waiting-slide','waiting-dots',0,'#d97706', false);
+    renderSlide(activePatients, 'active-slide', 'active-dots', 0,'#22c55e', true);
+    updateCounts();
+
+    setInterval(() => doPage('waiting-slide','waiting-dots',waitingPatients,true, '#d97706', false), PAGE_HOLD_MS);
+    setTimeout(()  => setInterval(() => doPage('active-slide','active-dots',activePatients,false,'#22c55e', true), PAGE_HOLD_MS), 5000);
+    setInterval(simulateDataUpdate, 15000);
+
+    // Re-render both slides when window is resized so page size stays accurate
+    let _resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(_resizeTimer);
+        _resizeTimer = setTimeout(() => {
+            waitPage = 0; activePage = 0;
+            renderSlide(waitingPatients,'waiting-slide','waiting-dots',0,'#d97706', false);
+            renderSlide(activePatients, 'active-slide', 'active-dots', 0,'#22c55e', true);
+        }, 150);
+    });
+});
+</script>
+</body>
+</html>

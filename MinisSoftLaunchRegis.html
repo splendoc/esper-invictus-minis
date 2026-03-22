@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPER : Invictus - Patient Register</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'inv-bg': '#0c1421',
+                        'inv-card': '#1a2332',
+                        'inv-border': '#2d3f55',
+                        'inv-input': '#243044',
+                        'inv-text': '#f0f4f8',
+                        'inv-muted': '#7a93b0',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ── Base ── */
+        body { background-color: #0c1421; color: #f0f4f8; font-family: 'Sarabun', sans-serif; }
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+        .raj  { font-family: 'Rajdhani', sans-serif; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a2332; }
+        ::-webkit-scrollbar-thumb { background: #2d3f55; border-radius: 10px; }
+
+        /* ── Card ── */
+        .card {
+            background: #1a2332;
+            border: 1px solid #2d3f55;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+        }
+
+        /* ── Input base ── */
+        .field {
+            width: 100%;
+            padding: 10px 14px;
+            background: #243044;
+            border: 1px solid #2d3f55;
+            border-radius: 8px;
+            color: #f0f4f8;
+            font-size: 14px;
+            font-family: 'Sarabun', sans-serif;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        .field::placeholder { color: #4e6680; }
+        .field:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+        .field:disabled { background: #1e2d3e; color: #4e6680; cursor: not-allowed; }
+        select.field { cursor: pointer; }
+
+        /* ── Hide number spinners ── */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* ── Label ── */
+        .lbl { display: block; font-size: 11px; font-weight: 700; color: #7a93b0; margin-bottom: 6px; letter-spacing: .1em; text-transform: uppercase; font-family: 'Rajdhani', 'Sarabun', sans-serif; }
+
+        /* ── Section header ── */
+        .sec-hdr {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f0f4f8;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2d3f55;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Rajdhani', 'Sarabun', sans-serif;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        /* ── Fast track buttons ── */
+        .ft-btn {
+            flex: 1;
+            height: 48px;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: .06em;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s, filter .15s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+        .ft-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+        .ft-btn.active { transform: scale(1.04); box-shadow: 0 0 0 3px #3b82f6, 0 4px 16px rgba(59,130,246,.3); }
+        .ft-trauma  { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; }
+        .ft-acs     { background: linear-gradient(135deg, #db2777, #be185d); color: #fff; }
+        .ft-stroke  { background: linear-gradient(135deg, #c026d3, #a21caf); color: #fff; }
+        .ft-sepsis  { background: linear-gradient(135deg, #ea580c, #c2410c); color: #fff; }
+        .ft-clear   { width: 48px; height: 48px; flex: none; background: #374151; color: #f0f4f8; border-radius: 10px; border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+        .ft-clear:hover { background: #4b5563; }
+
+        /* ── ESI colors ── */
+        .esi-1 { background-color: #dc2626 !important; color: #fff !important; }
+        .esi-2 { background-color: #db2777 !important; color: #fff !important; }
+        .esi-3 { background-color: #d97706 !important; color: #fff !important; }
+        .esi-4 { background-color: #16a34a !important; color: #fff !important; }
+        .esi-5 { background-color: #0284c7 !important; color: #fff !important; }
+
+        /* ── Radio custom ── */
+        .radio-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: background .15s; }
+        .radio-row:hover { background: #243044; }
+        .radio-row input[type=radio] { width: 16px; height: 16px; accent-color: #3b82f6; cursor: pointer; }
+
+        /* ── Submit button ── */
+        .btn-submit {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            padding: 12px 32px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: filter .2s, transform .15s, box-shadow .2s;
+            box-shadow: 0 4px 16px rgba(59,130,246,.3);
+        }
+        .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,.4); }
+
+        /* ── Cancel button ── */
+        .btn-cancel {
+            background: transparent;
+            color: #7a93b0;
+            font-weight: 600;
+            font-size: 13px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: 1px solid #2d3f55;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+        .btn-cancel:hover { background: #243044; color: #f0f4f8; }
+
+        /* ── Error ── */
+        .err-msg { display: none; margin-top: 5px; font-size: 11px; color: #f87171; }
+        .err-msg.show { display: flex; align-items: center; gap: 4px; }
+
+        /* ── HN special ── */
+        #hn-wrap { display: flex; }
+        #hn { border-radius: 8px 0 0 8px; font-family: 'IBM Plex Mono', monospace; letter-spacing: .06em; }
+        .hn-btn-search { padding: 10px 14px; background: #2563eb; color: #fff; border: none; cursor: pointer; transition: background .15s; font-family: 'Rajdhani', sans-serif; }
+        .hn-btn-search:hover { background: #1d4ed8; }
+        .hn-btn-gen { padding: 10px 14px; background: #0284c7; color: #fff; border: none; border-radius: 0 8px 8px 0; cursor: pointer; transition: background .15s; font-family: 'Rajdhani', sans-serif; }
+        .hn-btn-gen:hover { background: #0369a1; }
+        .hn-btn-search:disabled, .hn-btn-gen:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── Status badge ── */
+        .status-badge {
+            display: none;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            font-family: 'Rajdhani', 'Sarabun', sans-serif;
+            text-transform: uppercase;
+        }
+        .status-resuscitation { background: #dc2626; color: #fff; }
+        .status-in-exam       { background: #db2777; color: #fff; }
+        .status-waiting       { background: #d97706; color: #fff; }
+
+        /* ── Sidebar ── */
+        .sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-hidden { transform: translateX(-100%); }
+
+        /* ── Glow ring on HN field ── */
+        .ring-sky { box-shadow: 0 0 0 3px rgba(14,165,233,.35) !important; border-color: #0ea5e9 !important; }
+        .ring-red  { box-shadow: 0 0 0 3px rgba(248,113,113,.35) !important; border-color: #f87171 !important; }
+
+        /* ── HN lock row ── */
+        #hn-lock-row { display: none; margin-top: 8px; gap: 8px; align-items: center; }
+        #hn-lock-row.show { display: flex; }
+        .btn-unlock { font-size: 12px; font-family: 'Rajdhani', 'Sarabun', sans-serif; font-weight: 700; letter-spacing: .06em; padding: 4px 12px; background: #d97706; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+        .btn-unlock:hover { background: #b45309; }
+        .btn-save-hn { display: none; font-size: 12px; font-family: 'Rajdhani', 'Sarabun', sans-serif; font-weight: 700; letter-spacing: .06em; padding: 4px 12px; background: #16a34a; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+        .btn-save-hn.show { display: inline-flex; align-items: center; gap: 4px; }
+        .btn-save-hn:hover { background: #15803d; }
+        #hn-saved-msg { display: none; font-size: 12px; font-family: 'IBM Plex Mono', monospace; color: #4ade80; font-weight: 600; }
+        #hn-saved-msg.show { display: inline-flex; align-items: center; gap: 4px; }
+        #hn-edit-badge { display: none; font-size: 11px; font-family: 'Rajdhani', 'Sarabun', sans-serif; font-weight: 700; letter-spacing: .06em; color: #fbbf24; }
+        #hn-edit-badge.show { display: inline-flex; align-items: center; gap: 4px; }
+    </style>
+</head>
+<body>
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed top-0 left-0 z-40 w-64 h-screen bg-inv-card border-r border-inv-border flex flex-col">
+        <div class="flex items-center justify-center h-20 border-b border-inv-border shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11">
+                    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="40" cy="40" r="38" stroke="url(#g1)" stroke-width="2" fill="none" opacity=".6"/>
+                        <circle cx="40" cy="40" r="28" fill="url(#g2)" opacity=".9"/>
+                        <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+                        <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+                        <defs>
+                            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#FCD34D"/><stop offset="100%" style="stop-color:#B45309"/></linearGradient>
+                            <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#F59E0B"/><stop offset="100%" style="stop-color:#B45309"/></linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-teal-300">ESPER INVICTUS</div>
+                    <div class="text-xs text-inv-muted uppercase tracking-wider">ER Management</div>
+                </div>
+            </div>
+        </div>
+        <nav class="mt-4 px-2 flex-1">
+            <a href="#" class="flex items-center px-4 py-2.5 text-inv-muted hover:bg-inv-input rounded-lg mb-1 text-sm"><i class="fas fa-tachometer-alt w-5 mr-3 text-center"></i>ER Stats Dashboard</a>
+            <a href="#" class="flex items-center px-4 py-2.5 text-inv-text bg-sky-900/40 rounded-lg mb-1 text-sm font-semibold"><i class="fas fa-user-plus w-5 mr-3 text-center text-sky-400"></i>Patient Register</a>
+            <a href="#" class="flex items-center px-4 py-2.5 text-inv-muted hover:bg-inv-input rounded-lg mb-1 text-sm"><i class="fas fa-user-doctor w-5 mr-3 text-center"></i>Physician Dashboard</a>
+            <a href="#" class="flex items-center px-4 py-2.5 text-inv-muted hover:bg-inv-input rounded-lg mb-1 text-sm"><i class="fas fa-user-shield w-5 mr-3 text-center"></i>Admin Dashboard</a>
+        </nav>
+        <div class="p-4 border-t border-inv-border">
+            <button class="w-full text-left flex items-center px-4 py-2 text-sm text-inv-muted hover:bg-inv-input rounded-lg">
+                <i class="fas fa-arrow-left mr-3"></i>Back
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 flex flex-col md:ml-64">
+        <!-- Header -->
+        <header class="flex items-center justify-between px-6 py-3 bg-inv-card border-b border-inv-border shrink-0">
+            <div class="flex items-center gap-4">
+                <button id="sidebar-toggle" class="md:hidden text-inv-muted hover:text-inv-text">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-base font-semibold text-inv-text">ลงทะเบียนผู้ป่วยใหม่</h1>
+                        <span id="status-badge" class="status-badge"></span>
+                    </div>
+                    <p id="clock" class="text-xs text-inv-muted mt-0.5"></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="themeToggle" class="w-9 h-9 rounded-lg bg-inv-input text-inv-muted hover:text-inv-text flex items-center justify-center transition-colors">
+                    <i id="themeIcon" class="fas fa-moon text-sm"></i>
+                </button>
+                <div class="relative">
+                    <button id="userBtn" class="w-10 h-10 rounded-lg overflow-hidden border-2 border-inv-border hover:border-sky-500 transition-colors">
+                        <img src="https://placehold.co/40x40/0ea5e9/ffffff?text=DS" alt="User">
+                    </button>
+                    <div id="userMenu" class="hidden absolute right-0 mt-2 w-44 bg-inv-card border border-inv-border rounded-lg shadow-xl py-1 z-50">
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-inv-text hover:bg-inv-input"><i class="fas fa-cog mr-2 w-4"></i>Settings</a>
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-red-400 hover:bg-inv-input"><i class="fas fa-sign-out-alt mr-2 w-4"></i>Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-6">
+            <form id="reg-form" novalidate>
+
+                <!-- ─── Section 1: Patient & Demographic Info ─── -->
+                <div class="card p-6 mb-5">
+                    <div class="sec-hdr">
+                        <i class="fas fa-user text-sky-400"></i>
+                        <span>ข้อมูลผู้ป่วยและที่อยู่ <span class="text-inv-muted font-normal text-sm" style="font-family:'Sarabun',sans-serif;text-transform:none;letter-spacing:0">(Patient & Demographic Info)</span></span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+                        <!-- HN -->
+                        <div class="lg:col-span-2">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="lbl mb-0">HN <span class="text-red-400">*</span></label>
+                                <span id="hn-edit-badge"><i class="fas fa-pen-to-square mr-1"></i>แก้ไขได้ภายหลัง</span>
+                            </div>
+                            <div id="hn-wrap">
+                                <input type="text" id="hn" placeholder="XXX-XXX-XXX" maxlength="11" inputmode="numeric" autocomplete="off" class="field" style="border-radius:8px 0 0 8px;">
+                                <button type="button" id="search-hn" class="hn-btn-search" title="Search HN"><i class="fas fa-search"></i></button>
+                                <button type="button" id="gen-hn" class="hn-btn-gen" title="Generate HN"><i class="fas fa-magic"></i></button>
+                            </div>
+                            <p id="hn-error" class="err-msg"><i class="fas fa-exclamation-circle"></i>กรุณากรอก HN หรือกด Generate</p>
+                            <div id="hn-lock-row">
+                                <button type="button" id="hn-unlock" class="btn-unlock"><i class="fas fa-lock-open mr-1"></i>แก้ไข HN</button>
+                                <button type="button" id="hn-save" class="btn-save-hn"><i class="fas fa-check"></i>บันทึก HN</button>
+                                <span id="hn-saved-msg"><i class="fas fa-check-circle"></i>บันทึกแล้ว</span>
+                            </div>
+                        </div>
+
+                        <!-- คำนำหน้า -->
+                        <div>
+                            <label class="lbl">คำนำหน้า</label>
+                            <select id="title" class="field">
+                                <option value="">-- เลือก --</option>
+                                <option>นาย</option>
+                                <option>นาง</option>
+                                <option>นางสาว</option>
+                                <option>เด็กชาย</option>
+                                <option>เด็กหญิง</option>
+                                <option>พระภิกษุ</option>
+                                <option>แม่ชี</option>
+                                <option value="other">อื่นๆ</option>
+                            </select>
+                            <input type="text" id="title-other" placeholder="ระบุคำนำหน้า" class="field mt-2 hidden">
+                        </div>
+
+                        <!-- ชื่อจริง -->
+                        <div>
+                            <label class="lbl">ชื่อจริง <span class="text-red-400">*</span></label>
+                            <input type="text" id="first-name" class="field">
+                        </div>
+
+                        <!-- นามสกุล -->
+                        <div>
+                            <label class="lbl">นามสกุล <span class="text-red-400">*</span></label>
+                            <input type="text" id="last-name" class="field">
+                        </div>
+
+                        <!-- เพศ -->
+                        <div>
+                            <label class="lbl">เพศ <span class="text-red-400">*</span></label>
+                            <select id="gender" class="field">
+                                <option value="">-- เลือก --</option>
+                                <option>ชาย</option>
+                                <option>หญิง</option>
+                                <option>X</option>
+                            </select>
+                            <p id="gender-error" class="err-msg"><i class="fas fa-exclamation-circle"></i>กรุณาเลือกเพศ</p>
+                        </div>
+
+                        <!-- อายุ -->
+                        <div class="lg:col-span-4">
+                            <label class="lbl">อายุ <span class="text-red-400">*</span> <span style="font-family:'Sarabun',sans-serif;font-weight:400;font-size:11px;color:#4e6680;text-transform:none;letter-spacing:0">(กรอกเพียงช่องเดียว · ผู้ใหญ่กรอกเฉพาะปี · เด็กอายุต่ำกว่า 1 ปี กรอกเฉพาะเดือนหรือวัน)</span></label>
+                            <div class="grid grid-cols-3 gap-3" style="max-width:340px;">
+                                <input type="number" id="age-y" placeholder="ปี"   min="0" max="150" class="field text-center mono">
+                                <input type="number" id="age-m" placeholder="เดือน" min="0" max="11"  class="field text-center mono">
+                                <input type="number" id="age-d" placeholder="วัน"  min="0" max="30"  class="field text-center mono">
+                            </div>
+                            <p id="age-error" class="err-msg"><i class="fas fa-exclamation-circle"></i>กรุณากรอกอายุอย่างน้อย 1 ช่อง</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ─── Section 2: Triage Assessment ─── -->
+                <div class="card p-6 mb-5">
+                    <div class="sec-hdr">
+                        <i class="fas fa-stethoscope text-amber-400"></i>
+                        <span>การประเมินแรกรับ <span class="text-inv-muted font-normal text-sm" style="font-family:'Sarabun',sans-serif;text-transform:none;letter-spacing:0">(Triage Assessment)</span></span>
+                    </div>
+
+                    <!-- Fast Track -->
+                    <div class="mb-5">
+                        <p class="text-sm font-semibold text-inv-text mb-3">Fast Track Protocol</p>
+                        <div class="flex items-stretch gap-2" id="ft-options">
+                            <button type="button" data-esi="1" data-track="Trauma"     class="ft-btn ft-trauma">Trauma</button>
+                            <button type="button" data-esi="2" data-track="Non-Trauma" class="ft-btn ft-acs">ACS</button>
+                            <button type="button" data-esi="2" data-track="Non-Trauma" class="ft-btn ft-stroke">
+                                <span class="text-sm font-bold">Stroke</span>
+                                <span class="text-xs opacity-90">Fast Track</span>
+                            </button>
+                            <button type="button" data-esi="2" data-track="Non-Trauma" class="ft-btn ft-sepsis">Sepsis</button>
+                            <button type="button" id="clear-ft" class="ft-clear" title="Clear"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                        <!-- Chief Complaint -->
+                        <div class="lg:col-span-2">
+                            <label class="lbl">Chief Complaint <span class="text-red-400">*</span></label>
+                            <textarea id="chief-complaint" rows="4" class="field" style="resize:vertical;"></textarea>
+                            <p id="cc-error" class="err-msg"><i class="fas fa-exclamation-circle"></i>กรุณากรอก Chief Complaint</p>
+                        </div>
+
+                        <!-- ESI + Case Type -->
+                        <div>
+                            <label class="lbl">ESI Level <span class="text-red-400">*</span></label>
+                            <select id="esi" class="field text-base font-bold py-3 transition-colors duration-300">
+                                <option value="">-- Select --</option>
+                                <option value="1">1 – Resuscitation</option>
+                                <option value="2">2 – Emergent</option>
+                                <option value="3">3 – Urgent</option>
+                                <option value="4">4 – Less Urgent</option>
+                                <option value="5">5 – Non-urgent</option>
+                            </select>
+                            <p id="esi-error" class="err-msg"><i class="fas fa-exclamation-circle"></i>กรุณาเลือก ESI Level</p>
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end gap-3 mt-2">
+                    <button type="button" class="btn-cancel">Cancel</button>
+                    <button type="submit" id="submit-btn" class="btn-submit"><i class="fas fa-check mr-2"></i>Register Patient</button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // ── Clock ──────────────────────────────────────────────
+    const clock = document.getElementById('clock');
+    const tick = () => {
+        const now = new Date();
+        clock.textContent = now.toLocaleDateString('th-TH', {
+            weekday:'long', year:'numeric', month:'long', day:'numeric',
+            hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:'Asia/Bangkok'
+        });
+    };
+    tick(); setInterval(tick, 1000);
+
+    // ── Theme ──────────────────────────────────────────────
+    const html = document.documentElement;
+    const themeBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const applyTheme = (dark) => {
+        html.classList.toggle('dark', dark);
+        themeIcon.className = dark ? 'fas fa-sun text-sm' : 'fas fa-moon text-sm';
+        localStorage.setItem('darkMode', dark);
+    };
+    applyTheme(localStorage.getItem('darkMode') !== 'false');
+    themeBtn.addEventListener('click', () => applyTheme(!html.classList.contains('dark')));
+
+    // ── Sidebar ────────────────────────────────────────────
+    document.getElementById('sidebar-toggle')?.addEventListener('click', () =>
+        document.getElementById('sidebar').classList.toggle('sidebar-hidden'));
+
+    // ── User menu ──────────────────────────────────────────
+    const userBtn = document.getElementById('userBtn');
+    const userMenu = document.getElementById('userMenu');
+    userBtn.addEventListener('click', (e) => { e.stopPropagation(); userMenu.classList.toggle('hidden'); });
+    document.addEventListener('click', () => userMenu.classList.add('hidden'));
+
+    // ── Title "other" ──────────────────────────────────────
+    document.getElementById('title').addEventListener('change', function () {
+        document.getElementById('title-other').classList.toggle('hidden', this.value !== 'other');
+    });
+
+    // ── HN logic ───────────────────────────────────────────
+    const hnInput     = document.getElementById('hn');
+    const genBtn      = document.getElementById('gen-hn');
+    const searchBtn   = document.getElementById('search-hn');
+    const hnLockRow   = document.getElementById('hn-lock-row');
+    const hnUnlock    = document.getElementById('hn-unlock');
+    const hnSave      = document.getElementById('hn-save');
+    const hnSavedMsg  = document.getElementById('hn-saved-msg');
+    const hnEditBadge = document.getElementById('hn-edit-badge');
+    const hnError     = document.getElementById('hn-error');
+
+    const formatHN = (raw) => {
+        const d = raw.replace(/\D/g,'').slice(0,9);
+        if (d.length <= 3) return d;
+        if (d.length <= 6) return d.slice(0,3) + '-' + d.slice(3);
+        return d.slice(0,3) + '-' + d.slice(3,6) + '-' + d.slice(6);
+    };
+
+    hnInput.addEventListener('input', () => {
+        if (hnInput.value.startsWith('GEN')) return;
+        const raw = hnInput.value.replace(/\D/g,'').slice(0,9);
+        hnInput.value = formatHN(raw);
+        hnError.classList.remove('show');
+    });
+
+    const generateHN = () => {
+        let c = parseInt(localStorage.getItem('hn_gen_counter') || '0') + 1;
+        localStorage.setItem('hn_gen_counter', c);
+        return 'GEN' + String(c).padStart(6, '0');
+    };
+
+    genBtn.addEventListener('click', () => {
+        if (hnInput.disabled) return;
+        hnInput.value = generateHN();
+        hnInput.classList.add('ring-sky');
+        hnError.classList.remove('show');
+        setTimeout(() => hnInput.classList.remove('ring-sky'), 1500);
+    });
+
+    searchBtn.addEventListener('click', () => {
+        const val = hnInput.value.trim();
+        if (!val) { hnInput.focus(); return; }
+        alert(`Searching HN: ${val} (simulation)`);
+    });
+
+    const lockHN = () => {
+        hnInput.disabled = true;
+        genBtn.disabled = true;
+        searchBtn.disabled = true;
+        hnLockRow.classList.add('show');
+        hnEditBadge.classList.add('show');
+    };
+
+    hnUnlock.addEventListener('click', () => {
+        hnInput.disabled = false;
+        genBtn.disabled = false;
+        searchBtn.disabled = false;
+        hnSave.classList.add('show');
+        hnSavedMsg.classList.remove('show');
+        hnInput.focus();
+    });
+
+    hnSave.addEventListener('click', () => {
+        hnInput.disabled = true;
+        genBtn.disabled = true;
+        searchBtn.disabled = true;
+        hnSave.classList.remove('show');
+        hnSavedMsg.classList.add('show');
+        setTimeout(() => hnSavedMsg.classList.remove('show'), 2000);
+    });
+
+    // ── Fast Track ─────────────────────────────────────────
+    const esiSelect    = document.getElementById('esi');
+    const ftContainer  = document.getElementById('ft-options');
+    const ftBtns       = ftContainer.querySelectorAll('.ft-btn');
+    let ftActive       = false;
+
+    const updateESIColor = () => {
+        esiSelect.className = esiSelect.className.replace(/esi-\d/g,'').trim();
+        if (esiSelect.value) esiSelect.classList.add(`esi-${esiSelect.value}`);
+    };
+
+    const setCaseType = (val) => {};
+
+    ftContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.ft-btn');
+        if (!btn) return;
+        ftActive = true;
+        ftBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        esiSelect.value = btn.dataset.esi;
+        esiSelect.disabled = true;
+        updateESIColor();
+        setCaseType(btn.dataset.track === 'Trauma' ? 'Trauma' : 'Non-Trauma');
+        document.getElementById('esi-error').classList.remove('show');
+    });
+
+    document.getElementById('clear-ft').addEventListener('click', () => {
+        ftActive = false;
+        ftBtns.forEach(b => b.classList.remove('active'));
+        esiSelect.disabled = false;
+        esiSelect.value = '';
+        updateESIColor();
+    });
+
+    esiSelect.addEventListener('change', () => {
+        updateESIColor();
+        document.getElementById('esi-error').classList.remove('show');
+    });
+
+    // ── Status badge ───────────────────────────────────────
+    const statusBadge = document.getElementById('status-badge');
+    const setStatus = (s) => {
+        statusBadge.style.display = 'inline-block';
+        statusBadge.className = 'status-badge';
+        if (s === 'กู้ชีพ') {
+            statusBadge.textContent = 'Status: กู้ชีพ (Resuscitation)';
+            statusBadge.classList.add('status-resuscitation');
+        } else if (s === 'เข้าห้องตรวจ') {
+            statusBadge.textContent = 'Status: เข้าห้องตรวจ (In Examination)';
+            statusBadge.classList.add('status-in-exam');
+        } else {
+            statusBadge.textContent = 'Status: รอเข้าห้องตรวจ (Waiting)';
+            statusBadge.classList.add('status-waiting');
+        }
+    };
+
+    // ── Form submit ────────────────────────────────────────
+    document.getElementById('reg-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        let ok = true;
+        const scrollTo = (el) => { if (ok) { el.scrollIntoView({ behavior:'smooth', block:'center' }); ok = false; } };
+
+        // HN
+        const hnVal = hnInput.value.replace(/-/g,'').trim();
+        if (!hnVal) {
+            hnError.classList.add('show');
+            hnInput.classList.add('ring-red');
+            setTimeout(() => hnInput.classList.remove('ring-red'), 2000);
+            scrollTo(hnInput);
+        } else {
+            hnError.classList.remove('show');
+        }
+
+        // First name
+        if (!document.getElementById('first-name').value.trim()) {
+            document.getElementById('first-name').classList.add('ring-red');
+            setTimeout(() => document.getElementById('first-name').classList.remove('ring-red'), 2000);
+            scrollTo(document.getElementById('first-name'));
+        }
+
+        // Last name
+        if (!document.getElementById('last-name').value.trim()) {
+            document.getElementById('last-name').classList.add('ring-red');
+            setTimeout(() => document.getElementById('last-name').classList.remove('ring-red'), 2000);
+            scrollTo(document.getElementById('last-name'));
+        }
+
+        // Age: at least one box filled
+        const ay = document.getElementById('age-y').value;
+        const am = document.getElementById('age-m').value;
+        const ad = document.getElementById('age-d').value;
+        if (!ay && !am && !ad) {
+            document.getElementById('age-error').classList.add('show');
+            scrollTo(document.getElementById('age-y'));
+        } else {
+            document.getElementById('age-error').classList.remove('show');
+        }
+
+        // Gender
+        if (!document.getElementById('gender').value) {
+            document.getElementById('gender-error').classList.add('show');
+            document.getElementById('gender').classList.add('ring-red');
+            setTimeout(() => document.getElementById('gender').classList.remove('ring-red'), 2000);
+            scrollTo(document.getElementById('gender'));
+        } else {
+            document.getElementById('gender-error').classList.remove('show');
+        }
+
+        // Chief Complaint
+        if (!document.getElementById('chief-complaint').value.trim()) {
+            document.getElementById('cc-error').classList.add('show');
+            scrollTo(document.getElementById('chief-complaint'));
+        } else {
+            document.getElementById('cc-error').classList.remove('show');
+        }
+
+        // ESI
+        if (!esiSelect.value) {
+            document.getElementById('esi-error').classList.add('show');
+            scrollTo(esiSelect);
+        } else {
+            document.getElementById('esi-error').classList.remove('show');
+        }
+
+        // If any error, abort
+        if (!ok || !hnVal ||
+            !document.getElementById('first-name').value.trim() ||
+            !document.getElementById('last-name').value.trim() ||
+            (!ay && !am && !ad) ||
+            !document.getElementById('gender').value ||
+            !document.getElementById('chief-complaint').value.trim() ||
+            !esiSelect.value
+        ) return;
+
+        // Success
+        lockHN();
+        const esiLevel = esiSelect.value;
+        if (ftActive)           setStatus('เข้าห้องตรวจ');
+        else if (esiLevel == 1) setStatus('กู้ชีพ');
+        else                    setStatus('รอตรวจ');
+
+        console.log('Patient registered (simulation)');
+    });
+
+});
+</script>
+</body>
+</html>

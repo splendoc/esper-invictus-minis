@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESPER INVICTUS · BBT ER</title>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>tailwind.config={darkMode:'class'}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;overflow:hidden;margin:0;scrollbar-width:thin;scrollbar-color:#1a2840 transparent}
+body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:flex;flex-direction:column}
+
+#hdr  {flex:0 0 56px;border-bottom:1px solid #1a2840;background:#080e17}
+#sit  {flex:0 0 auto;border-bottom:1px solid #1a2840;background:#0a1420}
+#tabs {flex:0 0 44px;border-bottom:1px solid #1a2840;background:#080e17}
+#sfilter{flex:0 0 auto;border-bottom:1px solid #1a2840;background:#080e17;padding:6px 12px;display:none;gap:6px;overflow-x:auto;flex-wrap:nowrap;align-items:center}
+#sfilter::-webkit-scrollbar{height:0}
+.sf-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;border:1px solid #1a2840;background:transparent;color:#6b8ba4;font-family:'Sarabun','Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.02em;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:border-color .15s,color .15s,background .15s}
+.sf-chip:hover{border-color:#3a5a7a;color:#dde6f0}
+.sf-chip.on{background:#0c1e3a;border-color:#0ea5e9;color:#dde6f0}
+.sf-cnt{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:1px 5px;border-radius:8px;background:#1a2840;color:#6b8ba4}
+.sf-chip.on .sf-cnt{background:#0ea5e920;color:#7dd3fc}
+#cards{flex:1 1 0;overflow-y:auto;overflow-x:hidden;padding:8px 12px 16px;display:flex;flex-direction:column;gap:6px;min-height:0}
+#cards::-webkit-scrollbar{width:4px}
+#cards::-webkit-scrollbar-track{background:transparent}
+#cards::-webkit-scrollbar-thumb{background:#1a2840;border-radius:2px}
+#cards::-webkit-scrollbar-thumb:hover{background:#2a3f5a}
+#qv::-webkit-scrollbar{width:3px}
+#qv::-webkit-scrollbar-track{background:transparent}
+#qv::-webkit-scrollbar-thumb{background:#1a2840;border-radius:2px}
+
+.mono{font-family:'IBM Plex Mono',monospace}
+.raj {font-family:'Rajdhani',sans-serif}
+
+/* ESI */
+.esi-c-1{background:#ef4444}.esi-c-2{background:#ec4899}.esi-c-3{background:#eab308}.esi-c-4{background:#22c55e}.esi-c-5{background:#3b82f6}
+.esi-b-1{border-left:3px solid #ef4444}.esi-b-2{border-left:3px solid #ec4899}.esi-b-3{border-left:3px solid #eab308}.esi-b-4{border-left:3px solid #22c55e}.esi-b-5{border-left:3px solid #3b82f6}
+
+/* Breach colours */
+.bc-ok{color:#22c55e}.bc-am{color:#f59e0b}.bc-rd{color:#ef4444}
+@keyframes scanline{0%,100%{top:20%}50%{top:80%}}
+@keyframes card-ping{0%{box-shadow:0 0 0 2px rgba(255,255,255,.7),0 0 0 4px rgba(255,255,255,.15)}50%{box-shadow:0 0 0 3px rgba(255,255,255,.5),0 0 18px rgba(255,255,255,.12)}100%{box-shadow:0 0 0 2px rgba(255,255,255,.7),0 0 0 4px rgba(255,255,255,.15)}}
+.card-highlight{animation:card-ping .9s ease-in-out infinite}
+.bc-pulse{animation:blink 1.4s ease-in-out infinite}
+
+/* Vitals */
+.v-ok{color:#dde6f0}.v-hi{color:#f59e0b}.v-lo{color:#ef4444}.v-gn{color:#22c55e}
+.map-ok{color:#22c55e}.map-hi{color:#f59e0b}.map-lo{color:#ef4444}
+
+/* SpO2 source badges */
+.src-RA {background:#0d2540;color:#60a5fa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;font-family:'IBM Plex Mono',monospace}
+.src-CNN{background:#0d2a14;color:#4ade80;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;font-family:'IBM Plex Mono',monospace}
+.src-MCB{background:#261535;color:#c084fc;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;font-family:'IBM Plex Mono',monospace}
+.src-ETT{background:#2a0d0d;color:#fca5a5;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;font-family:'IBM Plex Mono',monospace}
+
+/* Status pills */
+.sp{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em}
+.sp-resus   {background:#4c0a0a;color:#fca5a5;border:1px solid #7f1d1d}
+.sp-active  {background:#052e16;color:#86efac;border:1px solid #14532d}
+.sp-observe {background:#422006;color:#fde68a;border:1px solid #92400e}
+.sp-lab     {background:#1a1a40;color:#a5b4fc;border:1px solid #312e81}
+.sp-imaging {background:#1a1a40;color:#a5b4fc;border:1px solid #312e81}
+.sp-waiting {background:#0c1e3a;color:#93c5fd;border:1px solid #1e3a5f}
+.sp-dispo   {background:#1a0f40;color:#c4b5fd;border:1px solid #4c1d95}
+.sp-notfound{background:#3b2500;color:#fcd34d;border:1px solid #92400e}
+.sp-default {background:#111c2a;color:#64748b;border:1px solid #1a2840}
+
+/* Cards */
+.pcard{background:#0f1a27;border-radius:7px;overflow:visible;transition:box-shadow .15s,background .15s;flex-shrink:0}
+.pcard:hover{background:#152233;box-shadow:0 0 0 1px #2a4a6a,0 8px 32px rgba(0,0,0,.6)}
+.pcard-sel{background:#0d2035 !important;box-shadow:0 0 0 1px #0ea5e9,0 8px 32px rgba(14,165,233,.15) !important}
+.z1{cursor:pointer}
+.pcard:hover .pt-name,.pcard-sel .pt-name{color:#7dd3fc;transition:color .15s}
+
+/* Strip inputs */
+.si{background:#070e18;border:1px solid #1a2840;border-radius:4px;color:#dde6f0;font-family:'IBM Plex Mono',monospace;font-size:14px;text-align:center;padding:3px 2px;width:100%;outline:none}
+.si:focus{border-color:#0ea5e9}
+.si::placeholder{color:#6b8ba4}
+
+/* Buttons */
+.qs-btn{background:linear-gradient(135deg,#0369a1,#0ea5e9);border:none;border-radius:5px;color:#fff;font-size:14px;font-weight:700;padding:0 14px;height:30px;cursor:pointer;white-space:nowrap;font-family:'Rajdhani',sans-serif;letter-spacing:.04em;display:flex;align-items:center;gap:5px;flex-shrink:0}
+.qs-btn:hover{opacity:.85}
+.st-btn{background:transparent;border:1px solid #1a2840;border-radius:5px;font-size:14px;font-weight:700;padding:0 10px;height:30px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:'Rajdhani',sans-serif;letter-spacing:.04em;transition:border-color .15s;flex-shrink:0}
+.st-btn:hover{border-color:#6b8ba4}
+
+/* Tabs */
+.tab-btn{height:100%;padding:0 14px;border:none;background:transparent;color:#6b8ba4;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12px;letter-spacing:.07em;cursor:pointer;position:relative;transition:color .15s}
+.tab-btn.on{color:#dde6f0}
+.tab-btn.on::after{content:'';position:absolute;bottom:0;left:14px;right:14px;height:2px;background:#0ea5e9;border-radius:1px 1px 0 0}
+.tcnt{font-size:10px;font-weight:700;padding:1px 4px;border-radius:8px;margin-left:4px;font-family:'IBM Plex Mono',monospace;vertical-align:middle}
+.tc-w{background:#0c1e3a;color:#93c5fd}
+.tc-a{background:#052e16;color:#86efac}
+.tc-d{background:#1a0f40;color:#c4b5fd}
+.tc-f{background:#111c2a;color:#7a9ab8}
+
+/* Quick View */
+#qv{position:fixed;top:0;right:0;width:330px;height:100vh;background:#0c1520;border-left:1px solid #1a2840;z-index:100;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+#qv.open{transform:translateX(0)}
+#bd{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;display:none}
+#bd.on{display:block}
+.qv-grp{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b8ba4;padding:10px 16px 4px;font-family:'Rajdhani','Sarabun',sans-serif}
+.qv-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;transition:background .1s;border-left:2px solid transparent}
+.qv-item:hover{background:#0f1a27}
+.qv-item.sel{background:#0a1e30;border-left-color:#0ea5e9}
+.qv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;right:20px;z-index:200;background:#0c1520;border:1px solid #1a2840;border-radius:8px;padding:9px 14px;font-size:13px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.04em;transform:translateY(60px);opacity:0;transition:transform .2s,opacity .2s;pointer-events:none;display:flex;align-items:center;gap:8px;max-width:280px}
+#toast.on{transform:translateY(0);opacity:1}
+
+/* Trend */
+@keyframes pulse-a{0%,100%{opacity:1}50%{opacity:.35}}
+.tr-w{color:#f59e0b;animation:pulse-a 1.5s ease-in-out infinite}
+.tr-s{color:#6b8ba4}
+.tr-i{color:#22c55e}
+
+/* ── Header: logo popover ── */
+#logo-wrap{position:relative;flex-shrink:0}
+#logo-btn{display:flex;align-items:center;gap:10px;cursor:pointer;background:none;border:none;padding:4px 10px 4px 0;border-radius:8px;transition:background .15s}
+#logo-btn:hover{background:rgba(255,255,255,.04)}
+#logo-pop{position:absolute;top:calc(100% + 6px);left:0;background:#0d1826;border:1px solid #1a2840;border-radius:10px;min-width:224px;box-shadow:0 16px 48px rgba(0,0,0,.85);z-index:300;overflow:hidden;display:none}
+#logo-pop.open{display:block}
+.pop-hdr{padding:8px 14px 6px;border-bottom:1px solid #1a2840}
+.pop-hdr-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b8ba4}
+.pop-row{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .12s}
+.pop-row:hover{background:#0f1e30}
+.pop-ico{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pop-lbl{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em}
+.pop-sub{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:500;letter-spacing:.04em;color:#6b8ba4;margin-top:2px}
+.pop-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}
+
+/* Sit panels */
+.sit-panel{background:#0d1a28;border:1px solid #162436;border-radius:10px;padding:10px 14px;flex:1;min-width:0;display:flex;flex-direction:column;min-height:158px}
+.sit-panel-title{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#4a6a88;text-transform:uppercase;margin-bottom:8px;white-space:nowrap}
+.sit-esi-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
+.sit-esi-lbl{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em}
+.sit-esi-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;min-width:62px;text-align:right}
+.sit-counts{display:flex;flex-direction:column;gap:4px;padding:8px 16px;border-right:1px solid #1a2840;justify-content:center;flex-shrink:0}
+.sit-count-row{display:flex;align-items:baseline;gap:6px}
+.sit-count-num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:#dde6f0;line-height:1}
+.sit-count-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:#4a6a88;letter-spacing:.1em;text-transform:uppercase}
+
+/* QV inline edit fields */
+.qv-edit-row{display:flex;align-items:center;gap:8px;padding:7px 16px;border-top:1px solid #0d1e2e}
+.qv-edit-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4a6a88;width:36px;flex-shrink:0}
+.qv-edit-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#7dd3fc;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qv-edit-val.empty{color:#2a4a62;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em}
+.qv-edit-btn{background:none;border:none;cursor:pointer;color:#2a4a62;font-size:11px;padding:2px 5px;border-radius:4px;transition:color .15s,background .15s;flex-shrink:0}
+.qv-edit-btn:hover{color:#93c5fd;background:#0a1e30}
+.qv-field-wrap{display:none;flex:1;align-items:center;gap:6px}
+.qv-field-wrap.open{display:flex}
+.qv-fi{background:#070e18;border:1px solid #1a2840;border-radius:5px;color:#dde6f0;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 8px;width:100%;outline:none;min-width:0}
+.qv-fi:focus{border-color:#0ea5e9}
+.qv-save-btn{background:#0ea5e9;border:none;border-radius:5px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;padding:4px 9px;cursor:pointer;flex-shrink:0;white-space:nowrap}
+.qv-save-btn:hover{opacity:.85}
+.qv-cancel-btn{background:none;border:none;color:#4a6a88;font-size:11px;cursor:pointer;padding:2px 4px;flex-shrink:0}
+.qv-cancel-btn:hover{color:#dde6f0}
+/* HN combo input */
+.qv-hn-combo{display:flex;align-items:center;background:#070e18;border:1px solid #1a2840;border-radius:5px;overflow:hidden;flex:1;min-width:0}
+.qv-hn-combo:focus-within{border-color:#0ea5e9}
+.qv-hn-pfx{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:#4a6a88;background:#0a1624;padding:4px 7px;border-right:1px solid #1a2840;flex-shrink:0;user-select:none;letter-spacing:.06em}
+.qv-hn-digits{background:transparent;border:none;color:#dde6f0;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 7px;width:100%;outline:none;min-width:0;letter-spacing:.1em}
+.qv-hn-digits::placeholder{color:#2a4a62;letter-spacing:.04em}
+.qv-hn-cnt{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#2a4a62;flex-shrink:0;white-space:nowrap;min-width:22px;text-align:right;transition:color .15s}
+.qv-lbl-fi{width:62px !important;flex-shrink:0 !important;font-family:'Sarabun',sans-serif !important;font-size:11px !important}
+.qv-ph-lbl-tag{font-family:'Sarabun',sans-serif;font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;background:#0a1624;color:#4a7298;border:1px solid #162030;white-space:nowrap;flex-shrink:0;max-width:60px;overflow:hidden;text-overflow:ellipsis}
+.qv-ph-row-disabled{opacity:.3;pointer-events:none}
+
+/* QV Confirm button states */
+#confirm-btn{width:100%;height:36px;border-radius:8px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;transition:opacity .15s,background .15s}
+#confirm-btn.can-confirm{background:#0ea5e9;color:#fff;}
+#confirm-btn.can-confirm:hover{opacity:.88}
+#confirm-btn.no-change{background:#111c2a;color:#3a5a7a;cursor:not-allowed;border:1px solid #1a2840}
+.hdr-div{width:1px;height:28px;background:#1a2840;flex-shrink:0}
+
+/* Header clock */
+#clock{font-size:15px;font-weight:600;letter-spacing:.06em;color:#e2eaf4}
+#dateD{font-size:12px;color:#6b8ba4;letter-spacing:.04em}
+
+/* New Patient button */
+.new-pt-btn{
+  display:flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%);
+  border:none;border-radius:7px;
+  color:#fff;font-family:'Rajdhani',sans-serif;
+  font-size:13px;font-weight:700;letter-spacing:.07em;
+  padding:0 16px;height:34px;cursor:pointer;flex-shrink:0;
+  box-shadow:0 2px 12px rgba(14,165,233,.25);
+  transition:opacity .15s,box-shadow .15s
+}
+.new-pt-btn:hover{opacity:.88;box-shadow:0 4px 18px rgba(14,165,233,.4)}
+
+/* Theme toggle */
+.theme-btn{
+  width:34px;height:34px;border-radius:7px;
+  border:1px solid #1e3047;background:rgba(255,255,255,.03);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;color:#6b8ba4;font-size:14px;
+  transition:border-color .15s,color .15s,background .15s
+}
+.theme-btn:hover{border-color:#3a5a7a;color:#93c5fd;background:rgba(255,255,255,.06)}
+
+/* Hospital badge */
+.hosp-badge{
+  display:flex;align-items:center;gap:10px;flex-shrink:0
+}
+.hosp-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#0a1e38,#0d2a50);
+  border:1px solid #1a3a60;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0
+}
+.hosp-name{font-size:12px;font-weight:700;color:#c8dff2;font-family:'Rajdhani',sans-serif;letter-spacing:.08em;line-height:1.1}
+.hosp-dept{font-size:10px;font-weight:700;color:#4a7298;font-family:'Rajdhani',sans-serif;letter-spacing:.1em;line-height:1.4;text-transform:uppercase}
+
+/* Brand text */
+.brand-name{
+  font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;
+  letter-spacing:.06em;line-height:1;
+  background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text
+}
+.brand-sub{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;
+  color:#3a6a8a;letter-spacing:.16em;line-height:1;margin-top:3px;text-transform:uppercase
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header id="hdr" class="flex items-center px-5 gap-4">
+
+  <!-- Logo with popover -->
+  <div id="logo-wrap">
+    <button id="logo-btn" onclick="toggleLogoPop()">
+
+      <!-- Full brand SVG from static_logo (scaled to 38px) -->
+      <svg width="34" height="34" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <circle cx="40" cy="40" r="38" stroke="url(#lg1)" stroke-width="2" fill="none" opacity="0.7"/>
+        <circle cx="40" cy="40" r="28" fill="url(#lg2)" opacity="0.92"/>
+        <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+        <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+        <circle cx="40" cy="18" r="3" fill="url(#lg3)" opacity="0.85"/>
+        <circle cx="62" cy="40" r="2.5" fill="url(#lg3)" opacity="0.65"/>
+        <circle cx="40" cy="62" r="2" fill="url(#lg3)" opacity="0.45"/>
+        <circle cx="18" cy="40" r="2.5" fill="url(#lg3)" opacity="0.65"/>
+        <defs>
+          <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#FCD34D"/>
+            <stop offset="33%"  stop-color="#F59E0B"/>
+            <stop offset="66%"  stop-color="#D97706"/>
+            <stop offset="100%" stop-color="#B45309"/>
+          </linearGradient>
+          <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#F59E0B"/>
+            <stop offset="50%"  stop-color="#D97706"/>
+            <stop offset="100%" stop-color="#B45309"/>
+          </linearGradient>
+          <linearGradient id="lg3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#FCD34D"/>
+            <stop offset="100%" stop-color="#F59E0B"/>
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <!-- Brand text -->
+      <div style="text-align:left">
+        <div class="brand-name">ESPER INVICTUS</div>
+        <div class="brand-sub">Floor · MINIS</div>
+      </div>
+    </button>
+
+    <!-- Popover -->
+    <div id="logo-pop">
+      <div class="pop-hdr"><div class="pop-hdr-lbl">Public Display</div></div>
+      <div class="pop-row" onclick="window.open('TOOeasyPUBLICVIEW.html','_blank')">
+        <div class="pop-ico" style="background:#0c1e3a">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2.5" width="8" height="8" rx="1.5" stroke="#0ea5e9" stroke-width="1.2"/><path d="M8 6l4.5-4.5M9.5 1.5H12.5v3" stroke="#0ea5e9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="pop-lbl" style="color:#dde6f0">New window</div>
+          <div class="pop-sub">Waiting board · public view</div>
+        </div>
+        <span class="pop-badge" style="background:#0c1e3a;color:#0ea5e9">↗</span>
+      </div>
+      <div class="pop-row" onclick="window.location.href='TOOeasyPUBLICVIEW.html'">
+        <div class="pop-ico" style="background:#111c2a">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5" stroke="#6b8ba4" stroke-width="1.2"/><path d="M5 7h4" stroke="#6b8ba4" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="pop-lbl" style="color:#7a9ab8">This tab</div>
+          <div class="pop-sub">Leaves floor view</div>
+        </div>
+        <span class="pop-badge" style="background:#111c2a;color:#6b8ba4">→</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hdr-div"></div>
+
+  <!-- Clock + date -->
+  <div class="flex items-center gap-3 flex-shrink-0">
+    <div class="flex flex-col" style="line-height:1">
+      <span id="clock" class="mono"></span>
+      <span id="dateD" class="mono" style="font-size:10px;color:#4a6a88;letter-spacing:.05em;margin-top:2px"></span>
+    </div>
+  </div>
+
+  <div class="flex-1"></div>
+
+  <!-- New Patient -->
+  <button class="new-pt-btn" onclick="showToast('New Patient — Triage form coming soon','#0ea5e9','fa-user-plus')">
+    <i class="fas fa-plus" style="font-size:11px"></i> New Patient
+  </button>
+
+  <!-- Theme toggle -->
+  <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">
+    <i id="themeIcon" class="fas fa-moon"></i>
+  </button>
+
+  <div class="hdr-div"></div>
+
+  <!-- Hospital identity -->
+  <div class="hosp-badge">
+    <div class="hosp-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 2v12M2 8h12" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
+        <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="#1e4a80" stroke-width="1"/>
+      </svg>
+    </div>
+    <div>
+      <div class="hosp-name">Bangbuatong</div>
+      <div class="hosp-dept">Emergency</div>
+    </div>
+  </div>
+</header>
+
+
+<!-- ══════════════ SITUATION BAR ══════════════ -->
+<section id="sit" class="flex items-stretch gap-3 px-4 py-3" style="border-bottom:1px solid #1a2840;background:#080e17">
+
+  <!-- W / A large-number display -->
+  <div class="flex items-center flex-shrink-0" style="border-right:1px solid #162436;margin-right:4px;padding-right:4px;align-self:center">
+    <div style="display:flex;flex-direction:column;justify-content:center;padding:10px 20px 10px 4px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;color:#5a8ab8;text-transform:uppercase;margin-bottom:4px">Waiting</div>
+      <div id="cnt-w" style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:#93c5fd;line-height:1">0</div>
+    </div>
+    <div style="width:1px;background:#162436;align-self:stretch;margin:8px 0"></div>
+    <div style="display:flex;flex-direction:column;justify-content:center;padding:10px 20px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;color:#4a9070;text-transform:uppercase;margin-bottom:4px">Active</div>
+      <div id="cnt-a" style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:#86efac;line-height:1">0</div>
+    </div>
+  </div>
+
+  <!-- Active by ESI -->
+  <div class="sit-panel">
+    <div class="sit-panel-title">Active Patients</div>
+    <div id="sp-act"></div>
+  </div>
+
+  <!-- Waiting Patients by ESI -->
+  <div class="sit-panel">
+    <div class="sit-panel-title">Waiting Patients</div>
+    <div id="sp-wait"></div>
+  </div>
+
+  <!-- Avg Wait Time by ESI -->
+  <div class="sit-panel">
+    <div class="sit-panel-title">Avg. Wait Time</div>
+    <div id="sp-avg"></div>
+  </div>
+
+  <!-- Longest Wait by ESI -->
+  <div class="sit-panel">
+    <div class="sit-panel-title">Longest Wait</div>
+    <div id="sp-lw"></div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════ TABS ══════════════ -->
+<nav id="tabs" class="flex items-center px-2">
+  <button class="tab-btn on" data-tab="waiting"   onclick="switchTab(this)"><i class="far fa-clock" style="font-size:12px;margin-right:6px"></i>WAITING   <span class="tcnt tc-w" id="tc-w">0</span></button>
+  <button class="tab-btn"    data-tab="active"    onclick="switchTab(this)"><i class="fas fa-procedures" style="font-size:11px;margin-right:6px"></i>ACTIVE    <span class="tcnt tc-a" id="tc-a">0</span></button>
+  <button class="tab-btn"    data-tab="finalized" onclick="switchTab(this)"><i class="fas fa-check-double" style="font-size:11px;margin-right:6px"></i>FINALIZED <span class="tcnt tc-f" id="tc-f">0</span></button>
+  <div class="flex-1"></div>
+  <div class="relative mr-1" style="display:flex;align-items:center">
+    <i class="fas fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2" style="font-size:10px;color:#4a6a88;pointer-events:none"></i>
+    <input id="srch" type="text" placeholder="HN / Name…" oninput="renderCards();document.getElementById('srch-clr').style.display=this.value?'flex':'none'" autocomplete="off"
+      class="h-7 pl-7 pr-6 rounded-lg outline-none border"
+      style="background:#0a1420;border-color:#1a2840;color:#6b8ba4;width:160px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;transition:border-color .15s,color .15s"
+      onfocus="this.style.borderColor='#0ea5e9';this.style.color='#dde6f0'"
+      onblur="this.style.borderColor='#1a2840';this.style.color=this.value?'#dde6f0':'#6b8ba4'">
+    <button id="srch-clr" onclick="clearSearch()" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#4a6a88;padding:0;line-height:1;font-size:11px" onmouseover="this.style.color='#dde6f0'" onmouseout="this.style.color='#4a6a88'">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Barcode scan button -->
+  <button id="scan-btn" onclick="openScanner()" title="Scan barcode" class="h-7 px-2.5 rounded-lg border flex items-center justify-center flex-shrink-0 mr-1"
+    style="border-color:#1a2840;color:#6b8ba4;background:transparent;cursor:pointer;transition:border-color .15s,color .15s"
+    onmouseover="this.style.borderColor='#3a5a7a';this.style.color='#93c5fd'"
+    onmouseout="this.style.borderColor='#1a2840';this.style.color='#6b8ba4'">
+    <i class="fas fa-barcode" style="font-size:14px"></i>
+  </button>
+
+  <!-- Filter dropdown -->
+  <div style="position:relative;flex-shrink:0;margin-right:8px;display:flex;align-items:center;gap:4px" id="esi-dd-wrap">
+    <button id="esi-dd-btn" onclick="toggleEsiDD()" class="h-7 px-3 rounded-lg border flex items-center gap-1.5 flex-shrink-0" style="border-color:#1a2840;color:#6b8ba4;background:transparent;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;transition:color .15s,border-color .15s">
+      <i class="fas fa-sliders" style="font-size:10px"></i>
+      <span id="esi-dd-label">Filter</span>
+      <i class="fas fa-chevron-down" style="font-size:8px"></i>
+    </button>
+    <button id="esi-clr" onclick="setEsiFilter('all')" style="display:none;background:none;border:none;cursor:pointer;color:#4a6a88;padding:2px 4px;font-size:11px;line-height:1" onmouseover="this.style.color='#dde6f0'" onmouseout="this.style.color='#4a6a88'" title="Clear filter">
+      <i class="fas fa-times"></i>
+    </button>
+    <div id="esi-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#0d1826;border:1px solid #1a2840;border-radius:10px;min-width:160px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:200;overflow:hidden">
+      <div style="padding:7px 14px 5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4a6a88;border-bottom:1px solid #1a2840">Filter by ESI</div>
+      <div onclick="setEsiFilter('all')" data-esi="all" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
+        <span style="width:8px;height:8px;border-radius:50%;background:#dde6f0;display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">All</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9"></i>
+      </div>
+      <div onclick="setEsiFilter(1)" data-esi="1" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
+        <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 1</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+      </div>
+      <div onclick="setEsiFilter(2)" data-esi="2" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
+        <span style="width:8px;height:8px;border-radius:50%;background:#ec4899;display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 2</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+      </div>
+      <div onclick="setEsiFilter(3)" data-esi="3" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
+        <span style="width:8px;height:8px;border-radius:50%;background:#eab308;display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 3</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+      </div>
+      <div onclick="setEsiFilter(4)" data-esi="4" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
+        <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 4</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+      </div>
+      <div onclick="setEsiFilter(5)" data-esi="5" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
+        <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 5</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ══════════════ STATUS FILTER (active tab only) ══════════════ -->
+<div id="sfilter"></div>
+
+
+<!-- ══════════════ CARDS ══════════════ -->
+<main id="cards"></main>
+
+
+<!-- ══════════════ QUICK VIEW ══════════════ -->
+<div id="bd" onclick="closeQV()"></div>
+<aside id="qv">
+  <div class="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840">
+    <span class="raj font-700 text-base text-white tracking-widest uppercase">Status Update</span>
+    <button onclick="closeQV()" style="color:#6b8ba4;background:none;border:none;cursor:pointer;font-size:14px"><i class="fas fa-times"></i></button>
+  </div>
+  <div id="qv-pt" class="px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840"></div>
+  <div id="qv-opts" class="flex-1 overflow-y-auto"></div>
+  <div class="px-4 py-3 border-t flex-shrink-0" style="border-color:#1a2840">
+    <div id="qv-prev" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88;margin-bottom:8px;min-height:14px;letter-spacing:.04em"></div>
+    <button id="confirm-btn" onclick="confirmStatus()" class="no-change">
+      Confirm Update
+    </button>
+  </div>
+</aside>
+
+
+<!-- ══════════════ BARCODE SCANNER ══════════════ -->
+<div id="scan-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+  <div style="position:relative;width:320px;border-radius:12px;overflow:hidden;border:1px solid #1a2840">
+    <video id="scan-video" autoplay playsinline style="width:100%;display:block;background:#000"></video>
+    <!-- scanning line -->
+    <div id="scan-line" style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#0ea5e9,transparent);top:50%;animation:scanline 1.8s ease-in-out infinite"></div>
+    <!-- corner marks -->
+    <div style="position:absolute;top:12px;left:12px;width:20px;height:20px;border-top:2px solid #0ea5e9;border-left:2px solid #0ea5e9;border-radius:2px 0 0 0"></div>
+    <div style="position:absolute;top:12px;right:12px;width:20px;height:20px;border-top:2px solid #0ea5e9;border-right:2px solid #0ea5e9;border-radius:0 2px 0 0"></div>
+    <div style="position:absolute;bottom:12px;left:12px;width:20px;height:20px;border-bottom:2px solid #0ea5e9;border-left:2px solid #0ea5e9;border-radius:0 0 0 2px"></div>
+    <div style="position:absolute;bottom:12px;right:12px;width:20px;height:20px;border-bottom:2px solid #0ea5e9;border-right:2px solid #0ea5e9;border-radius:0 0 2px 0"></div>
+  </div>
+  <div id="scan-status" style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;color:#6b8ba4">SCANNING FOR BARCODE…</div>
+  <button onclick="closeScanner()" style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;color:#6b8ba4;background:transparent;border:1px solid #1a2840;border-radius:6px;padding:6px 18px;cursor:pointer">CANCEL</button>
+</div>
+
+
+<!-- ══════════════ TOAST ══════════════ -->
+<div id="toast">
+  <i id="t-icon" class="fas fa-check-circle" style="color:#22c55e"></i>
+  <span id="t-msg"></span>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const ESI_CLR  = {1:'#ef4444',2:'#ec4899',3:'#eab308',4:'#22c55e',5:'#3b82f6'};
+const ESI_AMB  = {1:0,  2:10,  3:120, 4:240, 5:240};  // amber (min): ESI3=2h, ESI4/5=4h
+const ESI_RED  = {1:0,  2:15,  3:180, 4:300, 5:300};  // red   (min): ESI3=3h, ESI4/5=5h
+
+// status definitions — pub: what PublicView displays (omit = use label)
+const SC = {
+  // ── ACTIVE ──
+  'กู้ชีพ'                        :{label:'กู้ชีพ',                       dot:'#ef4444', pill:'sp-resus'},
+  'เข้าห้องตรวจ'                  :{label:'เข้าห้องตรวจ',                 dot:'#22c55e', pill:'sp-active'},
+  'สังเกตอาการ'                   :{label:'สังเกตอาการ',                   dot:'#f59e0b', pill:'sp-observe'},
+  'ส่งเอ็กซ์เรย์'                 :{label:'ส่ง X-Rays',                   dot:'#60a5fa', pill:'sp-lab',     pub:'ส่งเอ็กซ์เรย์ (X-Rays)'},
+  'ส่งเอ็กซ์เรย์คอมพิวเตอร์'     :{label:'ส่ง CT',                       dot:'#818cf8', pill:'sp-lab',     pub:'ส่งเอ็กซ์เรย์คอมพิวเตอร์ (CT)'},
+  'ทำหัตถการ'                     :{label:'ทำหัตถการ',                     dot:'#f59e0b', pill:'sp-observe'},
+  // ── CONSULT ──
+  'ปรึกษาแพทย์เฉพาะทาง'          :{label:'Consult',                      dot:'#60a5fa', pill:'sp-lab',     pub:'ปรึกษาแพทย์เฉพาะทาง'},
+  'ติดต่อส่งตัวโรงพยาบาลอื่น'    :{label:'ติดต่อ Refer',                 dot:'#60a5fa', pill:'sp-lab',     pub:'ติดต่อส่งตัวโรงพยาบาลอื่น'},
+  // ── WAIT ──
+  'รอผลตรวจ'                      :{label:'รอผลตรวจ',                     dot:'#818cf8', pill:'sp-lab'},
+  'รอส่งตัวโรงพยาบาลอื่น'        :{label:'รอ Refer',                     dot:'#a78bfa', pill:'sp-dispo',   pub:'รอส่งตัวโรงพยาบาลอื่น'},
+  'รอขึ้นหอผู้ป่วย'               :{label:'รอ Admit',                     dot:'#a78bfa', pill:'sp-dispo',   pub:'รอขึ้นหอผู้ป่วย'},
+  'รอทำหัตถการ'                   :{label:'รอทำหัตถการ',                  dot:'#f59e0b', pill:'sp-observe'},
+  'รอเอกสาร'                      :{label:'รอเอกสาร',                     dot:'#6b8ba4', pill:'sp-default'},
+  'รอชำระเงิน'                    :{label:'รอชำระเงิน',                   dot:'#6b8ba4', pill:'sp-default'},
+  'รอรับยา'                       :{label:'รอรับยา',                      dot:'#6b8ba4', pill:'sp-default'},
+  // ── ADMIT → FINALIZED ──
+  'ICU'                           :{label:'Admit ICU',                    dot:'#a78bfa', pill:'sp-dispo',   pub:'ขึ้นหอผู้ป่วย'},
+  'วอร์ดชาย'                      :{label:'Admit วอร์ดชาย',               dot:'#22c55e', pill:'sp-active',  pub:'ขึ้นหอผู้ป่วย'},
+  'วอร์ดหญิง'                     :{label:'Admit วอร์ดหญิง',              dot:'#22c55e', pill:'sp-active',  pub:'ขึ้นหอผู้ป่วย'},
+  'วอร์ดพิเศษชั้น 6'             :{label:'Admit วอร์ดพิเศษชั้น 6',       dot:'#22c55e', pill:'sp-active',  pub:'ขึ้นหอผู้ป่วย'},
+  'วอร์ดพิเศษชั้น 7'             :{label:'Admit วอร์ดพิเศษชั้น 7',       dot:'#22c55e', pill:'sp-active',  pub:'ขึ้นหอผู้ป่วย'},
+  'วอร์ดตา'                       :{label:'Admit วอร์ดตา',                dot:'#22c55e', pill:'sp-active',  pub:'ขึ้นหอผู้ป่วย'},
+  // ── DISCHARGE → FINALIZED ──
+  'Discharge'                     :{label:'Discharge',                    dot:'#22c55e', pill:'sp-active',  pub:'สิ้นสุดการรักษา'},
+  'ส่งแผนกผู้ป่วยนอก'            :{label:'ส่ง OPD',                      dot:'#60a5fa', pill:'sp-lab',     pub:'ส่งแผนกผู้ป่วยนอก'},
+  'ส่งห้องผ่าตัด'                 :{label:'ส่ง OR',                       dot:'#818cf8', pill:'sp-lab',     pub:'ส่งห้องผ่าตัด'},
+  'ส่งคลินิกโรคเรื้อรัง'         :{label:'ส่ง NCD',                      dot:'#60a5fa', pill:'sp-lab',     pub:'ส่งคลินิกโรคเรื้อรัง'},
+  'ส่งแผนกตา'                     :{label:'ส่ง OPD ตา',                   dot:'#60a5fa', pill:'sp-lab',     pub:'ส่งแผนกตา'},
+  'ส่งตัวโรงพยาบาลอื่น'          :{label:'Refer',                        dot:'#a78bfa', pill:'sp-dispo',   pub:'ส่งตัวโรงพยาบาลอื่น'},
+  'ปฏิเสธการรักษา'               :{label:'ปฏิเสธการรักษา',               dot:'#f59e0b', pill:'sp-observe', pub:'สิ้นสุดการรักษา'},
+  'เสียชีวิต'                     :{label:'เสียชีวิต',                    dot:'#6b8ba4', pill:'sp-default', pub:'สิ้นสุดการรักษา'},
+  // ── WAITING ──
+  'รอตรวจ'                        :{label:'รอเข้าห้องตรวจ',               dot:'#60a5fa', pill:'sp-waiting'},
+  'เรียกไม่พบ'                    :{label:'เรียกไม่พบ',                   dot:'#f59e0b', pill:'sp-notfound'},
+};
+function sc(s){return SC[s]||{label:s||'—',dot:'#6b8ba4',pill:'sp-default'};}
+
+const OPT = {
+  waiting:[
+    {g:'สถานะรอ',            items:['รอตรวจ','เรียกไม่พบ']},
+    {g:'ย้ายไป Active',      items:['กู้ชีพ','ส่งเอ็กซ์เรย์','รอผลตรวจ','เข้าห้องตรวจ']},
+    {g:'ปิดเคส → Finalized', items:['เรียกไม่พบ']},
+  ],
+  active:[
+    {g:'Active',                items:['กู้ชีพ','สังเกตอาการ','เข้าห้องตรวจ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์','ทำหัตถการ']},
+    {g:'Consult',               items:['ปรึกษาแพทย์เฉพาะทาง','ติดต่อส่งตัวโรงพยาบาลอื่น']},
+    {g:'Wait',                  items:['รอผลตรวจ','รอขึ้นหอผู้ป่วย','รอส่งตัวโรงพยาบาลอื่น','รอทำหัตถการ','รอรับยา','รอเอกสาร','รอชำระเงิน']},
+    {g:'Admit → Finalized',     items:['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา']},
+    {g:'Discharge → Finalized', items:['Discharge','ส่งแผนกผู้ป่วยนอก','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา','ส่งตัวโรงพยาบาลอื่น','ส่งห้องผ่าตัด','ปฏิเสธการรักษา','เสียชีวิต','เรียกไม่พบ']},
+  ],
+  disposition:[],
+  finalized:[]
+};
+
+const WAITING_STATUSES   = new Set(['รอตรวจ','เรียกไม่พบ']);
+const FINAL_FROM_WAITING = new Set(['เรียกไม่พบ']);
+const DISPO_STATUSES     = new Set([]);
+const FINAL_FROM_ACTIVE  = new Set(['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา','Discharge','ส่งแผนกผู้ป่วยนอก','ส่งห้องผ่าตัด','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา','ส่งตัวโรงพยาบาลอื่น','ปฏิเสธการรักษา','เสียชีวิต','เรียกไม่พบ']);
+const FINAL_STATUSES     = new Set(['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา','Discharge','ส่งแผนกผู้ป่วยนอก','ส่งห้องผ่าตัด','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา','ส่งตัวโรงพยาบาลอื่น','ปฏิเสธการรักษา','เสียชีวิต','เรียกไม่พบ']);
+
+// ══════════════════════════════════════════
+// SEED DATA
+// ══════════════════════════════════════════
+let patients = [
+  /* ─── WAITING ─── */
+  {id:'W1',hn:'HN123456789',name:'นาย สมชาย ใจดี',     sex:'M',age:45,esi:1,tab:'waiting',   status:'รอตรวจ',phone:'081-234-5678',
+   cc:'ไข้สูง หายใจลำบาก เจ็บหน้าอก',waitMin:49,stayMin:49,
+   v:{bt:38.2,sbp:140,dbp:90, hr:95, rr:22,spo2:94,src:'CNN',lpm:5,  dtx:null},trend:'w',upd:'12:00'},
+  {id:'W2',hn:'HN345678901',name:'นาง สุดา รักดี',      sex:'F',age:62,esi:2,tab:'waiting',   status:'รอตรวจ',
+   cc:'เจ็บหน้าอก ใจสั่น หายใจไม่อิ่ม',waitMin:12,stayMin:12,
+   v:{bt:36.5,sbp:155,dbp:90, hr:100,rr:16,spo2:99,src:'RA', lpm:null,dtx:null},trend:'s',upd:'14:22'},
+  {id:'W3',hn:'HN789012345',name:'นางสาว มาลี สวยงาม', sex:'F',age:28,esi:3,tab:'waiting',   status:'เรียกไม่พบ',
+   cc:'ปวดท้องน้อยด้านขวา',waitMin:45,stayMin:45,
+   v:{bt:36.6,sbp:115,dbp:76, hr:82, rr:15,spo2:100,src:'RA',lpm:null,dtx:null},trend:'s',upd:'12:00'},
+  /* ─── ACTIVE ─── */
+  {id:'A1',hn:'HN001001001',name:'นาย วิชัย ขยันดี',    sex:'M',age:55,esi:2,tab:'active',    status:'กู้ชีพ',
+   cc:'ปวดท้องรุนแรง น้ำตาลสูง',waitMin:5,stayMin:120,
+   v:{bt:37.8,sbp:95, dbp:60, hr:118,rr:26,spo2:92,src:'MCB',lpm:10, dtx:320},trend:'w',upd:'01:30'},
+  {id:'A2',hn:'HN002002002',name:'นาง อรุณ แสงดาว',     sex:'F',age:72,esi:2,tab:'active',    status:'สังเกตอาการ',
+   cc:'หายใจเหนื่อย ขาบวม',waitMin:10,stayMin:200,
+   v:{bt:36.9,sbp:160,dbp:95, hr:102,rr:24,spo2:95,src:'CNN',lpm:4,  dtx:null},trend:'s',upd:'00:45'},
+  {id:'A3',hn:'HN003003003',name:'นายสมศักดิ์ ดีใจ',   sex:'M',age:33,esi:3,tab:'active',    status:'ส่งเอ็กซ์เรย์',
+   cc:'อุบัติเหตุ กระดูกแขนหัก',waitMin:15,stayMin:90,
+   v:{bt:36.7,sbp:130,dbp:80, hr:88, rr:16,spo2:98,src:'RA', lpm:null,dtx:null},trend:'i',upd:'01:10'},
+  {id:'A4',hn:'HN004004004',name:'นางสาว พิมพ์ใจ รักษ์ดี',sex:'F',age:19,esi:2,tab:'active',status:'ทำหัตถการ',
+   cc:'แพ้ยา ผื่น หายใจเหนื่อย',waitMin:8,stayMin:60,
+   v:{bt:37.1,sbp:110,dbp:70, hr:110,rr:20,spo2:97,src:'RA', lpm:null,dtx:null},trend:'i',upd:'01:35'},
+  {id:'A5',hn:'HN005005005',name:'นาย ประเสริฐ สุขสัน', sex:'M',age:68,esi:2,tab:'active',   status:'ปรึกษาแพทย์เฉพาะทาง',
+   cc:'เจ็บหน้าอก แน่นหน้าอก',waitMin:3,stayMin:180,
+   v:{bt:36.5,sbp:145,dbp:88, hr:76, rr:18,spo2:96,src:'RA', lpm:null,dtx:null},trend:'s',upd:'00:30'},
+  {id:'A6',hn:'HN006006006',name:'นาง ลัดดา มีสุข',     sex:'F',age:48,esi:3,tab:'active',   status:'รอผลตรวจ',
+   cc:'ปวดหัวรุนแรง อาเจียน',waitMin:22,stayMin:150,
+   v:{bt:36.8,sbp:170,dbp:100,hr:92, rr:17,spo2:98,src:'RA', lpm:null,dtx:null},trend:'s',upd:'00:55'},
+  {id:'A7',hn:'HN007007007',name:'ด.ช. ธนา ใจงาม',      sex:'M',age:7, esi:1,tab:'active',   status:'กู้ชีพ',
+   cc:'มีไข้สูง ชัก',waitMin:2,stayMin:45,
+   v:{bt:39.5,sbp:90, dbp:55, hr:145,rr:32,spo2:91,src:'ETT',lpm:15, dtx:null},trend:'w',upd:'01:38'},
+  {id:'A8',hn:'HN008008008',name:'นาย ก้องเกียรติ โชคดี',sex:'M',age:41,esi:3,tab:'active',  status:'สังเกตอาการ',
+   cc:'เบาหวาน น้ำตาลต่ำ เป็นลม',waitMin:30,stayMin:85,
+   v:{bt:36.6,sbp:118,dbp:72, hr:96, rr:16,spo2:99,src:'RA', lpm:null,dtx:42},trend:'i',upd:'01:20'},
+  /* ─── ACTIVE (previously disposition) ─── */
+  {id:'D1',hn:'HN009009009',name:'นาง รัตนา สวัสดี',    sex:'F',age:56,esi:2,tab:'active',status:'รอขึ้นหอผู้ป่วย',
+   cc:'ปอดอักเสบ หายใจลำบาก',waitMin:5,stayMin:300,
+   v:{bt:37.2,sbp:125,dbp:78, hr:88, rr:18,spo2:97,src:'CNN',lpm:3,  dtx:null},trend:'i',upd:'00:10'},
+  {id:'D2',hn:'HN010010010',name:'นาย สุเมธ ชัยมงคล',   sex:'M',age:64,esi:2,tab:'active',status:'รอผลตรวจ',
+   cc:'เจ็บหน้าอก ACS',waitMin:4,stayMin:240,
+   v:{bt:36.4,sbp:100,dbp:65, hr:95, rr:20,spo2:95,src:'MCB',lpm:6,  dtx:null},trend:'s',upd:'23:55'},
+  /* ─── FINALIZED ─── */
+  {id:'F1',hn:'HN011011011',name:'นางสาว ดาวรุ่ง ฟ้าสีคราม',sex:'F',age:24,esi:4,tab:'finalized',status:'Discharge',
+   cc:'ไมเกรน ปวดหัว',waitMin:30,stayMin:180,
+   v:{bt:36.5,sbp:110,dbp:70, hr:80, rr:14,spo2:99,src:'RA', lpm:null,dtx:null},trend:'i',upd:'22:30'},
+];
+
+// ── Migrate legacy phone field → phones:[{num,lbl},{num,lbl}] ──
+patients.forEach(p=>{
+  if(!p.phones){
+    const old=p.phone||'';
+    p.phones=[{num:old,lbl:''},{num:'',lbl:''}];
+  }
+  delete p.phone;
+});
+
+let activeTab    = 'waiting';
+let sortOn       = true;
+let esiFilter    = 'all';
+let statusFilter = 'all';
+let finalizedSort = 'desc'; // 'desc' = newest first, 'asc' = oldest first
+
+function renderSFilter(){
+  const bar = document.getElementById('sfilter');
+
+  // ── Finalized: sort toggle + status filter chips ──
+  if(activeTab === 'finalized'){
+    const list = patients.filter(p=>p.tab==='finalized');
+    const counts = {};
+    list.forEach(p=>{ counts[p.status]=(counts[p.status]||0)+1; });
+    const statuses = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+    const asc = finalizedSort === 'asc';
+
+    bar.style.display = 'flex';
+
+    let html = `
+      <button class="sf-chip${!asc?' on':''}" onclick="setFinalizedSort('desc')" style="gap:4px">
+        <i class="fas fa-arrow-down" style="font-size:9px"></i> Newest
+      </button>
+      <button class="sf-chip${asc?' on':''}" onclick="setFinalizedSort('asc')" style="gap:4px">
+        <i class="fas fa-arrow-up" style="font-size:9px"></i> Oldest
+      </button>
+      <span style="width:1px;height:18px;background:#1a2840;flex-shrink:0;margin:0 2px"></span>
+      <button class="sf-chip${statusFilter==='all'?' on':''}" onclick="setSFilter('all')">All <span class="sf-cnt">${list.length}</span></button>`;
+
+    statuses.forEach(s=>{
+      const cfg=sc(s);
+      const on=statusFilter===s;
+      html+=`<button class="sf-chip${on?' on':''}" onclick="setSFilter('${s.replace(/'/g,"\\'")}')">
+        <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};flex-shrink:0;display:inline-block"></span>
+        ${cfg.label} <span class="sf-cnt">${counts[s]}</span>
+      </button>`;
+    });
+
+    bar.innerHTML = html;
+    return;
+  }
+
+  if(activeTab !== 'active' && activeTab !== 'waiting'){ bar.style.display='none'; statusFilter='all'; return; }
+
+  const list = patients.filter(p=>p.tab===activeTab);
+  const counts = {};
+  list.forEach(p=>{ counts[p.status]=(counts[p.status]||0)+1; });
+  const statuses = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+
+  if(statuses.length <= 1){ bar.style.display='none'; return; }
+
+  bar.style.display='flex';
+  let html = `<button class="sf-chip${statusFilter==='all'?' on':''}" onclick="setSFilter('all')">All <span class="sf-cnt">${list.length}</span></button>`;
+  statuses.forEach(s=>{
+    const cfg=sc(s);
+    const on = statusFilter===s;
+    html+=`<button class="sf-chip${on?' on':''}" onclick="setSFilter('${s.replace(/'/g,"\\'")}')">
+      <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};flex-shrink:0;display:inline-block"></span>
+      ${cfg.label} <span class="sf-cnt">${counts[s]}</span>
+    </button>`;
+  });
+  bar.innerHTML=html;
+}
+
+function setFinalizedSort(dir){
+  finalizedSort = dir;
+  renderSFilter();
+  renderCards();
+}
+
+function setSFilter(val){
+  statusFilter=val;
+  renderSFilter();
+  renderCards();
+}
+
+function toggleEsiDD(){
+  const dd=document.getElementById('esi-dd');
+  dd.style.display=dd.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',e=>{
+  if(!document.getElementById('esi-dd-wrap').contains(e.target))
+    document.getElementById('esi-dd').style.display='none';
+});
+
+function clearSearch(){
+  const s=document.getElementById('srch');
+  s.value='';
+  s.style.borderColor='#1a2840';
+  s.style.color='#6b8ba4';
+  document.getElementById('srch-clr').style.display='none';
+  renderCards();
+}
+
+function setEsiFilter(val){
+  esiFilter=val;
+  document.getElementById('esi-dd').style.display='none';
+  document.querySelectorAll('.esi-filter-row').forEach(row=>{
+    const chk=row.querySelector('.esi-chk');
+    const isActive = row.dataset.esi===String(val);
+    chk.style.display=isActive?'inline':'none';
+    row.querySelector('span:nth-child(2)').style.color=isActive?'#dde6f0':'#7a9ab8';
+  });
+  const btn = document.getElementById('esi-dd-btn');
+  const lbl = document.getElementById('esi-dd-label');
+  const clr = document.getElementById('esi-clr');
+  if(val==='all'){
+    lbl.textContent='Filter';
+    btn.style.color='#6b8ba4';
+    btn.style.borderColor='#1a2840';
+    btn.style.background='transparent';
+    clr.style.display='none';
+  } else {
+    lbl.textContent='ESI '+val;
+    btn.style.color='#0ea5e9';
+    btn.style.borderColor='#0ea5e9';
+    btn.style.background='rgba(14,165,233,.08)';
+    clr.style.display='inline';
+  }
+  renderCards();
+}
+
+// ══════════════════════════════════════════
+let qvId      = null;
+let qvSel     = null;
+let qvGrp     = null;  // tracks which group the selected status came from
+
+// ══════════════════════════════════════════
+// THEME TOGGLE
+// ══════════════════════════════════════════
+function toggleTheme(){
+  const isDark=!document.documentElement.classList.contains('dark');
+  document.documentElement.classList.toggle('dark',isDark);
+  document.getElementById('themeIcon').className=isDark?'fas fa-moon':'fas fa-sun';
+  document.getElementById('themeToggle').style.color=isDark?'#6b8ba4':'#f59e0b';
+  localStorage.setItem('darkMode',isDark);
+}
+(function(){
+  const saved=localStorage.getItem('darkMode');
+  const isDark=saved===null?true:saved==='true';
+  document.documentElement.classList.toggle('dark',isDark);
+  document.addEventListener('DOMContentLoaded',function(){
+    const icon=document.getElementById('themeIcon');
+    const btn=document.getElementById('themeToggle');
+    if(icon) icon.className=isDark?'fas fa-moon':'fas fa-sun';
+    if(btn)  btn.style.color=isDark?'#6b8ba4':'#f59e0b';
+  });
+})();
+
+// ══════════════════════════════════════════
+// LOGO POPOVER
+// ══════════════════════════════════════════
+function toggleLogoPop(){
+  document.getElementById('logo-pop').classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  var wrap=document.getElementById('logo-wrap');
+  if(wrap&&!wrap.contains(e.target)) document.getElementById('logo-pop').classList.remove('open');
+});
+
+// ══════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════
+function tick(){
+  const n = new Date();
+  const p = v => String(v).padStart(2,'0');
+  document.getElementById('clock').textContent = p(n.getHours())+':'+p(n.getMinutes());
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][n.getMonth()];
+  document.getElementById('dateD').textContent = n.getDate()+' '+mo+' '+n.getFullYear();
+}
+setInterval(tick,1000); tick();
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+const fm = m => { if(m==null||isNaN(m))return'—'; const h=Math.floor(m/60),mn=Math.round(m%60); return h?`${h}h ${mn}m`:`${mn}m`; };
+const map = (s,d) => (s!=null&&d!=null)?Math.round((s+2*d)/3):null;
+const mapCls = v => !v?'':(v<65?'map-lo':v>100?'map-hi':'map-ok');
+const vtCls  = (v,lo,hi) => v==null?'':(v<lo?'v-lo':v>hi?'v-hi':'v-ok');
+const spo2Cls= v => v==null?'':(v<90?'v-lo':v<95?'v-hi':'v-gn');
+const sbpCls = v => v==null?'':(v>140?'v-hi':v<90?'v-lo':'v-ok');
+const dbpCls = v => v==null?'':(v>90?'v-hi':v<60?'v-lo':'v-ok');
+
+function breachCls(esi,min){
+  if(min==null)return'bc-ok';
+  if(min>=ESI_RED[esi]) return'bc-rd bc-pulse';
+  if(min>=ESI_AMB[esi]) return'bc-am';
+  return'bc-ok';
+}
+
+function trendIcon(t){
+  if(t==='w')return'<i class="fas fa-arrow-down tr-w" style="font-size:11px"></i>';
+  if(t==='i')return'<i class="fas fa-arrow-up tr-i" style="font-size:11px"></i>';
+  return'<i class="fas fa-minus tr-s" style="font-size:11px"></i>';
+}
+
+// ══════════════════════════════════════════
+// SITUATION BAR
+// ══════════════════════════════════════════
+function renderSit(){
+  const W = patients.filter(p=>p.tab==='waiting');
+  const A = patients.filter(p=>p.tab==='active');
+  const F = patients.filter(p=>p.tab==='finalized');
+
+  document.getElementById('cnt-w').textContent = W.length;
+  document.getElementById('cnt-a').textContent = A.length;
+  document.getElementById('tc-w').textContent  = W.length;
+  document.getElementById('tc-a').textContent  = A.length;
+  document.getElementById('tc-f').textContent  = F.length;
+
+  const ESI_NAMES = {1:'ESI 1',2:'ESI 2',3:'ESI 3',4:'ESI 4',5:'ESI 5'};
+  const EMPTY = `<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2a3f58">No data</div>`;
+
+  function esiRows(list, valFn, showBreach){
+    const esis = [1,2,3,4,5].filter(e=>list.some(p=>p.esi===e));
+    if(!esis.length) return EMPTY;
+    return esis.map(e=>{
+      const sub = list.filter(p=>p.esi===e);
+      const val = valFn(sub, e);
+      const inBreach = showBreach && sub.some(p=>p.waitMin >= ESI_RED[p.esi]);
+      return `<div class="sit-esi-row">
+        <span class="sit-esi-lbl" style="color:${ESI_CLR[e]}">${ESI_NAMES[e]}</span>
+        <span class="sit-esi-val${inBreach?' bc-rd bc-pulse':''}">${val}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function isWait(p){ return p.tab==='waiting'; }
+
+  // Panel 1 — Waiting count by ESI (no blink — count is a fact)
+  document.getElementById('sp-wait').innerHTML = esiRows(W, (sub)=> sub.length, false);
+
+  // Panel 2 — Avg wait time (blink if avg exceeds breach)
+  document.getElementById('sp-avg').innerHTML = esiRows(W, (sub,e)=>{
+    const avg = Math.round(sub.reduce((s,p)=>s+p.waitMin,0)/sub.length);
+    return fm(avg);
+  }, true);
+
+  // Panel 3 — Longest wait
+  document.getElementById('sp-lw').innerHTML = esiRows(W, (sub,e)=>{
+    const mx = Math.max(...sub.map(p=>p.waitMin));
+    return fm(mx);
+  }, true);
+
+  // Panel 4 — Active by ESI
+  document.getElementById('sp-act').innerHTML = esiRows(A, (sub)=> sub.length, false);
+}
+
+// ══════════════════════════════════════════
+// CARDS  — uniform size, all tabs
+// ══════════════════════════════════════════
+function buildCard(p){
+  const cfg     = sc(p.status);
+  const editable = p.tab !== 'finalized';
+
+  // Wait/Stay time — breach-aware color for waiting patients
+  const isWaiting = p.tab === 'waiting';
+  const timeMin   = isWaiting ? p.waitMin : p.stayMin;
+  const timeLabel = isWaiting ? `Wait ${fm(timeMin)}` : `Stay ${fm(timeMin)}`;
+  let   timeColor = '#dde6f0';
+  if(isWaiting){
+    if(timeMin >= ESI_RED[p.esi])       timeColor = '#ef4444';
+    else if(timeMin >= ESI_AMB[p.esi])  timeColor = '#f59e0b';
+    else                                 timeColor = '#22c55e';
+  }
+
+  // Zone 1 — compact: ESI · name+HN+age · CC · time
+  const Z1 = `<div class="flex items-center gap-3 px-3 py-2">
+
+    <!-- ESI circle -->
+    <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;line-height:1" class="esi-c-${p.esi}">${p.esi}</div>
+
+    <!-- Identity -->
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span class="pt-name" style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#dde6f0;line-height:1.3">${p.name}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#4e7a9a">${fmtHN(p.hn)}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5a7a90"> · ${p.sex} · ${p.age}y</span>
+      </div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:400;color:#7a9ab8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.cc}</div>
+    </div>
+
+    <!-- Time -->
+    <div style="flex-shrink:0;text-align:right;min-width:60px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:${timeColor};line-height:1;${isWaiting && timeMin>=ESI_RED[p.esi]?'animation:blink 1.4s ease-in-out infinite':''}">${fm(timeMin)}</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:${timeColor};opacity:.8;margin-top:2px;letter-spacing:.12em">${isWaiting?'WAIT':'STAY'}</div>
+    </div>
+
+  </div>`;
+
+  // Zone 2 — strip: status + action + Upd time
+  let Z2;
+  if(p.tab==='finalized'){
+    Z2 = `<div style="padding:4px 12px 7px;display:flex;align-items:center;gap:8px;border-top:1px solid #0a1420">
+      <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};display:inline-block;flex-shrink:0"></span>
+      <span class="${cfg.pill} sp" style="border:none;background:transparent;padding:0;font-size:12px">${cfg.label}</span>
+      <i class="fas fa-lock" style="font-size:9px;color:#2a4a62;margin-left:2px"></i>
+      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88">${p.upd||'—'}</span>
+    </div>`;
+  } else {
+    Z2 = `<div style="padding:4px 12px 7px;display:flex;align-items:center;gap:8px;border-top:1px solid #0a1420">
+      <button class="st-btn" style="height:26px;font-size:12px" onclick="openQV('${p.id}',event)">
+        <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};display:inline-block;flex-shrink:0"></span>
+        <span class="${cfg.pill} sp" style="border:none;background:transparent;padding:0;font-size:12px">${cfg.label}</span>
+        <i class="fas fa-chevron-down" style="font-size:8px;color:#6b8ba4;margin-left:2px"></i>
+      </button>
+      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88">Upd ${p.upd||'—'}</span>
+    </div>`;
+  }
+
+  return `<div class="pcard esi-b-${p.esi}" id="card-${p.id}"
+    onclick="${editable ? `openQV('${p.id}')` : `openFinalizedQV('${p.id}')`}" style="cursor:pointer">
+    ${Z1}${Z2}
+  </div>`;
+}
+
+function renderCards(){
+  const q = (document.getElementById('srch').value||'').toLowerCase();
+  let list = patients.filter(p=>p.tab===activeTab);
+  if(esiFilter!=='all') list=list.filter(p=>p.esi===Number(esiFilter));
+  if(statusFilter!=='all') list=list.filter(p=>p.status===statusFilter);
+  if(q) list=list.filter(p=>
+    p.name.toLowerCase().includes(q)||
+    p.hn.toLowerCase().includes(q)||
+    p.cc.toLowerCase().includes(q)
+  );
+  if(activeTab==='finalized'){
+    list=[...list].sort((a,b)=> finalizedSort==='asc'
+      ? (a.finalizedAt||0)-(b.finalizedAt||0)
+      : (b.finalizedAt||0)-(a.finalizedAt||0));
+  } else if(sortOn){
+    list=[...list].sort((a,b)=>a.esi-b.esi||(b.waitMin-a.waitMin));
+  }
+
+  document.getElementById('cards').innerHTML = list.length
+    ? list.map(buildCard).join('')
+    : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:60px 0;color:#6b8ba4">
+        <i class="fas fa-inbox" style="font-size:28px"></i>
+        <span class="raj font-600" style="font-size:14px;letter-spacing:.06em">No patients</span>
+       </div>`;
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function switchTab(btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  activeTab=btn.dataset.tab;
+  esiFilter='all';
+  statusFilter='all';
+  const filterBtn=document.getElementById('esi-dd-btn');
+  document.getElementById('esi-dd-label').textContent='Filter';
+  filterBtn.style.color='#6b8ba4';
+  filterBtn.style.borderColor='#1a2840';
+  filterBtn.style.background='transparent';
+  document.getElementById('esi-clr').style.display='none';
+  renderSFilter();
+  renderCards();
+}
+
+// ══════════════════════════════════════════
+// QUICK VIEW
+// ══════════════════════════════════════════
+function openQV(id,evt){
+  if(evt) evt.stopPropagation();
+  const p=patients.find(x=>x.id===id);
+  if(!p||p.tab==='finalized') return;
+  qvId=id; qvSel=p.status;
+
+  const cfg=sc(p.status);
+  document.getElementById('qv-pt').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;padding-bottom:10px">
+      <div style="width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px" class="esi-c-${p.esi}">${p.esi}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:#dde6f0;line-height:1.2">${p.name}</div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:#7a9ab8;margin-top:2px">${p.cc}</div>
+      </div>
+      <div style="flex-shrink:0;text-align:right">
+        <span class="sp ${cfg.pill}">${cfg.label}</span>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#6b8ba4;margin-top:5px">${p.tab==='waiting'?'Wait '+fm(p.waitMin):'Stay '+fm(p.stayMin)}</div>
+      </div>
+    </div>
+    ${_renderQVEditRows(p)}`;
+
+  // Status options
+  const groups=OPT[p.tab]||[];
+  let html='';
+  groups.forEach(grp=>{
+    html+=`<div class="qv-grp">${grp.g}</div>`;
+    grp.items.forEach(s=>{
+      const sg=sc(s), isSel=s===p.status;
+      const isResus = s==='กู้ชีพ';
+      const itemStyle = isResus ? 'border-left:2px solid rgba(239,68,68,0.3)' : '';
+      html+=`<div class="qv-item${isSel?' sel':''}" data-s="${s}" data-g="${grp.g}" onclick="selStatus('${s}','${grp.g}')" style="${itemStyle}">
+        <span class="qv-dot" style="background:${sg.dot}"></span>
+        <span style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:${isSel?600:400};color:${isResus?'#fca5a5':isSel?'#dde6f0':'#7a9ab8'}">${sg.label}</span>
+        ${isSel?'<i class="fas fa-check ml-auto" style="font-size:14px;color:#0ea5e9"></i>':''}
+      </div>`;
+    });
+  });
+  document.getElementById('qv-opts').innerHTML=html;
+  updatePrev();
+
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('pcard-sel'));
+  const selCard = document.getElementById('card-'+id);
+  if(selCard) selCard.classList.add('pcard-sel');
+  document.getElementById('qv').classList.add('open');
+  document.getElementById('bd').classList.add('on');
+}
+
+function selStatus(s,g){
+  qvSel=s; qvGrp=g||null;
+  document.querySelectorAll('.qv-item').forEach(el=>{
+    const isSel=el.dataset.s===s && el.dataset.g===g;
+    el.classList.toggle('sel',isSel);
+    const lbl=el.querySelector('span:nth-child(2)');
+    if(lbl){ lbl.style.color=isSel?'#dde6f0':'#7a9ab8'; lbl.style.fontWeight=isSel?600:400; }
+    const chk=el.querySelector('.fa-check');
+    if(isSel&&!chk){ const i=document.createElement('i'); i.className='fas fa-check ml-auto'; i.style.cssText='font-size:14px;color:#0ea5e9'; el.appendChild(i); }
+    if(!isSel&&chk) chk.remove();
+  });
+  updatePrev();
+}
+
+function updatePrev(){
+  const p=patients.find(x=>x.id===qvId);
+  if(!p) return;
+  const el=document.getElementById('qv-prev');
+  const btn=document.getElementById('confirm-btn');
+  const isClosing = qvGrp && qvGrp.includes('ปิดเคส');
+  if(qvSel===p.status && !isClosing){
+    el.innerHTML='<span style="font-family:\'Rajdhani\',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:#2a4a62">NO CHANGE</span>';
+    btn.className='no-change';
+    return;
+  }
+  const sg=sc(qvSel);
+  const changeLabel = isClosing && qvSel===p.status ? 'CLOSE CASE' : 'CHANGE TO';
+  el.innerHTML=`<span style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:#4a6a88">${changeLabel} <i class="fas fa-long-arrow-alt-right" style="margin:0 3px"></i></span><span class="sp ${sg.pill}">${sg.label}</span>`;
+  btn.className='can-confirm';
+}
+
+function confirmStatus(){
+  const p=patients.find(x=>x.id===qvId);
+  if(!p||!qvSel) return;
+  const isClosing = qvGrp && qvGrp.includes('ปิดเคส');
+  if(qvSel===p.status && !isClosing){ closeQV(); return; }
+
+  p.status=qvSel;
+  if(['active','waiting'].includes(p.tab) && (FINAL_FROM_ACTIVE.has(qvSel) || (isClosing && FINAL_FROM_WAITING.has(qvSel)))){
+    p.finalizedAt = Date.now();
+  }
+
+  // auto tab transition
+  if(p.tab==='waiting' && isClosing && FINAL_FROM_WAITING.has(qvSel)){
+    p.tab='finalized';
+  } else if(p.tab==='waiting' && !WAITING_STATUSES.has(qvSel)){
+    p.tab='active';
+  } else if(p.tab==='active' && DISPO_STATUSES.has(qvSel)){
+    p.tab='disposition';
+  } else if(p.tab==='active' && FINAL_FROM_ACTIVE.has(qvSel)){
+    p.tab='finalized';
+  } else if(p.tab==='disposition' && FINAL_STATUSES.has(qvSel)){
+    p.tab='finalized';
+  }
+
+  const nm = p.name.split(' ').slice(1).join(' ')||p.name;
+  const movedTo = p.tab;
+  const movedId = p.id;
+  closeQV();
+  renderSit();
+  renderSFilter();
+
+  // follow patient to new tab if they moved
+  if(movedTo !== activeTab){
+    const targetBtn = document.querySelector(`.tab-btn[data-tab="${movedTo}"]`);
+    if(targetBtn) switchTab(targetBtn);
+  } else {
+    renderCards();
+  }
+
+  // flash-highlight the updated card — always, whether tab changed or not
+  requestAnimationFrame(()=>{
+    const card = document.getElementById('card-'+movedId);
+    if(card){
+      card.scrollIntoView({behavior:'smooth',block:'nearest'});
+      card.classList.add('card-highlight');
+      setTimeout(()=>{
+        card.classList.remove('card-highlight');
+      },3500);
+    }
+  });
+
+  showToast(`${nm} → ${sc(qvSel).label}`, '#22c55e', 'fa-check-circle');
+}
+
+// ══════════════════════════════════════════
+// QV INLINE EDIT — HN
+// ══════════════════════════════════════════
+function qvHNOnInput(el){
+  // Strip any non-digit, cap at 9
+  el.value = el.value.replace(/\D/g,'').slice(0,9);
+  const cnt = document.getElementById('qv-hn-cnt');
+  const n   = el.value.length;
+  cnt.textContent = n+'/9';
+  cnt.className   = 'qv-hn-cnt' + (n===9?' full':n>0&&n<9?' err':'');
+}
+
+function toggleQVHNEdit(){
+  const wrap = document.getElementById('qv-hn-field-wrap');
+  const disp = document.getElementById('qv-hn-display');
+  const btn  = document.getElementById('qv-hn-edit-btn');
+  const open = wrap.classList.toggle('open');
+  disp.style.display = open ? 'none' : '';
+  btn.style.display  = open ? 'none' : '';
+  if(open){
+    const p   = patients.find(x=>x.id===qvId);
+    const inp = document.getElementById('qv-hn-input');
+    const cnt = document.getElementById('qv-hn-cnt');
+    // GEN → empty (user must enter fresh 9 digits)
+    // HN###### → extract the digits after "HN"
+    // anything else → digits only from whatever is there
+    const isGEN = p && p.hn.toUpperCase().startsWith('GEN');
+    if(isGEN){
+      inp.value = '';
+    } else {
+      // pull only digits (strips "HN" prefix automatically)
+      inp.value = (p ? p.hn.replace(/\D/g,'') : '').slice(0,9);
+    }
+    const n = inp.value.length;
+    cnt.textContent = n+'/9';
+    cnt.className   = 'qv-hn-cnt' + (n===9?' full':n>0?' err':'');
+    inp.focus();
+  }
+}
+
+function cancelQVHNEdit(){
+  const wrap = document.getElementById('qv-hn-field-wrap');
+  wrap.classList.remove('open');
+  document.getElementById('qv-hn-display').style.display = '';
+  document.getElementById('qv-hn-edit-btn').style.display = '';
+  // reset counter
+  const cnt = document.getElementById('qv-hn-cnt');
+  if(cnt){ cnt.textContent='0/9'; cnt.className='qv-hn-cnt'; }
+}
+
+function saveQVHN(){
+  const p   = patients.find(x=>x.id===qvId);
+  if(!p) return;
+  const inp = document.getElementById('qv-hn-input');
+  const digits = inp.value.replace(/\D/g,'');
+  if(digits.length !== 9){
+    // flash error on counter + shake input
+    const cnt = document.getElementById('qv-hn-cnt');
+    cnt.className = 'qv-hn-cnt err';
+    cnt.textContent = digits.length+'/9';
+    inp.style.color = '#ef4444';
+    setTimeout(()=>{ inp.style.color=''; }, 1000);
+    inp.focus();
+    return;
+  }
+  const newHN = 'HN' + digits;
+  p.hn = newHN;
+  document.getElementById('qv-hn-display').textContent = fmtHN(newHN);
+  cancelQVHNEdit();
+  renderCards();
+  showToast('HN → ' + fmtHN(newHN), '#0ea5e9', 'fa-id-card');
+}
+
+// ══════════════════════════════════════════
+// PHONE FORMAT HELPER
+// ══════════════════════════════════════════
+function fmtPhone(raw){
+  const d=String(raw||'').replace(/\D/g,'').slice(0,10);
+  if(d.length<=3)      return d;
+  if(d.length<=6)      return d.slice(0,3)+'-'+d.slice(3);
+  return d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6);
+}
+function fmtHN(hn){
+  // Accepts 'HN123456789' or 'GENxxxxxx' — formats digit part as XXX-XXX-XXX
+  if(!hn) return '—';
+  const prefix = hn.replace(/\d.*$/,'') || '';   // e.g. 'HN' or 'GEN'
+  const d = hn.replace(/\D/g,'').slice(0,9);
+  if(!d) return hn;
+  let fmt = d;
+  if(d.length>6)      fmt = d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6);
+  else if(d.length>3) fmt = d.slice(0,3)+'-'+d.slice(3);
+  return prefix+' '+fmt;
+}
+function qvPhoneFormat(el){ el.value=fmtPhone(el.value); }
+
+// ══════════════════════════════════════════
+// SHARED: HN + 2 Tel rows
+// ══════════════════════════════════════════
+function _renderQVEditRows(p){
+  if(!p.phones) p.phones=[{num:'',lbl:''},{num:'',lbl:''}];
+  const ph = i => p.phones[i]||{num:'',lbl:''};
+
+  function telRow(i){
+    const {num,lbl} = ph(i);
+    const formatted  = fmtPhone(num);
+    const tel1Empty  = !ph(0).num;
+    const rowDisabled= (i===1 && tel1Empty) ? ' qv-ph-row-disabled' : '';
+    const hasNum     = !!num;
+    return `<div class="qv-edit-row${rowDisabled}" id="qv-ph-row-${i}">
+      <span class="qv-edit-lbl" style="font-size:9px;letter-spacing:.08em">TEL ${i+1}</span>
+      <span class="qv-edit-val${hasNum?'':' empty'}" id="qv-ph-display-${i}">${hasNum?formatted:'— add'}</span>
+      ${hasNum&&lbl ? `<span class="qv-ph-lbl-tag" id="qv-ph-lbl-tag-${i}">${lbl}</span>` : `<span class="qv-ph-lbl-tag" id="qv-ph-lbl-tag-${i}" style="display:none">${lbl}</span>`}
+      <button class="qv-edit-btn" id="qv-ph-edit-btn-${i}" onclick="toggleQVPhoneEdit(${i})" style="margin-left:auto">
+        <i class="fas fa-${hasNum?'pen-to-square':'plus'}"></i>
+      </button>
+      <div class="qv-field-wrap" id="qv-ph-field-wrap-${i}">
+        <input class="qv-fi" style="width:108px;flex-shrink:0" id="qv-ph-num-${i}" type="tel" value="${formatted}" placeholder="000-000-0000" maxlength="12" autocomplete="off"
+          oninput="qvPhoneFormat(this)"
+          onkeydown="if(event.key==='Enter')saveQVPhone(${i});if(event.key==='Escape')cancelQVPhoneEdit(${i})">
+        <input class="qv-fi qv-lbl-fi" id="qv-ph-lbl-${i}" type="text" value="${lbl}" placeholder="ระบุ…" maxlength="10" autocomplete="off"
+          onkeydown="if(event.key==='Enter')saveQVPhone(${i});if(event.key==='Escape')cancelQVPhoneEdit(${i})">
+        <button class="qv-save-btn" onclick="saveQVPhone(${i})">Save</button>
+        <button class="qv-cancel-btn" onclick="cancelQVPhoneEdit(${i})"><i class="fas fa-times"></i></button>
+      </div>
+    </div>`;
+  }
+
+  return `
+    <div class="qv-edit-row" id="qv-hn-row">
+      <span class="qv-edit-lbl">HN</span>
+      <span class="qv-edit-val" id="qv-hn-display">${fmtHN(p.hn)}</span>
+      <button class="qv-edit-btn" id="qv-hn-edit-btn" onclick="toggleQVHNEdit()" title="Edit HN" style="margin-left:auto"><i class="fas fa-pen-to-square"></i></button>
+      <div class="qv-field-wrap" id="qv-hn-field-wrap">
+        <div class="qv-hn-combo">
+          <span class="qv-hn-pfx">HN</span>
+          <input class="qv-hn-digits" id="qv-hn-input" type="text" inputmode="numeric" maxlength="9" placeholder="000000000" autocomplete="off"
+            oninput="qvHNOnInput(this)"
+            onkeydown="if(event.key==='Enter')saveQVHN();if(event.key==='Escape')cancelQVHNEdit()">
+        </div>
+        <span class="qv-hn-cnt" id="qv-hn-cnt">0/9</span>
+        <button class="qv-save-btn" onclick="saveQVHN()">Save</button>
+        <button class="qv-cancel-btn" onclick="cancelQVHNEdit()"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    ${telRow(0)}
+    ${telRow(1)}`;
+}
+
+// ══════════════════════════════════════════
+// QV INLINE EDIT — PHONE (slot-indexed)
+// ══════════════════════════════════════════
+function toggleQVPhoneEdit(slot){
+  const wrap=document.getElementById(`qv-ph-field-wrap-${slot}`);
+  const disp=document.getElementById(`qv-ph-display-${slot}`);
+  const btn =document.getElementById(`qv-ph-edit-btn-${slot}`);
+  const tag =document.getElementById(`qv-ph-lbl-tag-${slot}`);
+  const open=wrap.classList.toggle('open');
+  disp.style.display=open?'none':'';
+  btn.style.display =open?'none':'';
+  if(tag) tag.style.display=open?'none':'';
+  if(open) document.getElementById(`qv-ph-num-${slot}`).focus();
+}
+
+function cancelQVPhoneEdit(slot){
+  const p=patients.find(x=>x.id===qvId);
+  const wrap=document.getElementById(`qv-ph-field-wrap-${slot}`);
+  wrap.classList.remove('open');
+  const s=(p&&p.phones&&p.phones[slot])||{num:'',lbl:''};
+  document.getElementById(`qv-ph-num-${slot}`).value=fmtPhone(s.num||'');
+  document.getElementById(`qv-ph-lbl-${slot}`).value=s.lbl||'';
+  document.getElementById(`qv-ph-display-${slot}`).style.display='';
+  document.getElementById(`qv-ph-edit-btn-${slot}`).style.display='';
+  const tag=document.getElementById(`qv-ph-lbl-tag-${slot}`);
+  if(tag) tag.style.display='';
+}
+
+function saveQVPhone(slot){
+  const p=patients.find(x=>x.id===qvId);
+  if(!p) return;
+  if(!p.phones) p.phones=[{num:'',lbl:''},{num:'',lbl:''}];
+  const num=fmtPhone(document.getElementById(`qv-ph-num-${slot}`).value);
+  const lbl=document.getElementById(`qv-ph-lbl-${slot}`).value.trim();
+  p.phones[slot]={num,lbl};
+
+  const disp   =document.getElementById(`qv-ph-display-${slot}`);
+  const editBtn=document.getElementById(`qv-ph-edit-btn-${slot}`);
+  const tag    =document.getElementById(`qv-ph-lbl-tag-${slot}`);
+
+  if(num){
+    disp.textContent=num; disp.className='qv-edit-val';
+    editBtn.innerHTML='<i class="fas fa-pen-to-square"></i>';
+    if(tag){ tag.textContent=lbl; tag.style.display=lbl?'':'none'; }
+  } else {
+    disp.textContent='— add'; disp.className='qv-edit-val empty';
+    editBtn.innerHTML='<i class="fas fa-plus"></i>';
+    if(tag){ tag.textContent=''; tag.style.display='none'; }
+  }
+
+  // Enable / disable Tel 2 based on Tel 1 having a number
+  if(slot===0){
+    const row1=document.getElementById('qv-ph-row-1');
+    if(row1) row1.className=row1.className.replace(' qv-ph-row-disabled','')+(num?'':' qv-ph-row-disabled');
+  }
+
+  cancelQVPhoneEdit(slot);
+  showToast(num?`Tel ${slot+1} → ${num}`:`Tel ${slot+1} cleared`,'#22c55e','fa-phone');
+}
+
+// ══════════════════════════════════════════
+// FINALIZED QUICK VIEW (HN + Phone edit only)
+// ══════════════════════════════════════════
+function openFinalizedQV(id){
+  const p=patients.find(x=>x.id===id);
+  if(!p) return;
+  qvId=id; qvSel=null; qvGrp=null;
+
+  const cfg=sc(p.status);
+  // Header: change title to "Edit Details"
+  document.querySelector('#qv .flex.items-center.justify-between span').textContent='Edit Details';
+
+  document.getElementById('qv-pt').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;padding-bottom:10px">
+      <div style="width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px" class="esi-c-${p.esi}">${p.esi}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:#dde6f0;line-height:1.2">${p.name}</div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:#7a9ab8;margin-top:2px">${p.cc}</div>
+      </div>
+      <div style="flex-shrink:0;text-align:right">
+        <span class="sp ${cfg.pill}">${cfg.label}</span>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3a5a7a;margin-top:5px;display:flex;align-items:center;gap:4px;justify-content:flex-end">
+          <i class="fas fa-lock" style="font-size:9px"></i> Finalized
+        </div>
+      </div>
+    </div>
+    ${_renderQVEditRows(p)}`;
+
+  document.getElementById('qv-opts').innerHTML='';
+
+  // Footer: hide confirm, show close only
+  const prev=document.getElementById('qv-prev');
+  prev.innerHTML='<span style="font-family:\'Rajdhani\',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:#2a4a62">FINALIZED — STATUS LOCKED</span>';
+  const btn=document.getElementById('confirm-btn');
+  btn.className='no-change';
+  btn.textContent='Close';
+  btn.onclick=closeQV;
+
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('pcard-sel'));
+  const selCard=document.getElementById('card-'+id);
+  if(selCard) selCard.classList.add('pcard-sel');
+  document.getElementById('qv').classList.add('open');
+  document.getElementById('bd').classList.add('on');
+}
+
+function closeQV(){
+  document.getElementById('qv').classList.remove('open');
+  document.getElementById('bd').classList.remove('on');
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('pcard-sel'));
+  qvId=null;
+}
+
+// ══════════════════════════════════════════
+// QUICK SAVE (placeholder)
+// ══════════════════════════════════════════
+function openQS(id,evt){
+  evt.stopPropagation();
+  showToast('Quick Save — vitals entry module coming soon','#0ea5e9','fa-bolt');
+}
+
+// ══════════════════════════════════════════
+// BARCODE SCANNER
+// ══════════════════════════════════════════
+let _scanStream = null;
+let _scanDetector = null;
+let _scanActive = false;
+
+async function openScanner(){
+  const overlay = document.getElementById('scan-overlay');
+  overlay.style.display = 'flex';
+  _scanActive = true;
+
+  // Check BarcodeDetector support
+  if(!('BarcodeDetector' in window)){
+    document.getElementById('scan-status').textContent = 'Camera scan not supported in this browser — use a USB scanner instead';
+    document.getElementById('scan-status').style.color = '#f59e0b';
+    return;
+  }
+
+  try {
+    _scanStream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}
+    });
+    const video = document.getElementById('scan-video');
+    video.srcObject = _scanStream;
+    await video.play();
+
+    _scanDetector = new BarcodeDetector({formats:['code_128','code_39','ean_13','ean_8','qr_code','data_matrix']});
+    document.getElementById('scan-status').textContent = 'SCANNING FOR BARCODE…';
+    document.getElementById('scan-status').style.color = '#6b8ba4';
+    _scanLoop();
+  } catch(e) {
+    document.getElementById('scan-status').textContent = 'Camera access denied — use a USB scanner instead';
+    document.getElementById('scan-status').style.color = '#f59e0b';
+  }
+}
+
+async function _scanLoop(){
+  if(!_scanActive) return;
+  const video = document.getElementById('scan-video');
+  if(video.readyState === video.HAVE_ENOUGH_DATA){
+    try {
+      const codes = await _scanDetector.detect(video);
+      if(codes.length > 0){
+        const val = codes[0].rawValue.trim();
+        closeScanner();
+        const srch = document.getElementById('srch');
+        srch.value = val;
+        srch.style.borderColor = '#0ea5e9';
+        srch.style.color = '#dde6f0';
+        renderCards();
+        showToast(`Scanned: ${val}`, '#0ea5e9', 'fa-barcode');
+        return;
+      }
+    } catch(e){}
+  }
+  if(_scanActive) requestAnimationFrame(_scanLoop);
+}
+
+function closeScanner(){
+  _scanActive = false;
+  if(_scanStream) _scanStream.getTracks().forEach(t=>t.stop());
+  _scanStream = null;
+  document.getElementById('scan-overlay').style.display = 'none';
+  document.getElementById('scan-video').srcObject = null;
+}
+// ══════════════════════════════════════════
+let _tt=null;
+function showToast(msg,color,icon){
+  const t=document.getElementById('toast');
+  document.getElementById('t-msg').textContent=msg;
+  document.getElementById('t-icon').className=`fas ${icon}`;
+  document.getElementById('t-icon').style.color=color;
+  t.style.borderColor=color+'55';
+  t.classList.add('on');
+  if(_tt) clearTimeout(_tt);
+  _tt=setTimeout(()=>t.classList.remove('on'),3000);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+renderSit();
+renderSFilter();
+renderCards();
+</script>
+</body>
+</html>
