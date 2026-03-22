@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOCKUP — Light vs Dark Theme</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#060a10;color:#dde6f0;padding:24px;overflow-y:auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:.12em;color:#0ea5e9;text-transform:uppercase;margin-bottom:6px}
+.subtitle{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88;margin-bottom:32px}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b8ba4;border-bottom:1px solid #1a2840;padding-bottom:8px;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.section-title i{font-size:11px}
+
+/* Side by side frames */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px}
+.frame{border-radius:10px;overflow:hidden;border:1px solid #1a2840}
+.frame-label{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;text-align:center}
+
+/* ══════════════════════════════════════ */
+/* DARK THEME TOKENS */
+/* ══════════════════════════════════════ */
+.dk-body{background:#080e17}
+.dk-card{background:#0f1a27}
+.dk-panel{background:#0c1520}
+.dk-border{border-color:#1a2840}
+.dk-input{background:#070e18}
+.dk-text{color:#dde6f0}
+.dk-sub{color:#7a9ab8}
+.dk-muted{color:#6b8ba4}
+.dk-dim{color:#4a6a88}
+.dk-accent{color:#0ea5e9}
+
+/* ══════════════════════════════════════ */
+/* LIGHT THEME TOKENS */
+/* ══════════════════════════════════════ */
+.lt-body{background:#f0f4f8}
+.lt-card{background:#ffffff}
+.lt-panel{background:#f8fafc}
+.lt-border{border-color:#d0dbe8}
+.lt-input{background:#e8eef4}
+.lt-text{color:#0f1a27}
+.lt-sub{color:#4a6a88}
+.lt-muted{color:#6b8ba4}
+.lt-dim{color:#94a3b8}
+.lt-accent{color:#0284c7}
+
+/* Shared */
+.mono{font-family:'IBM Plex Mono',monospace}
+.raj{font-family:'Rajdhani',sans-serif}
+.esi-1{background:#ef4444}.esi-2{background:#ec4899}.esi-3{background:#eab308}.esi-4{background:#22c55e}.esi-5{background:#3b82f6}
+.esi-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;flex-shrink:0}
+.sp{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em}
+
+/* Floor logo */
+.logo-svg{flex-shrink:0}
+</style>
+</head>
+<body>
+
+<h1>Light &amp; Dark Theme Design</h1>
+<p class="subtitle">Same design language, two modes — for Public View</p>
+
+<!-- ══════════════════════════════════════ -->
+<!-- HEADER -->
+<!-- ══════════════════════════════════════ -->
+<div class="section-title"><i class="fas fa-heading"></i> Header</div>
+<div class="duo">
+  <!-- DARK -->
+  <div class="frame">
+    <div class="frame-label dk-body dk-muted" style="border-bottom:1px solid #1a2840">Dark Mode</div>
+    <div class="dk-body" style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a2840">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg class="logo-svg" width="34" height="34" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="38" stroke="url(#dlg1)" stroke-width="2" fill="none" opacity="0.7"/>
+          <circle cx="40" cy="40" r="28" fill="url(#dlg2)" opacity="0.92"/>
+          <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+          <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+          <circle cx="40" cy="18" r="3" fill="url(#dlg3)" opacity="0.85"/>
+          <circle cx="62" cy="40" r="2.5" fill="url(#dlg3)" opacity="0.65"/>
+          <circle cx="40" cy="62" r="2" fill="url(#dlg3)" opacity="0.45"/>
+          <circle cx="18" cy="40" r="2.5" fill="url(#dlg3)" opacity="0.65"/>
+          <defs>
+            <linearGradient id="dlg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/></linearGradient>
+            <linearGradient id="dlg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#B45309"/></linearGradient>
+            <linearGradient id="dlg3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient>
+          </defs>
+        </svg>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent">ESPER INVICTUS</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;color:#3a6a8a;letter-spacing:.16em;text-transform:uppercase">Public · BBT ER</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="text-align:right">
+          <div class="mono dk-text" style="font-size:15px;font-weight:600;letter-spacing:.06em">14:30:25</div>
+          <div class="mono dk-dim" style="font-size:10px;letter-spacing:.05em">23 มี.ค. 2569</div>
+        </div>
+        <div style="width:32px;height:32px;border-radius:7px;border:1px solid #1a2840;display:flex;align-items:center;justify-content:center;color:#6b8ba4;font-size:13px"><i class="fas fa-sun"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT -->
+  <div class="frame" style="border-color:#d0dbe8">
+    <div class="frame-label lt-body lt-muted" style="border-bottom:1px solid #d0dbe8">Light Mode</div>
+    <div class="lt-body" style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d0dbe8">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg class="logo-svg" width="34" height="34" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="38" stroke="url(#llg1)" stroke-width="2" fill="none" opacity="0.7"/>
+          <circle cx="40" cy="40" r="28" fill="url(#llg2)" opacity="0.92"/>
+          <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+          <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+          <circle cx="40" cy="18" r="3" fill="url(#llg3)" opacity="0.85"/>
+          <circle cx="62" cy="40" r="2.5" fill="url(#llg3)" opacity="0.65"/>
+          <circle cx="40" cy="62" r="2" fill="url(#llg3)" opacity="0.45"/>
+          <circle cx="18" cy="40" r="2.5" fill="url(#llg3)" opacity="0.65"/>
+          <defs>
+            <linearGradient id="llg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/></linearGradient>
+            <linearGradient id="llg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#B45309"/></linearGradient>
+            <linearGradient id="llg3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient>
+          </defs>
+        </svg>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;background:linear-gradient(90deg,#0369a1,#0284c7,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent">ESPER INVICTUS</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;color:#94a3b8;letter-spacing:.16em;text-transform:uppercase">Public · BBT ER</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="text-align:right">
+          <div class="mono lt-text" style="font-size:15px;font-weight:600;letter-spacing:.06em">14:30:25</div>
+          <div class="mono lt-dim" style="font-size:10px;letter-spacing:.05em">23 มี.ค. 2569</div>
+        </div>
+        <div style="width:32px;height:32px;border-radius:7px;border:1px solid #d0dbe8;display:flex;align-items:center;justify-content:center;color:#6b8ba4;font-size:13px"><i class="fas fa-moon"></i></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- GEDWIN BANNER -->
+<!-- ══════════════════════════════════════ -->
+<div class="section-title"><i class="fas fa-info-circle"></i> gEDWIN Status Banner</div>
+<div class="duo">
+  <!-- DARK -->
+  <div class="frame">
+    <div class="frame-label dk-body dk-muted" style="border-bottom:1px solid #1a2840">Dark</div>
+    <div class="dk-body" style="padding:10px 16px">
+      <div style="border-left:4px solid #16a34a;background:rgba(5,46,22,0.5);border-radius:0 6px 6px 0;padding:8px 12px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">✓</span>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:13px;color:#dde6f0">ห้องฉุกเฉินพร้อมให้บริการ</div>
+          <div style="font-size:12px;color:#6b8ba4;margin-top:2px"><i class="fas fa-bell" style="opacity:.6;margin-right:4px"></i>หากอาการเปลี่ยนแปลง กรุณาแจ้งเจ้าหน้าที่</div>
+        </div>
+        <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:20px;font-weight:700;font-size:13px;border:2px solid #16a34a;color:#16a34a;background:rgba(22,163,74,0.15)">ปกติ <span class="mono" style="font-size:11px;letter-spacing:.04em">Normal</span></span>
+      </div>
+    </div>
+  </div>
+  <!-- LIGHT -->
+  <div class="frame" style="border-color:#d0dbe8">
+    <div class="frame-label lt-body lt-muted" style="border-bottom:1px solid #d0dbe8">Light</div>
+    <div class="lt-body" style="padding:10px 16px">
+      <div style="border-left:4px solid #16a34a;background:#f0fdf4;border-radius:0 6px 6px 0;padding:8px 12px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">✓</span>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:13px;color:#0f1a27">ห้องฉุกเฉินพร้อมให้บริการ</div>
+          <div style="font-size:12px;color:#4a6a88;margin-top:2px"><i class="fas fa-bell" style="opacity:.6;margin-right:4px"></i>หากอาการเปลี่ยนแปลง กรุณาแจ้งเจ้าหน้าที่</div>
+        </div>
+        <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:20px;font-weight:700;font-size:13px;border:2px solid #16a34a;color:#15803d;background:rgba(22,163,74,0.1)">ปกติ <span class="mono" style="font-size:11px;letter-spacing:.04em">Normal</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- WAIT TIME CARDS -->
+<!-- ══════════════════════════════════════ -->
+<div class="section-title"><i class="fas fa-clock"></i> Wait Time Cards</div>
+<div class="duo">
+  <!-- DARK -->
+  <div class="frame">
+    <div class="frame-label dk-body dk-muted" style="border-bottom:1px solid #1a2840">Dark</div>
+    <div class="dk-body" style="padding:12px 16px">
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;border-radius:8px;border:1px solid #eab308;border-top-width:3px;padding:8px;text-align:center;background:rgba(217,119,6,0.12)">
+          <div style="color:#eab308;font-weight:700;font-size:13px">ระดับ 3</div>
+          <div style="color:#dde6f0;font-weight:700;font-size:18px;margin-top:2px">~2.5–3 ชม.</div>
+        </div>
+        <div style="flex:1;border-radius:8px;border:1px solid #22c55e;border-top-width:3px;padding:8px;text-align:center;background:rgba(22,163,74,0.12)">
+          <div style="color:#22c55e;font-weight:700;font-size:13px">ระดับ 4</div>
+          <div style="color:#dde6f0;font-weight:700;font-size:18px;margin-top:2px">~3–4 ชม.</div>
+        </div>
+        <div style="flex:1;border-radius:8px;border:1px solid #3b82f6;border-top-width:3px;padding:8px;text-align:center;background:rgba(37,99,235,0.12)">
+          <div style="color:#3b82f6;font-weight:700;font-size:13px">ระดับ 5</div>
+          <div style="color:#dde6f0;font-weight:700;font-size:18px;margin-top:2px">~4–5 ชม.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- LIGHT -->
+  <div class="frame" style="border-color:#d0dbe8">
+    <div class="frame-label lt-body lt-muted" style="border-bottom:1px solid #d0dbe8">Light</div>
+    <div class="lt-body" style="padding:12px 16px">
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;border-radius:8px;border:1px solid #eab308;border-top-width:3px;padding:8px;text-align:center;background:rgba(217,119,6,0.06)">
+          <div style="color:#b45309;font-weight:700;font-size:13px">ระดับ 3</div>
+          <div style="color:#0f1a27;font-weight:700;font-size:18px;margin-top:2px">~2.5–3 ชม.</div>
+        </div>
+        <div style="flex:1;border-radius:8px;border:1px solid #22c55e;border-top-width:3px;padding:8px;text-align:center;background:rgba(22,163,74,0.06)">
+          <div style="color:#15803d;font-weight:700;font-size:13px">ระดับ 4</div>
+          <div style="color:#0f1a27;font-weight:700;font-size:18px;margin-top:2px">~3–4 ชม.</div>
+        </div>
+        <div style="flex:1;border-radius:8px;border:1px solid #3b82f6;border-top-width:3px;padding:8px;text-align:center;background:rgba(37,99,235,0.06)">
+          <div style="color:#1d4ed8;font-weight:700;font-size:13px">ระดับ 5</div>
+          <div style="color:#0f1a27;font-weight:700;font-size:18px;margin-top:2px">~4–5 ชม.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- PATIENT CARDS -->
+<!-- ══════════════════════════════════════ -->
+<div class="section-title"><i class="fas fa-id-card"></i> Patient Cards</div>
+<div class="duo">
+  <!-- DARK -->
+  <div class="frame">
+    <div class="frame-label dk-body dk-muted" style="border-bottom:1px solid #1a2840">Dark</div>
+    <div class="dk-body" style="padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+
+      <div style="background:#0f1a27;border-radius:7px;padding:10px 12px;display:flex;align-items:center;gap:10px;border-left:3px solid #ef4444">
+        <div class="esi-dot esi-1">1</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#dde6f0">นาย สมชาย ใจดี</div>
+          <div class="mono" style="font-size:10px;color:#6b8ba4">HN 123-456-789</div>
+        </div>
+        <div style="text-align:right">
+          <span class="sp" style="background:#0c1e3a;color:#93c5fd;border:1px solid #1e3a5f">รอเข้าห้องตรวจ</span>
+          <div class="mono" style="font-size:11px;color:#f59e0b;margin-top:4px">49 min</div>
+        </div>
+      </div>
+
+      <div style="background:#0f1a27;border-radius:7px;padding:10px 12px;display:flex;align-items:center;gap:10px;border-left:3px solid #eab308">
+        <div class="esi-dot esi-3">3</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#dde6f0">นางสาว มาลี สวยงาม</div>
+          <div class="mono" style="font-size:10px;color:#6b8ba4">HN 789-012-345</div>
+        </div>
+        <div style="text-align:right">
+          <span class="sp" style="background:#0c1e3a;color:#93c5fd;border:1px solid #1e3a5f">รอเข้าห้องตรวจ</span>
+          <div class="mono" style="font-size:11px;color:#6b8ba4;margin-top:4px">12 min</div>
+        </div>
+      </div>
+
+      <div style="background:#0f1a27;border-radius:7px;padding:10px 12px;display:flex;align-items:center;gap:10px;border-left:3px solid #ec4899">
+        <div class="esi-dot esi-2">2</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#dde6f0">นาย วิชัย ขยันดี</div>
+          <div class="mono" style="font-size:10px;color:#6b8ba4">HN 001-001-001</div>
+        </div>
+        <div style="text-align:right">
+          <span class="sp" style="background:#052e16;color:#86efac;border:1px solid #14532d">เข้าห้องตรวจ</span>
+          <div class="mono" style="font-size:11px;color:#6b8ba4;margin-top:4px">2h 00m</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LIGHT -->
+  <div class="frame" style="border-color:#d0dbe8">
+    <div class="frame-label lt-body lt-muted" style="border-bottom:1px solid #d0dbe8">Light</div>
+    <div class="lt-body" style="padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+
+      <div style="background:#ffffff;border-radius:7px;padding:10px 12px;display:flex;align-items:center;gap:10px;border-left:3px solid #ef4444;border:1px solid #d0dbe8;border-left:3px solid #ef4444">
+        <div class="esi-dot esi-1">1</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#0f1a27">นาย สมชาย ใจดี</div>
+          <div class="mono" style="font-size:10px;color:#6b8ba4">HN 123-456-789</div>
+        </div>
+        <div style="text-align:right">
+          <span class="sp" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">รอเข้าห้องตรวจ</span>
+          <div class="mono" style="font-size:11px;color:#b45309;margin-top:4px">49 min</div>
+        </div>
+      </div>
+
+      <div style="background:#ffffff;border-radius:7px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid #d0dbe8;border-left:3px solid #eab308">
+        <div class="esi-dot esi-3">3</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#0f1a27">นางสาว มาลี สวยงาม</div>
+          <div class="mono" style="font-size:10px;color:#6b8ba4">HN 789-012-345</div>
+        </div>
+        <div style="text-align:right">
+          <span class="sp" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">รอเข้าห้องตรวจ</span>
+          <div class="mono" style="font-size:11px;color:#6b8ba4;margin-top:4px">12 min</div>
+        </div>
+      </div>
+
+      <div style="background:#ffffff;border-radius:7px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid #d0dbe8;border-left:3px solid #ec4899">
+        <div class="esi-dot esi-2">2</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#0f1a27">นาย วิชัย ขยันดี</div>
+          <div class="mono" style="font-size:10px;color:#6b8ba4">HN 001-001-001</div>
+        </div>
+        <div style="text-align:right">
+          <span class="sp" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">เข้าห้องตรวจ</span>
+          <div class="mono" style="font-size:11px;color:#6b8ba4;margin-top:4px">2h 00m</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- COLOR TOKEN REFERENCE -->
+<!-- ══════════════════════════════════════ -->
+<div class="section-title"><i class="fas fa-palette"></i> Color Token Map — Dark vs Light</div>
+<div style="background:#0c1520;border:1px solid #1a2840;border-radius:8px;padding:16px;overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead>
+      <tr style="border-bottom:1px solid #1a2840">
+        <th style="text-align:left;padding:6px 10px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#4a6a88;text-transform:uppercase">Token</th>
+        <th style="text-align:left;padding:6px 10px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#4a6a88;text-transform:uppercase">Dark</th>
+        <th style="text-align:center;padding:6px 10px"></th>
+        <th style="text-align:left;padding:6px 10px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#4a6a88;text-transform:uppercase">Light</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:5px 10px;color:#6b8ba4">Body</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#080e17;border:1px solid #1a2840;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#080e17</span></span></td>
+        <td style="padding:5px;text-align:center;color:#4a6a88">→</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#f0f4f8;border:1px solid #d0dbe8;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#f0f4f8</span></span></td></tr>
+      <tr><td style="padding:5px 10px;color:#6b8ba4">Card</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#0f1a27;border:1px solid #1a2840;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#0f1a27</span></span></td>
+        <td style="padding:5px;text-align:center;color:#4a6a88">→</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#ffffff;border:1px solid #d0dbe8;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#ffffff</span></span></td></tr>
+      <tr><td style="padding:5px 10px;color:#6b8ba4">Border</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#1a2840;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#1a2840</span></span></td>
+        <td style="padding:5px;text-align:center;color:#4a6a88">→</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#d0dbe8;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#d0dbe8</span></span></td></tr>
+      <tr><td style="padding:5px 10px;color:#6b8ba4">Primary text</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#dde6f0;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#dde6f0</span></span></td>
+        <td style="padding:5px;text-align:center;color:#4a6a88">→</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#0f1a27;border:1px solid #d0dbe8;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#0f1a27</span></span></td></tr>
+      <tr><td style="padding:5px 10px;color:#6b8ba4">Muted</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#6b8ba4;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#6b8ba4</span></span></td>
+        <td style="padding:5px;text-align:center;color:#4a6a88">→</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#6b8ba4;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#6b8ba4</span></span></td></tr>
+      <tr><td style="padding:5px 10px;color:#6b8ba4">Accent</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#0ea5e9;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#0ea5e9</span></span></td>
+        <td style="padding:5px;text-align:center;color:#4a6a88">→</td>
+        <td style="padding:5px 10px"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:3px;background:#0284c7;display:inline-block"></span><span class="mono" style="font-size:10px;color:#6b8ba4">#0284c7</span></span></td></tr>
+      <tr><td style="padding:5px 10px;color:#6b8ba4">ESI colors</td>
+        <td colspan="3" style="padding:5px 10px;font-size:11px;color:#6b8ba4">Same in both modes — bright, no darkening</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

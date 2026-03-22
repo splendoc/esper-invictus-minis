@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOCKUP — Waiting vs Active Cards (Light)</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#f0f4f8;color:#0f1a27;padding:32px;display:flex;flex-direction:column;gap:32px}
+.mono{font-family:'IBM Plex Mono',monospace}
+.raj{font-family:'Rajdhani',sans-serif}
+h2{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4a6a88;margin-bottom:12px}
+
+.esi-dot{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;flex-shrink:0}
+.esi-1{background:#ef4444}.esi-2{background:#ec4899}.esi-3{background:#eab308}.esi-4{background:#22c55e}.esi-5{background:#3b82f6}
+.sp{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:5px;white-space:nowrap;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em}
+
+.card{background:#ffffff;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:14px;border:1px solid #d0dbe8}
+.cards{display:flex;flex-direction:column;gap:10px;max-width:700px}
+
+/* Toggle */
+.toggle-row{display:flex;gap:12px;margin-bottom:16px}
+.toggle-btn{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;padding:6px 18px;border-radius:6px;cursor:pointer;border:1px solid #d0dbe8;background:#fff;color:#4a6a88;transition:all .15s}
+.toggle-btn.on{background:#0f1a27;color:#dde6f0;border-color:#0f1a27}
+</style>
+</head>
+<body>
+
+<div>
+  <div class="toggle-row">
+    <button class="toggle-btn on" onclick="setMode('light')"><i class="fas fa-sun" style="margin-right:4px"></i> Light</button>
+    <button class="toggle-btn" onclick="setMode('dark')"><i class="fas fa-moon" style="margin-right:4px"></i> Dark</button>
+  </div>
+</div>
+
+<!-- WAITING SECTION -->
+<div>
+  <h2 id="wait-title"><i class="fas fa-clock" style="color:#eab308;margin-right:6px"></i> Waiting — รอรับการรักษา</h2>
+  <div class="cards" id="wait-cards">
+
+    <div class="card" style="border-left:4px solid #ef4444">
+      <div class="esi-dot esi-1">1</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600" class="c-text">นาย สมชาย ใจดี</div>
+        <div class="mono c-muted" style="font-size:11px">HN 123-456-789</div>
+      </div>
+      <div style="text-align:right">
+        <span class="sp sp-waiting">รอเข้าห้องตรวจ</span>
+        <div class="mono c-warn" style="font-size:12px;margin-top:4px;font-weight:600">49 min</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #eab308">
+      <div class="esi-dot esi-3">3</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600" class="c-text">นางสาว มาลี สวยงาม</div>
+        <div class="mono c-muted" style="font-size:11px">HN 789-012-345</div>
+      </div>
+      <div style="text-align:right">
+        <span class="sp sp-waiting">รอเข้าห้องตรวจ</span>
+        <div class="mono c-ok" style="font-size:12px;margin-top:4px;font-weight:600">12 min</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #ec4899">
+      <div class="esi-dot esi-2">2</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600" class="c-text">นาง สุดา รักดี</div>
+        <div class="mono c-muted" style="font-size:11px">HN 345-678-901</div>
+      </div>
+      <div style="text-align:right">
+        <span class="sp sp-notfound">เรียกไม่พบ</span>
+        <div class="mono c-warn" style="font-size:12px;margin-top:4px;font-weight:600">45 min</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ACTIVE SECTION -->
+<div>
+  <h2 id="act-title"><i class="fas fa-stethoscope" style="color:#22c55e;margin-right:6px"></i> Active — กำลังรับการรักษา</h2>
+  <div class="cards" id="act-cards">
+
+    <div class="card" style="border-left:4px solid #ec4899">
+      <div class="esi-dot esi-2">2</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600" class="c-text">นาย วิชัย ขยันดี</div>
+        <div class="mono c-muted" style="font-size:11px">HN 001-001-001</div>
+      </div>
+      <div style="text-align:right">
+        <span class="sp sp-resus">กู้ชีพ</span>
+        <div class="mono c-muted" style="font-size:12px;margin-top:4px;font-weight:600">2h 00m</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #ec4899">
+      <div class="esi-dot esi-2">2</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600" class="c-text">นาง อรุณ แสงดาว</div>
+        <div class="mono c-muted" style="font-size:11px">HN 002-002-002</div>
+      </div>
+      <div style="text-align:right">
+        <span class="sp sp-active">เข้าห้องตรวจ</span>
+        <div class="mono c-muted" style="font-size:12px;margin-top:4px;font-weight:600">3h 20m</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #eab308">
+      <div class="esi-dot esi-3">3</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600" class="c-text">นายสมศักดิ์ ดีใจ</div>
+        <div class="mono c-muted" style="font-size:11px">HN 003-003-003</div>
+      </div>
+      <div style="text-align:right">
+        <span class="sp sp-observe">สังเกตอาการ</span>
+        <div class="mono c-muted" style="font-size:12px;margin-top:4px;font-weight:600">1h 30m</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #ef4444">
+      <div class="esi-dot esi-1">1</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600" class="c-text">ด.ช. ธนา ใจงาม</div>
+        <div class="mono c-muted" style="font-size:11px">HN 007-007-007</div>
+      </div>
+      <div style="text-align:right">
+        <span class="sp sp-resus">กู้ชีพ</span>
+        <div class="mono c-muted" style="font-size:12px;margin-top:4px;font-weight:600">45m</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const LIGHT = {
+  body: '#f0f4f8',
+  card: '#ffffff',
+  cardBorder: '#d0dbe8',
+  text: '#0f1a27',
+  muted: '#5a7a90',
+  warn: '#b45309',
+  ok: '#15803d',
+  // Status pills
+  waiting:  { bg:'#dbeafe', color:'#1e40af', border:'#93c5fd' },
+  notfound: { bg:'#fef3c7', color:'#92400e', border:'#fcd34d' },
+  resus:    { bg:'#fee2e2', color:'#991b1b', border:'#fca5a5' },
+  active:   { bg:'#dcfce7', color:'#166534', border:'#86efac' },
+  observe:  { bg:'#fef9c3', color:'#854d0e', border:'#fde68a' },
+};
+const DARK = {
+  body: '#080e17',
+  card: '#0f1a27',
+  cardBorder: '#1a2840',
+  text: '#dde6f0',
+  muted: '#6b8ba4',
+  warn: '#f59e0b',
+  ok: '#22c55e',
+  waiting:  { bg:'#0c1e3a', color:'#93c5fd', border:'#1e3a5f' },
+  notfound: { bg:'#3b2500', color:'#fcd34d', border:'#92400e' },
+  resus:    { bg:'#4c0a0a', color:'#fca5a5', border:'#7f1d1d' },
+  active:   { bg:'#052e16', color:'#86efac', border:'#14532d' },
+  observe:  { bg:'#422006', color:'#fde68a', border:'#92400e' },
+};
+
+function setMode(mode) {
+  const t = mode === 'dark' ? DARK : LIGHT;
+  document.body.style.background = t.body;
+  document.body.style.color = t.text;
+
+  // Toggle buttons
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('on'));
+  document.querySelector(`.toggle-btn:${mode==='dark'?'last':'first'}-child`).classList.add('on');
+
+  // Cards
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.background = t.card;
+    c.style.borderColor = t.cardBorder;
+    // preserve left border color
+    const lb = c.style.borderLeftColor;
+    c.style.borderColor = t.cardBorder;
+    c.style.borderLeftWidth = '4px';
+    c.style.borderLeftColor = lb;
+  });
+
+  // Text colors
+  document.querySelectorAll('.c-text').forEach(el => el.style.color = t.text);
+  document.querySelectorAll('.c-muted').forEach(el => el.style.color = t.muted);
+  document.querySelectorAll('.c-warn').forEach(el => el.style.color = t.warn);
+  document.querySelectorAll('.c-ok').forEach(el => el.style.color = t.ok);
+
+  // Section titles
+  document.querySelectorAll('h2').forEach(el => el.style.color = mode==='dark' ? '#6b8ba4' : '#4a6a88');
+
+  // Status pills
+  document.querySelectorAll('.sp-waiting').forEach(el => {
+    el.style.background = t.waiting.bg;
+    el.style.color = t.waiting.color;
+    el.style.border = '1px solid ' + t.waiting.border;
+  });
+  document.querySelectorAll('.sp-notfound').forEach(el => {
+    el.style.background = t.notfound.bg;
+    el.style.color = t.notfound.color;
+    el.style.border = '1px solid ' + t.notfound.border;
+  });
+  document.querySelectorAll('.sp-resus').forEach(el => {
+    el.style.background = t.resus.bg;
+    el.style.color = t.resus.color;
+    el.style.border = '1px solid ' + t.resus.border;
+  });
+  document.querySelectorAll('.sp-active').forEach(el => {
+    el.style.background = t.active.bg;
+    el.style.color = t.active.color;
+    el.style.border = '1px solid ' + t.active.border;
+  });
+  document.querySelectorAll('.sp-observe').forEach(el => {
+    el.style.background = t.observe.bg;
+    el.style.color = t.observe.color;
+    el.style.border = '1px solid ' + t.observe.border;
+  });
+}
+
+// Start in light
+setMode('light');
+</script>
+</body>
+</html>

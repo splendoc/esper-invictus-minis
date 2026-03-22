@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUDIT — Floor Design Consistency Check</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#060a10;color:#dde6f0;padding:24px 32px;overflow-y:auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:.12em;color:#0ea5e9;text-transform:uppercase;margin-bottom:6px}
+.subtitle{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88;margin-bottom:32px}
+
+/* Section */
+.audit-section{margin-bottom:40px}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b8ba4;border-bottom:1px solid #1a2840;padding-bottom:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title i{font-size:11px}
+
+/* Comparison row */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.compare-box{background:#0c1520;border:1px solid #1a2840;border-radius:8px;padding:16px;position:relative}
+.compare-box.current{border-color:#7f1d1d}
+.compare-box.fixed{border-color:#14532d}
+.box-label{position:absolute;top:-9px;left:12px;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:0 6px}
+.box-label.current{background:#0c1520;color:#ef4444}
+.box-label.fixed{background:#0c1520;color:#22c55e}
+.issue-note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#f59e0b;margin-top:8px;padding:6px 8px;background:#1a1500;border-radius:4px;border:1px solid #3b2500}
+
+/* Swatch row */
+.swatch-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.swatch{width:32px;height:32px;border-radius:6px;border:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.swatch-info{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4}
+.swatch-name{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;color:#dde6f0}
+
+/* Mock elements */
+.mock-card{background:#0f1a27;border-radius:7px;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.esi-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;flex-shrink:0;background:#ec4899}
+.sp{display:inline-flex;align-items:center;gap:3px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<h1>Floor Design Audit</h1>
+<p class="subtitle">Side-by-side: current inconsistencies vs standardized</p>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 1. MUTED TEXT COLORS — too many shades -->
+<!-- ══════════════════════════════════════════ -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-palette"></i> Issue 1 — Too Many "Muted" Text Colors</div>
+
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — 5 different grays used</span>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <div class="swatch-row">
+          <div class="swatch" style="background:#4a6a88"></div>
+          <div><div class="swatch-name">Labels, dim text</div><div class="swatch-info">#4a6a88</div></div>
+        </div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#4e7a9a"></div>
+          <div><div class="swatch-name">Card HN number</div><div class="swatch-info">#4e7a9a</div></div>
+        </div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#5a7a90"></div>
+          <div><div class="swatch-name">Card sex/age text</div><div class="swatch-info">#5a7a90</div></div>
+        </div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#6b8ba4"></div>
+          <div><div class="swatch-name">Muted icons, secondary</div><div class="swatch-info">#6b8ba4</div></div>
+        </div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#7a9ab8"></div>
+          <div><div class="swatch-name">Chief complaint text</div><div class="swatch-info">#7a9ab8</div></div>
+        </div>
+      </div>
+      <div class="issue-note">5 shades that look almost the same — hard to tell apart, inconsistent</div>
+    </div>
+
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — 3 clear levels</span>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <div class="swatch-row">
+          <div class="swatch" style="background:#4a6a88"></div>
+          <div><div class="swatch-name">DIM — labels, placeholders, timestamps</div><div class="swatch-info">#4a6a88</div></div>
+        </div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#6b8ba4"></div>
+          <div><div class="swatch-name">MUTED — icons, HN, sex/age, secondary info</div><div class="swatch-info">#6b8ba4</div></div>
+        </div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#7a9ab8"></div>
+          <div><div class="swatch-name">SUB — chief complaint, descriptions</div><div class="swatch-info">#7a9ab8</div></div>
+        </div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">Reduce to 3 levels with clear purpose for each</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 2. PATIENT CARD — HN/meta text drift -->
+<!-- ══════════════════════════════════════════ -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-id-card"></i> Issue 2 — Patient Card Meta Text</div>
+
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — HN and sex/age use different colors</span>
+      <div class="mock-card">
+        <div class="esi-dot">2</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:600;color:#dde6f0">นาง สุดา รักดี</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#4e7a9a">HN 345-678-901</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5a7a90"> · F · 62y</span>
+          </div>
+          <div style="font-size:12px;color:#7a9ab8;margin-top:1px">เจ็บหน้าอก ใจสั่น หายใจไม่อิ่ม</div>
+        </div>
+      </div>
+      <div class="issue-note">HN is #4e7a9a (bold), sex/age is #5a7a90 — two similar but different colors</div>
+    </div>
+
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — all meta uses #6b8ba4</span>
+      <div class="mock-card">
+        <div class="esi-dot">2</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:600;color:#dde6f0">นาง สุดา รักดี</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#6b8ba4">HN 345-678-901</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6b8ba4"> · F · 62y</span>
+          </div>
+          <div style="font-size:12px;color:#7a9ab8;margin-top:1px">เจ็บหน้าอก ใจสั่น หายใจไม่อิ่ม</div>
+        </div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">One consistent color for all meta info on the card</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 3. QV HEADER — Tailwind vs custom CSS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-columns"></i> Issue 3 — Quick View Panel Header</div>
+
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — uses Tailwind classes, larger text</span>
+      <div style="background:#0c1520;border-bottom:1px solid #1a2840;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:6px">
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:#fff;letter-spacing:.1em;text-transform:uppercase">Status Update</span>
+        <button style="color:#6b8ba4;background:none;border:none;font-size:14px"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="issue-note">text-base = 16px, tracking-widest = .1em — bigger and wider than everything else</div>
+    </div>
+
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — matches section header pattern</span>
+      <div style="background:#0c1520;border-bottom:1px solid #1a2840;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:6px">
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff;letter-spacing:.1em;text-transform:uppercase">Status Update</span>
+        <button style="color:#6b8ba4;background:none;border:none;font-size:14px"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">14px to match other headers, explicit CSS instead of Tailwind mix</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 4. BORDER COLOR DRIFT -->
+<!-- ══════════════════════════════════════════ -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-border-all"></i> Issue 4 — Border Color Inconsistency</div>
+
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — theme button uses different border</span>
+      <div style="display:flex;gap:16px;align-items:center;margin-top:8px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:40px;height:40px;border-radius:7px;border:1px solid #1a2840;display:flex;align-items:center;justify-content:center;color:#6b8ba4"><i class="fas fa-barcode"></i></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">#1a2840</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:40px;height:40px;border-radius:7px;border:1px solid #1e3047;display:flex;align-items:center;justify-content:center;color:#6b8ba4"><i class="fas fa-moon"></i></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#f59e0b">#1e3047</span>
+        </div>
+      </div>
+      <div class="issue-note">Theme toggle uses #1e3047, everything else uses #1a2840</div>
+    </div>
+
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — all borders use #1a2840</span>
+      <div style="display:flex;gap:16px;align-items:center;margin-top:8px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:40px;height:40px;border-radius:7px;border:1px solid #1a2840;display:flex;align-items:center;justify-content:center;color:#6b8ba4"><i class="fas fa-barcode"></i></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">#1a2840</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:40px;height:40px;border-radius:7px;border:1px solid #1a2840;display:flex;align-items:center;justify-content:center;color:#6b8ba4"><i class="fas fa-moon"></i></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#22c55e">#1a2840</span>
+        </div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">One border color everywhere — no exceptions</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 5. STATUS PILLS — font family -->
+<!-- ══════════════════════════════════════════ -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-tags"></i> Issue 5 — Status Pill Font Consistency</div>
+
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — pill uses 12px Sarabun+Rajdhani</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <span class="sp" style="font-size:12px;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em;background:#0c1e3a;color:#93c5fd;border:1px solid #1e3a5f">รอตรวจ</span>
+        <span class="sp" style="font-size:12px;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em;background:#052e16;color:#86efac;border:1px solid #14532d">เข้าห้องตรวจ</span>
+        <span class="sp" style="font-size:12px;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em;background:#4c0a0a;color:#fca5a5;border:1px solid #7f1d1d">กู้ชีพ</span>
+        <span class="sp" style="font-size:12px;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em;background:#422006;color:#fde68a;border:1px solid #92400e">สังเกตอาการ</span>
+      </div>
+      <div class="issue-note">These are actually fine — just confirming they're consistent</div>
+    </div>
+
+    <div class="compare-box fixed">
+      <span class="box-label fixed">NO CHANGE NEEDED</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <span class="sp" style="font-size:12px;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em;background:#0c1e3a;color:#93c5fd;border:1px solid #1e3a5f">รอตรวจ</span>
+        <span class="sp" style="font-size:12px;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em;background:#052e16;color:#86efac;border:1px solid #14532d">เข้าห้องตรวจ</span>
+        <span class="sp" style="font-size:12px;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em;background:#4c0a0a;color:#fca5a5;border:1px solid #7f1d1d">กู้ชีพ</span>
+        <span class="sp" style="font-size:12px;font-family:'Sarabun','Rajdhani',sans-serif;letter-spacing:.02em;background:#422006;color:#fde68a;border:1px solid #92400e">สังเกตอาการ</span>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">Status pills are already consistent — no fix needed</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 6. DESIGN SYSTEM REFERENCE -->
+<!-- ══════════════════════════════════════════ -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-ruler-combined"></i> Floor Design System — Reference</div>
+
+  <div style="background:#0c1520;border:1px solid #1a2840;border-radius:8px;padding:20px">
+
+    <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#6b8ba4;text-transform:uppercase;margin-bottom:12px">Colors</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border-radius:8px;background:#080e17;border:1px solid #1a2840;margin-bottom:4px"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Body</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#080e17</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border-radius:8px;background:#0f1a27;border:1px solid #1a2840;margin-bottom:4px"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Card</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#0f1a27</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border-radius:8px;background:#0c1520;border:1px solid #1a2840;margin-bottom:4px"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Panel</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#0c1520</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border-radius:8px;background:#070e18;border:1px solid #1a2840;margin-bottom:4px"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Input</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#070e18</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border-radius:8px;background:#1a2840;margin-bottom:4px"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Border</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#1a2840</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border-radius:8px;background:#0ea5e9;margin-bottom:4px"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Accent</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#0ea5e9</div>
+      </div>
+    </div>
+
+    <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#6b8ba4;text-transform:uppercase;margin-bottom:12px">Text Hierarchy</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <div style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#dde6f0</div>
+        <span style="color:#dde6f0;font-size:13px;font-weight:600">Primary — patient name, headings</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <div style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#7a9ab8</div>
+        <span style="color:#7a9ab8;font-size:12px">Sub — chief complaint, descriptions</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <div style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#6b8ba4</div>
+        <span style="color:#6b8ba4;font-size:11px;font-family:'IBM Plex Mono',monospace">Muted — HN, sex/age, icons, meta</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <div style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">#4a6a88</div>
+        <span style="color:#4a6a88;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase">Dim — labels, placeholders</span>
+      </div>
+    </div>
+
+    <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#6b8ba4;text-transform:uppercase;margin-bottom:12px">Fonts</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <div style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">Sarabun</div>
+        <span style="font-family:'Sarabun',sans-serif;font-size:13px;color:#dde6f0">ข้อความทั่วไป ชื่อผู้ป่วย Body text</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <div style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">Rajdhani</div>
+        <span style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#dde6f0">LABELS · HEADERS · BUTTONS</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <div style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a6a88">IBM Plex</div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#dde6f0">HN 123-456-789 · 14:30 · 45y</span>
+      </div>
+    </div>
+
+    <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#6b8ba4;text-transform:uppercase;margin-bottom:12px">ESI Colors</div>
+    <div style="display:flex;gap:8px">
+      <div style="width:36px;height:36px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">1</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:#ec4899;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">2</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:#eab308;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">3</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">4</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">5</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PUBLIC VIEW ISSUES -->
+<!-- ══════════════════════════════════════════ -->
+<div style="margin-top:48px;margin-bottom:24px;padding-top:24px;border-top:2px solid #0ea5e9">
+  <h1>Public View Audit</h1>
+  <p class="subtitle">Compared against Floor design system</p>
+</div>
+
+
+<!-- PV Issue 1: Background color -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-fill-drip"></i> PV Issue 1 — Different Background Color</div>
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — lighter dark bg</span>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <div style="text-align:center">
+          <div style="width:64px;height:64px;border-radius:8px;background:#0c1421;border:1px solid #374151;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Public bg</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#f59e0b">#0c1421</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:64px;height:64px;border-radius:8px;background:#080e17;border:1px solid #1a2840;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Floor bg</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#22c55e">#080e17</div>
+        </div>
+      </div>
+      <div class="issue-note">Public View uses #0c1421, Floor uses #080e17 — visibly different</div>
+    </div>
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — use Floor bg</span>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <div style="text-align:center">
+          <div style="width:64px;height:64px;border-radius:8px;background:#080e17;border:1px solid #1a2840;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b8ba4">Both pages</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#22c55e">#080e17</div>
+        </div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">Same body background everywhere</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PV Issue 2: ESI colors differ in dark mode -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-circle-half-stroke"></i> PV Issue 2 — ESI Colors Differ in Dark Mode</div>
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — Public View darkens ESI colors</span>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <div style="width:36px;height:36px;border-radius:50%;background:#991b1b;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">1</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#be185d;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">2</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#a16207;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">3</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#166534;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">4</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#1e40af;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">5</div>
+      </div>
+      <div class="issue-note">Public View overrides ESI colors in dark mode to darker shades (#991b1b, #be185d, etc.)</div>
+    </div>
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — same bright ESI as Floor</span>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <div style="width:36px;height:36px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">1</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#ec4899;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">2</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#eab308;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">3</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">4</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700">5</div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">Bright ESI colors — same across all pages, easy to recognize at a glance</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PV Issue 3: Tailwind gray system vs Floor custom colors -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-swatchbook"></i> PV Issue 3 — Tailwind Grays vs Floor Custom Colors</div>
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — uses Tailwind gray-800, gray-700, etc.</span>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="width:48px;height:48px;border-radius:8px;background:#1f2937;border:1px solid #374151;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b8ba4">gray-800</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#f59e0b">#1f2937</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:48px;height:48px;border-radius:8px;background:#374151;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b8ba4">gray-700</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#f59e0b">#374151</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:48px;height:48px;border-radius:8px;background:#4b5563;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b8ba4">gray-500</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#f59e0b">#6b7280</div>
+        </div>
+      </div>
+      <div class="issue-note">Tailwind's neutral grays feel flat and generic — no blue tint like Floor</div>
+    </div>
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — Floor's blue-tinted darks</span>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="width:48px;height:48px;border-radius:8px;background:#0f1a27;border:1px solid #1a2840;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b8ba4">Card</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#22c55e">#0f1a27</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:48px;height:48px;border-radius:8px;background:#1a2840;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b8ba4">Border</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#22c55e">#1a2840</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:48px;height:48px;border-radius:8px;background:#6b8ba4;margin-bottom:4px"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b8ba4">Muted</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#22c55e">#6b8ba4</div>
+        </div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">Blue-tinted darks match Floor's medical/military aesthetic</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PV Issue 4: Header style completely different -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-heading"></i> PV Issue 4 — Header Looks Like a Different App</div>
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — sky blue logo, huge clock, light theme button</span>
+      <div style="background:#1f2937;border:1px solid #374151;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="background:rgba(14,165,233,.15);padding:6px;border-radius:8px">
+            <div style="width:28px;height:28px;background:#0ea5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700">+</div>
+          </div>
+          <div>
+            <div style="font-size:16px;font-weight:700;background:linear-gradient(to right,#0284c7,#14b8a6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">ESPER INVICTUS</div>
+            <div style="font-size:9px;font-weight:600;letter-spacing:.1em;color:#6b7280;text-transform:uppercase">ห้องฉุกเฉิน · Emergency Department</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:#fff">14:30</div>
+          <div style="font-size:11px;color:#9ca3af">23 มี.ค. 2569</div>
+        </div>
+      </div>
+      <div class="issue-note">Sky-blue gradient logo, large clock (22px), Tailwind grays — doesn't match Floor</div>
+    </div>
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — Floor header style</span>
+      <div style="background:#080e17;border:1px solid #1a2840;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:28px;height:28px;background:linear-gradient(135deg,#F59E0B,#B45309);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700">+</div>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent">ESPER INVICTUS</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;color:#3a6a8a;letter-spacing:.16em;text-transform:uppercase">Public · BBT ER</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#dde6f0;letter-spacing:.06em">14:30</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#4a6a88;letter-spacing:.05em">23 มี.ค. 2569</div>
+        </div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">Same amber logo, same brand font, same clock size, Floor's dark palette</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PV Issue 5: Light mode should be dropped -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-moon"></i> PV Issue 5 — Drop Light Mode</div>
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT — has light + dark mode with toggle</span>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <div style="flex:1;background:#f0f9ff;border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:12px;color:#374151;font-weight:600">Light Mode</div>
+          <div style="font-size:10px;color:#6b7280;margin-top:4px">bg: #f0f9ff</div>
+        </div>
+        <div style="flex:1;background:#0c1421;border:1px solid #374151;border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:12px;color:#d1d5db;font-weight:600">Dark Mode</div>
+          <div style="font-size:10px;color:#6b7280;margin-top:4px">bg: #0c1421</div>
+        </div>
+      </div>
+      <div class="issue-note">Light mode exists but Floor is dark-only — switching feels like a different app</div>
+    </div>
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED — dark only, matches Floor</span>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <div style="flex:1;background:#080e17;border:1px solid #1a2840;border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:12px;color:#dde6f0;font-weight:600">Dark Only</div>
+          <div style="font-size:10px;color:#6b8ba4;margin-top:4px">bg: #080e17</div>
+          <div style="font-size:10px;color:#4a6a88;margin-top:2px">No toggle needed</div>
+        </div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">One look across the entire system — clean, consistent, no confusion</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PV Issue 6: Font Awesome version -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-font"></i> PV Issue 6 — Different Font Awesome Version</div>
+  <div class="compare">
+    <div class="compare-box current">
+      <span class="box-label current">CURRENT</span>
+      <div style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4">
+        <div>Floor: <span style="color:#22c55e">Font Awesome 6.4.2</span></div>
+        <div style="margin-top:4px">Public: <span style="color:#f59e0b">Font Awesome 6.0.0</span></div>
+      </div>
+      <div class="issue-note">Different versions — some icons may be missing or render differently</div>
+    </div>
+    <div class="compare-box fixed">
+      <span class="box-label fixed">STANDARDIZED</span>
+      <div style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4">
+        <div>Both: <span style="color:#22c55e">Font Awesome 6.4.2</span></div>
+      </div>
+      <div class="issue-note" style="background:#0a1e0a;border-color:#14532d;color:#86efac">Same CDN version everywhere</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SUMMARY -->
+<!-- ══════════════════════════════════════════ -->
+<div class="audit-section">
+  <div class="section-title"><i class="fas fa-clipboard-check"></i> Summary — What Needs Fixing</div>
+  <div style="background:#0c1520;border:1px solid #1a2840;border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>Muted text colors:</strong> Reduce 5 shades → 3 clear levels (dim/muted/sub)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>Card meta text:</strong> Unify HN + sex/age to one color (#6b8ba4)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>QV header:</strong> 16px → 14px, replace Tailwind classes with explicit CSS</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>Border drift:</strong> Theme button #1e3047 → #1a2840</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#22c55e;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px;color:#6b8ba4"><strong>Status pills:</strong> Already consistent — no change</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#22c55e;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px;color:#6b8ba4"><strong>ESI colors:</strong> Already consistent — no change</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#22c55e;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px;color:#6b8ba4"><strong>Font families:</strong> Already consistent — no change</span>
+    </div>
+
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid #1a2840;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#0ea5e9;text-transform:uppercase;margin-bottom:10px">Public View</div>
+
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>Background:</strong> #0c1421 → #080e17 (match Floor)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>ESI colors:</strong> Remove dark-mode overrides, use Floor's bright colors</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>Color system:</strong> Replace Tailwind grays with Floor's blue-tinted darks</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>Header:</strong> Match Floor's brand style, clock size, palette</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>Light mode:</strong> Drop it — dark only, like Floor</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#ef4444;font-size:12px"><i class="fas fa-circle"></i></span>
+      <span style="font-size:13px"><strong>Font Awesome:</strong> 6.0.0 → 6.4.2 (match Floor)</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

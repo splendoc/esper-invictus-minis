@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOCKUP — Public View Light (Real Cards)</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#edf2f7;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+.mono{font-family:'IBM Plex Mono',monospace}
+.raj{font-family:'Rajdhani',sans-serif}
+
+/* Toolbar */
+.toolbar{padding:6px 16px;background:#fff;border-bottom:1px solid #d0dbe8;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.tb-label{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;color:#6b8ba4;margin-right:2px}
+.tb-btn{padding:3px 10px;border-radius:5px;border:1px solid #d0dbe8;background:#fff;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:#4a6a88;transition:all .15s}
+.tb-btn:hover{border-color:#6b8ba4}
+.tb-btn.on{background:#0f1a27;color:#fff;border-color:#0f1a27}
+.tb-div{width:1px;height:18px;background:#d0dbe8;margin:0 4px}
+
+/* Header */
+.hdr{background:#fff;border-bottom:2px solid #d0dbe8;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+
+/* Banner */
+.banner{padding:6px 24px;flex-shrink:0}
+.banner-inner{border-radius:6px;padding:8px 14px;display:flex;align-items:center;gap:10px}
+
+/* Main grid */
+.main{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px;min-height:0}
+.section{background:#fff;border-radius:10px;border:1px solid #d0dbe8;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.sec-hdr-area{padding:12px 16px;border-bottom:1px solid #d0dbe8;flex-shrink:0}
+.sec-body{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+
+/* ESI badge colors */
+.esi-1{background:#ef4444}.esi-2{background:#ec4899}.esi-3{background:#eab308}.esi-4{background:#22c55e}.esi-5{background:#3b82f6}
+
+/* Real patient card — matches actual Public View code */
+.pcard{
+  height:100px;flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;padding:12px;
+  border-radius:8px;background:#f8fafc;
+  border:1px solid #d0dbe8;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+  transition:box-shadow .2s;
+}
+.pcard:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+
+/* ESI HN box */
+.esi-box{width:76px;height:76px;border-radius:8px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;gap:2px;margin-right:12px}
+.esi-box .hn-num{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;letter-spacing:.08em;line-height:1}
+.esi-box .esi-lbl{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;margin-top:2px}
+
+/* ESI level pill (inside card) */
+.esi-pill-col{flex-shrink:0;width:90px;margin-right:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:76px;border-right:1px solid #d0dbe8;padding-right:12px}
+.esi-pill{border-radius:8px;padding:4px 8px;color:#fff;text-align:center;width:100%}
+.esi-pill .th{font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;line-height:1.2}
+.esi-pill .en{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;margin-top:2px}
+
+/* Patient info */
+.pt-name{font-family:'Sarabun',sans-serif;font-size:24px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pt-meta{font-family:'Sarabun',sans-serif;font-size:13px;margin-top:2px}
+.pt-status{font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;margin-top:3px;display:flex;align-items:center;gap:8px}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* Wait time cards */
+.wcard{flex:1;border-radius:8px;border:1px solid;border-top-width:3px;padding:6px 8px;text-align:center;background:#fff}
+
+/* Disclaimer */
+.disclaimer{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 12px;font-family:'Sarabun',sans-serif;font-size:13px;line-height:1.6}
+
+/* Level pill */
+.level-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-family:'Sarabun',sans-serif;font-weight:700;font-size:13px;border:2px solid;white-space:nowrap;flex-shrink:0}
+
+/* Dynamic color classes */
+.txt-primary{color:#0c2340}
+.txt-sub{color:#4a6a88}
+.txt-status{color:#1e3a5f}
+.txt-banner{color:#15803d}
+</style>
+</head>
+<body>
+
+<!-- ══════════ TOOLBAR ══════════ -->
+<div class="toolbar">
+  <span class="tb-label">TEXT</span>
+  <button class="tb-btn" onclick="pick('txt','#0f1a27',this)">Black</button>
+  <button class="tb-btn" onclick="pick('txt','#1e293b',this)">Dark Slate</button>
+  <button class="tb-btn on" onclick="pick('txt','#0c2340',this)">Navy</button>
+  <button class="tb-btn" onclick="pick('txt','#1a365d',this)">Royal Navy</button>
+  <button class="tb-btn" onclick="pick('txt','#14304a',this)">Deep Teal</button>
+  <div class="tb-div"></div>
+  <span class="tb-label">BG</span>
+  <button class="tb-btn on" onclick="pick('bg','#edf2f7',this)">Cool Gray</button>
+  <button class="tb-btn" onclick="pick('bg','#f0f4f8',this)">Blue Gray</button>
+  <button class="tb-btn" onclick="pick('bg','#f5f5f4',this)">Warm Stone</button>
+  <button class="tb-btn" onclick="pick('bg','#ffffff',this)">White</button>
+</div>
+<div class="toolbar" style="gap:10px">
+  <span class="tb-label">NAME</span>
+  <input type="range" min="16" max="36" value="24" oninput="sz('pt-name',this.value)" style="width:100px">
+  <span class="mono" style="font-size:10px;color:#6b8ba4;min-width:30px" id="v-name">24px</span>
+  <div class="tb-div"></div>
+  <span class="tb-label">META</span>
+  <input type="range" min="10" max="20" value="13" oninput="sz('pt-meta',this.value)" style="width:80px">
+  <span class="mono" style="font-size:10px;color:#6b8ba4;min-width:30px" id="v-meta">13px</span>
+  <div class="tb-div"></div>
+  <span class="tb-label">STATUS</span>
+  <input type="range" min="10" max="22" value="15" oninput="sz('pt-status',this.value)" style="width:80px">
+  <span class="mono" style="font-size:10px;color:#6b8ba4;min-width:30px" id="v-status">15px</span>
+  <div class="tb-div"></div>
+  <span class="tb-label">CLOCK</span>
+  <input type="range" min="16" max="44" value="23" oninput="szId('clock',this.value,'v-clock')" style="width:80px">
+  <span class="mono" style="font-size:10px;color:#6b8ba4;min-width:30px" id="v-clock">23px</span>
+  <div class="tb-div"></div>
+  <span class="tb-label">ESI BOX</span>
+  <input type="range" min="48" max="100" value="76" oninput="szEsi(this.value)" style="width:80px">
+  <span class="mono" style="font-size:10px;color:#6b8ba4;min-width:30px" id="v-esi">76px</span>
+  <div class="tb-div"></div>
+  <span class="tb-label">CARD H</span>
+  <input type="range" min="70" max="140" value="100" oninput="szCard(this.value)" style="width:80px">
+  <span class="mono" style="font-size:10px;color:#6b8ba4;min-width:30px" id="v-card">100px</span>
+</div>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="hdr">
+  <div style="display:flex;align-items:center;gap:12px">
+    <svg width="50" height="50" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="38" stroke="url(#lg1)" stroke-width="2" fill="none" opacity="0.7"/>
+      <circle cx="40" cy="40" r="28" fill="url(#lg2)" opacity="0.92"/>
+      <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+      <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+      <circle cx="40" cy="18" r="3" fill="url(#lg3)" opacity="0.85"/>
+      <circle cx="62" cy="40" r="2.5" fill="url(#lg3)" opacity="0.65"/>
+      <circle cx="40" cy="62" r="2" fill="url(#lg3)" opacity="0.45"/>
+      <circle cx="18" cy="40" r="2.5" fill="url(#lg3)" opacity="0.65"/>
+      <defs>
+        <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/></linearGradient>
+        <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#B45309"/></linearGradient>
+        <linearGradient id="lg3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient>
+      </defs>
+    </svg>
+    <div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.06em;line-height:1;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">ESPER INVICTUS</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:#3a6a8a;letter-spacing:.16em;text-transform:uppercase;margin-top:3px">Public · MINIS</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="width:1px;height:32px;background:#d0dbe8;flex-shrink:0"></div>
+    <div style="text-align:center">
+      <div class="mono txt-primary" style="font-size:23px;font-weight:600;letter-spacing:.06em;line-height:1" id="clock">14:30</div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;color:#4a6a88;letter-spacing:.02em;margin-top:3px" id="dateD">23 มี.ค. 2569</div>
+    </div>
+    <div style="width:36px;height:36px;border-radius:8px;border:1px solid #d0dbe8;display:flex;align-items:center;justify-content:center;color:#6b8ba4;font-size:14px;cursor:pointer;background:#f8fafc"><i class="fas fa-moon"></i></div>
+  </div>
+</div>
+
+<!-- ══════════ BANNER ══════════ -->
+<div class="banner">
+  <div class="banner-inner" style="border-left:4px solid #16a34a;background:#f0fdf4">
+    <span style="font-size:18px">✓</span>
+    <div style="flex:1">
+      <div class="txt-banner" style="font-family:'Sarabun',sans-serif;font-weight:700;font-size:14px">ห้องฉุกเฉินพร้อมให้บริการ</div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#4a6a88;margin-top:1px"><i class="fas fa-bell" style="opacity:.5;margin-right:4px"></i>หากอาการเปลี่ยนแปลง กรุณาแจ้งเจ้าหน้าที่</div>
+    </div>
+    <span class="level-pill" style="color:#15803d;border-color:#16a34a;background:rgba(22,163,74,0.1)">ปกติ <span class="mono" style="font-size:11px;letter-spacing:.04em;font-weight:700">Normal</span></span>
+  </div>
+</div>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
+
+  <!-- WAITING -->
+  <div class="section">
+    <div class="sec-hdr-area">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <i class="fas fa-clock" style="color:#b45309;font-size:16px"></i>
+        <span class="txt-primary" style="font-family:'Sarabun',sans-serif;font-size:18px;font-weight:700">รอรับการรักษา</span>
+        <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;color:#6b8ba4;letter-spacing:.06em">· Waiting</span>
+        <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;padding:2px 10px;border-radius:12px;background:#fef3c7;color:#92400e">18</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <div class="wcard" style="border-color:#eab308;background:#fffbeb">
+          <div style="color:#b45309;font-family:'Sarabun',sans-serif;font-weight:700;font-size:12px">ระดับ 3</div>
+          <div class="txt-primary" style="font-family:'Sarabun',sans-serif;font-weight:700;font-size:16px">~2.5–3 ชม.</div>
+        </div>
+        <div class="wcard" style="border-color:#22c55e;background:#f0fdf4">
+          <div style="color:#15803d;font-family:'Sarabun',sans-serif;font-weight:700;font-size:12px">ระดับ 4</div>
+          <div class="txt-primary" style="font-family:'Sarabun',sans-serif;font-weight:700;font-size:16px">~3–4 ชม.</div>
+        </div>
+        <div class="wcard" style="border-color:#3b82f6;background:#eff6ff">
+          <div style="color:#1d4ed8;font-family:'Sarabun',sans-serif;font-weight:700;font-size:12px">ระดับ 5</div>
+          <div class="txt-primary" style="font-family:'Sarabun',sans-serif;font-weight:700;font-size:16px">~4–5 ชม.</div>
+        </div>
+      </div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#6b8ba4;text-align:center;margin-top:6px">ทีมแพทย์จะดูแลท่านตามความเร่งด่วนทางการแพทย์</div>
+    </div>
+    <div class="sec-body">
+
+      <div class="pcard">
+        <div class="esi-box esi-1"><div class="hn-num">**546</div><div class="esi-lbl">ESI 1</div></div>
+        <div class="esi-pill-col"><div class="esi-pill esi-1"><div class="th">กู้ชีพ</div></div><div class="txt-sub" style="font-size:11px;margin-top:3px">Resuscitation</div></div>
+        <div style="flex:1;min-width:0"><div class="pt-name txt-primary">Tho****** Koo****</div><div class="pt-meta txt-sub">หญิง · 31 ปี</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="esi-box esi-2"><div class="hn-num">**086</div><div class="esi-lbl">ESI 2</div></div>
+        <div class="esi-pill-col"><div class="esi-pill esi-2"><div class="th">เร่งด่วน</div></div><div class="txt-sub" style="font-size:11px;margin-top:3px">Emergent</div></div>
+        <div style="flex:1;min-width:0"><div class="pt-name txt-primary">Cha*** Vis*******</div><div class="pt-meta txt-sub">หญิง · 28 ปี</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="esi-box esi-3"><div class="hn-num">**215</div><div class="esi-lbl">ESI 3</div></div>
+        <div class="esi-pill-col"><div class="esi-pill esi-3"><div class="th">กึ่งฉุกเฉิน</div></div><div class="txt-sub" style="font-size:11px;margin-top:3px">Urgent</div></div>
+        <div style="flex:1;min-width:0"><div class="pt-name txt-primary">Som*** Jai****</div><div class="pt-meta txt-sub">ชาย · 45 ปี</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="esi-box esi-5"><div class="hn-num">**337</div><div class="esi-lbl">ESI 5</div></div>
+        <div class="esi-pill-col"><div class="esi-pill esi-5"><div class="th">ทั่วไป</div></div><div class="txt-sub" style="font-size:11px;margin-top:3px">Non-Urgent</div></div>
+        <div style="flex:1;min-width:0"><div class="pt-name txt-primary">Art*** Run****</div><div class="pt-meta txt-sub">หญิง · 75 ปี</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ACTIVE -->
+  <div class="section">
+    <div class="sec-hdr-area">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <i class="fas fa-stethoscope" style="color:#15803d;font-size:16px"></i>
+        <span class="txt-primary" style="font-family:'Sarabun',sans-serif;font-size:18px;font-weight:700">กำลังรับการรักษา</span>
+        <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;color:#6b8ba4;letter-spacing:.06em">· Active</span>
+        <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;padding:2px 10px;border-radius:12px;background:#dcfce7;color:#166534">14</span>
+      </div>
+      <div class="disclaimer" style="color:#15803d">
+        <i class="fas fa-info-circle" style="color:#16a34a;margin-right:6px"></i>ทีมแพทย์กำลังดูแลผู้ป่วยอย่างเต็มที่ หากมีความคืบหน้า จะมีการแจ้งและเรียกญาติเป็นระยะ ขอความกรุณารอในบริเวณที่จัดไว้
+      </div>
+    </div>
+    <div class="sec-body">
+
+      <div class="pcard">
+        <div class="esi-box esi-1"><div class="hn-num">**546</div><div class="esi-lbl">ESI 1</div></div>
+        <div class="esi-pill-col"><div class="esi-pill esi-1"><div class="th">กู้ชีพ</div></div><div class="txt-sub" style="font-size:11px;margin-top:3px">Resuscitation</div></div>
+        <div style="flex:1;min-width:0">
+          <div class="pt-name txt-primary">Tho****** Koo****</div>
+          <div class="pt-meta txt-sub">หญิง · 31 ปี</div>
+          <div class="pt-status txt-status"><div class="status-dot" style="background:#60a5fa"></div>ปรึกษาแพทย์เฉพาะทาง</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="esi-box esi-2"><div class="hn-num">**086</div><div class="esi-lbl">ESI 2</div></div>
+        <div class="esi-pill-col"><div class="esi-pill esi-2"><div class="th">เร่งด่วน</div></div><div class="txt-sub" style="font-size:11px;margin-top:3px">Emergent</div></div>
+        <div style="flex:1;min-width:0">
+          <div class="pt-name txt-primary">Cha*** Vis*******</div>
+          <div class="pt-meta txt-sub">หญิง · 28 ปี</div>
+          <div class="pt-status txt-status"><div class="status-dot" style="background:#818cf8"></div>ส่งเอ็กซ์เรย์คอมพิวเตอร์ (CT)</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="esi-box esi-3"><div class="hn-num">**215</div><div class="esi-lbl">ESI 3</div></div>
+        <div class="esi-pill-col"><div class="esi-pill esi-3"><div class="th">กึ่งฉุกเฉิน</div></div><div class="txt-sub" style="font-size:11px;margin-top:3px">Urgent</div></div>
+        <div style="flex:1;min-width:0">
+          <div class="pt-name txt-primary">Som*** Jai****</div>
+          <div class="pt-meta txt-sub">ชาย · 45 ปี</div>
+          <div class="pt-status txt-status"><div class="status-dot" style="background:#22c55e"></div>เข้าห้องตรวจ</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="esi-box esi-2"><div class="hn-num">**401</div><div class="esi-lbl">ESI 2</div></div>
+        <div class="esi-pill-col"><div class="esi-pill esi-2"><div class="th">เร่งด่วน</div></div><div class="txt-sub" style="font-size:11px;margin-top:3px">Emergent</div></div>
+        <div style="flex:1;min-width:0">
+          <div class="pt-name txt-primary">Pra*** Suk****</div>
+          <div class="pt-meta txt-sub">ชาย · 68 ปี</div>
+          <div class="pt-status txt-status"><div class="status-dot" style="background:#f59e0b"></div>สังเกตอาการ</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Clock
+function tick(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+  document.getElementById('dateD').textContent=now.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
+}
+tick();setInterval(tick,1000);
+
+// Size sliders
+function sz(cls,v){
+  document.querySelectorAll('.'+cls).forEach(el=>el.style.fontSize=v+'px');
+  const label=document.getElementById('v-'+cls.replace('pt-',''));
+  if(label) label.textContent=v+'px';
+}
+function szId(id,v,lbl){
+  document.getElementById(id).style.fontSize=v+'px';
+  document.getElementById(lbl).textContent=v+'px';
+}
+function szEsi(v){
+  document.querySelectorAll('.esi-box').forEach(el=>{
+    el.style.width=v+'px';el.style.height=v+'px';
+  });
+  // Scale HN number proportionally
+  const hn=Math.round(v*0.24);
+  document.querySelectorAll('.hn-num').forEach(el=>el.style.fontSize=hn+'px');
+  document.getElementById('v-esi').textContent=v+'px';
+}
+function szCard(v){
+  document.querySelectorAll('.pcard').forEach(el=>el.style.height=v+'px');
+  document.getElementById('v-card').textContent=v+'px';
+}
+
+// Color picker
+function pick(type, color, btn){
+  // Toggle button state within group
+  const group = btn.parentElement;
+  const label = type==='txt' ? 'TEXT' : 'BG';
+  let inGroup = false;
+  for(let el of group.children){
+    if(el.textContent.trim()===label) inGroup=true;
+    if(el.classList.contains('tb-div')) inGroup=false;
+    if(inGroup && el.classList.contains('tb-btn')){
+      el.classList.remove('on');
+    }
+  }
+  btn.classList.add('on');
+
+  if(type==='bg'){
+    document.body.style.background=color;
+    return;
+  }
+
+  // Text color — update all elements with color classes
+  document.querySelectorAll('.txt-primary').forEach(el=>el.style.color=color);
+
+  // Sub text — derive a lighter version
+  const sub = {
+    '#0f1a27':'#4a5568',
+    '#1e293b':'#64748b',
+    '#0c2340':'#4a6a88',
+    '#1a365d':'#5a7a90',
+    '#14304a':'#5a7a90'
+  }[color]||'#4a6a88';
+  document.querySelectorAll('.txt-sub').forEach(el=>el.style.color=sub);
+
+  // Status text — slightly lighter than primary
+  const st = {
+    '#0f1a27':'#374151',
+    '#1e293b':'#475569',
+    '#0c2340':'#1e3a5f',
+    '#1a365d':'#2d4a6f',
+    '#14304a':'#1e4a6a'
+  }[color]||'#1e3a5f';
+  document.querySelectorAll('.txt-status').forEach(el=>el.style.color=st);
+}
+</script>
+</body>
+</html>
