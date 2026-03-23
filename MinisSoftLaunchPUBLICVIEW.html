@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ER Live Patient Status - Public Display</title>
+    <title>ESPER INVICTUS · BBT ER</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,16 +13,18 @@
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
-        body {
-            background-color: #f0f9ff;
-            font-family: 'Sarabun', sans-serif;
-            overflow: hidden;
-        }
-        .dark body { background-color: #0c1421; }
-        .mono { font-family: 'IBM Plex Mono', monospace; }
-        .raj  { font-family: 'Rajdhani', sans-serif; }
+        /* ── Base ── */
+        body { background-color:#edf2f7; font-family:'Sarabun',sans-serif; overflow:hidden; }
+        .dark body { background-color:#080e17; }
+        .mono { font-family:'IBM Plex Mono',monospace; }
+        .raj  { font-family:'Rajdhani',sans-serif; }
 
-        /* Mobile: scroll freely */
+        /* ── Scrollbar (Floor style) ── */
+        ::-webkit-scrollbar{width:3px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:#1a2840;border-radius:2px}
+
+        /* ── Mobile: scroll freely ── */
         @media (max-width: 767px) {
             body { overflow-y: auto !important; }
             #app  { height: auto !important; }
@@ -30,75 +32,66 @@
             .section-wrap { height: auto !important; min-height: 400px; }
         }
 
-        /* Landscape: side by side */
+        /* ── Landscape: side by side ── */
         @media (orientation: landscape) and (min-width: 768px) {
             #main-content { grid-template-rows: none !important; grid-template-columns: 1fr 1fr !important; }
         }
 
-        /* ESI Colors — ORIGINAL UNTOUCHED */
-        .esi-1 { background-color: #ef4444; color: white; }
-        .esi-2 { background-color: #ec4899; color: white; }
-        .esi-3 { background-color: #eab308; color: white; }
-        .esi-4 { background-color: #22c55e; color: white; }
-        .esi-5 { background-color: #3b82f6; color: white; }
-        .dark .esi-1 { background-color: #991b1b; }
-        .dark .esi-2 { background-color: #be185d; }
-        .dark .esi-3 { background-color: #a16207; }
-        .dark .esi-4 { background-color: #166534; }
-        .dark .esi-5 { background-color: #1e40af; }
+        /* ── ESI Colors — bright in both themes ── */
+        .esi-1 { background-color:#ef4444; color:white; }
+        .esi-2 { background-color:#ec4899; color:white; }
+        .esi-3 { background-color:#eab308; color:white; }
+        .esi-4 { background-color:#22c55e; color:white; }
+        .esi-5 { background-color:#3b82f6; color:white; }
 
-        /* gEDWIN Banner */
+        /* ── gEDWIN Banner ── */
         #gedwin-banner {
-            border-left: 4px solid #16a34a;
-            background-color: #f0fdf4;
-            transition: opacity 1.5s ease, background-color 1.5s ease, border-color 1.5s ease;
+            border-left:4px solid #16a34a;
+            background-color:#f0fdf4;
+            transition:opacity 1.5s ease, background-color 1.5s ease, border-color 1.5s ease;
         }
-        .dark #gedwin-banner { background-color: rgba(5,46,22,0.5); }
+        .dark #gedwin-banner { background-color:rgba(5,46,22,0.5); }
 
-        /* Wait time cards */
-        .wcard { flex:1; border-radius:8px; border:1px solid; border-top-width:3px; padding:6px 6px; text-align:center; }
-        .wcard-3 { border-color:#d97706; background:rgba(217,119,6,0.07); }
-        .wcard-4 { border-color:#16a34a; background:rgba(22,163,74,0.07); }
-        .wcard-5 { border-color:#2563eb; background:rgba(37,99,235,0.07); }
+        /* ── Wait time cards ── */
+        .wcard { flex:1; border-radius:8px; border:1px solid; border-top-width:3px; padding:6px 6px; text-align:center; background:#fff; }
+        .wcard-3 { border-color:#eab308; background:rgba(217,119,6,0.06); }
+        .wcard-4 { border-color:#22c55e; background:rgba(22,163,74,0.06); }
+        .wcard-5 { border-color:#3b82f6; background:rgba(37,99,235,0.06); }
+        .dark .wcard { background:#0f1a27; }
         .dark .wcard-3 { background:rgba(217,119,6,0.12); }
         .dark .wcard-4 { background:rgba(22,163,74,0.12); }
         .dark .wcard-5 { background:rgba(37,99,235,0.12); }
 
-        /* Active disclaimer box */
+        /* ── Active disclaimer box ── */
         .active-note {
             border-radius:8px; padding:10px 12px;
-            background:rgba(34,197,94,0.06);
-            border:1px solid rgba(34,197,94,0.2);
+            background:#f0fdf4; border:1px solid #86efac;
             font-family:'Sarabun',sans-serif;
             font-size:0.88rem; line-height:1.7;
-            color:#374151;
+            color:#15803d;
         }
-        .dark .active-note { color:#d1fae5; background:rgba(34,197,94,0.08); border-color:rgba(34,197,94,0.15); }
+        .dark .active-note { color:#86efac; background:rgba(5,46,22,0.5); border-color:rgba(34,197,94,0.25); }
 
-        /* Section wrapper — fixed height, nothing jumps */
+        /* ── Section wrapper ── */
         .section-wrap { display:flex; flex-direction:column; overflow:hidden; }
 
-        /* Fixed equal height for both section headers */
-        .sec-hdr { height: 175px; flex-shrink:0; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; gap:8px; }
+        /* ── Fixed section header height ── */
+        .sec-hdr { height:175px; flex-shrink:0; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; gap:8px; }
 
-        /* Fixed card height — consistent across waiting and active */
+        /* ── Patient card ── */
         .patient-card-fixed {
-            height: 100px;
-            flex-shrink: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
+            height:100px; flex-shrink:0; overflow:hidden;
+            display:flex; align-items:center;
         }
 
-        /* gEDWIN level pill badge */
+        /* ── gEDWIN level pill badge ── */
         .level-pill {
             display:inline-flex; align-items:center; gap:6px;
             padding:5px 16px; border-radius:20px;
             font-family:'Sarabun',sans-serif;
             font-size:0.9rem; font-weight:700;
             border:2px solid; white-space:nowrap;
-            transition: all 0.8s ease;
-            flex-shrink:0;
+            transition:all 0.8s ease; flex-shrink:0;
         }
         .level-pill .pill-en {
             font-family:'IBM Plex Mono',monospace;
@@ -106,7 +99,7 @@
             letter-spacing:.04em;
         }
 
-        /* Pagination */
+        /* ── Pagination ── */
         .page-area { flex:1; min-height:0; overflow:hidden; position:relative; }
         .page-slide {
             position:absolute; inset:0; padding:10px 12px;
@@ -114,61 +107,119 @@
             transition:opacity 1.5s ease;
         }
         .page-dots { flex-shrink:0; display:flex; justify-content:center; gap:6px; padding:5px 0; }
-        .pdot { height:5px; border-radius:3px; background:#d1d5db; transition:all 0.5s ease; }
-        .dark .pdot { background:#374151; }
+        .pdot { height:5px; border-radius:3px; background:#d0dbe8; transition:all 0.5s ease; }
+        .dark .pdot { background:#1a2840; }
         .pdot.on  { width:16px; }
         .pdot.off { width:6px;  }
+
+        /* ── Header — Floor style ── */
+        .pv-hdr { background:#fff; border-bottom:2px solid #d0dbe8; }
+        .dark .pv-hdr { background:#080e17; border-bottom:1px solid #1a2840; }
+        .pv-brand { font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:700; letter-spacing:.06em; line-height:1;
+            background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .pv-sub { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; margin-top:3px; color:#6b8ba4; }
+        .dark .pv-sub { color:#3a6a8a; }
+        .pv-clock { font-family:'IBM Plex Mono',monospace; font-size:23px; font-weight:600; letter-spacing:.06em; line-height:1; color:#0c2340; }
+        .dark .pv-clock { color:#dde6f0; }
+        .pv-date { font-family:'Sarabun',sans-serif; font-size:12px; font-weight:600; color:#4a6a88; letter-spacing:.02em; margin-top:3px; }
+        .pv-theme-btn { width:36px; height:36px; border-radius:8px; border:1px solid #d0dbe8; display:flex; align-items:center; justify-content:center; color:#6b8ba4; font-size:14px; cursor:pointer; background:#f8fafc; }
+        .dark .pv-theme-btn { border-color:#1a2840; background:rgba(255,255,255,.03); }
+        .pv-divider { width:1px; height:32px; background:#d0dbe8; flex-shrink:0; }
+        .dark .pv-divider { background:#1a2840; }
+
+        /* ── Sections — Floor dark / light ── */
+        .pv-section { background:#fff; border:1px solid #d0dbe8; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+        .dark .pv-section { background:#0c1520; border-color:#1a2840; box-shadow:none; }
+        .pv-sec-border { border-bottom:1px solid #d0dbe8; }
+        .dark .pv-sec-border { border-color:#1a2840; }
+
+        /* ── Text colors ── */
+        .pv-text { color:#0c2340; }
+        .dark .pv-text { color:#dde6f0; }
+        .pv-sub-text { color:#4a6a88; }
+        .dark .pv-sub-text { color:#6b8ba4; }
+        .pv-muted { color:#6b8ba4; }
+        .pv-status-text { color:#1e3a5f; }
+        .dark .pv-status-text { color:#7a9ab8; }
+
+        /* ── Wait card text ── */
+        .wcard-val { font-family:'Sarabun',sans-serif; font-weight:700; font-size:1.3rem; color:#0c2340; }
+        .dark .wcard-val { color:#dde6f0; }
+        .wcard-lbl { font-family:'Sarabun',sans-serif; font-weight:700; font-size:0.95rem; }
+
+        /* ── Count badges ── */
+        .cnt-wait { font-family:'IBM Plex Mono',monospace; background:#fef3c7; color:#92400e; }
+        .dark .cnt-wait { background:#0c1e3a; color:#93c5fd; }
+        .cnt-active { font-family:'IBM Plex Mono',monospace; background:#dcfce7; color:#166534; }
+        .dark .cnt-active { background:#052e16; color:#86efac; }
+
+        /* ── Banner text ── */
+        .banner-title { font-family:'Sarabun',sans-serif; font-weight:700; font-size:14px; color:#15803d; }
+        .dark .banner-title { color:#dde6f0; }
+        .banner-sub { font-family:'Sarabun',sans-serif; font-size:12px; color:#4a6a88; }
+        .dark .banner-sub { color:#6b8ba4; }
+
+        /* ── Section titles ── */
+        .sec-title-th { font-family:'Sarabun',sans-serif; font-weight:700; }
+        .sec-title-en { font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.06em; }
     </style>
 </head>
-<body class="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+<body class="transition-colors duration-300">
 <div class="flex flex-col h-screen" id="app">
 
-    <!-- HEADER — original structure kept -->
-    <header class="flex-shrink-0 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-md">
+    <!-- HEADER — Floor style -->
+    <header class="flex-shrink-0 pv-hdr">
 
         <!-- Top bar -->
-        <div class="flex justify-between items-center p-3 px-6">
-            <div class="flex items-center gap-4">
-                <div class="bg-sky-100 dark:bg-sky-900/50 p-2 rounded-xl">
-                    <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
-                        <circle cx="40" cy="40" r="38" stroke="url(#lg1p)" stroke-width="2" fill="none" opacity="0.7"/>
-                        <circle cx="40" cy="40" r="28" fill="url(#lg2p)" opacity="0.92"/>
-                        <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
-                        <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
-                        <defs>
-                            <linearGradient id="lg1p" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/>
-                            </linearGradient>
-                            <linearGradient id="lg2p" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#0369a1"/><stop offset="100%" stop-color="#0ea5e9"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
+        <div class="flex justify-between items-center" style="padding:14px 32px">
+            <div class="flex items-center gap-3">
+                <!-- Amber logo — same as Floor -->
+                <svg width="50" height="50" viewBox="0 0 80 80" fill="none" style="flex-shrink:0">
+                    <circle cx="40" cy="40" r="38" stroke="url(#lg1p)" stroke-width="2" fill="none" opacity="0.7"/>
+                    <circle cx="40" cy="40" r="28" fill="url(#lg2p)" opacity="0.92"/>
+                    <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+                    <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+                    <circle cx="40" cy="18" r="3" fill="url(#lg3p)" opacity="0.85"/>
+                    <circle cx="62" cy="40" r="2.5" fill="url(#lg3p)" opacity="0.65"/>
+                    <circle cx="40" cy="62" r="2" fill="url(#lg3p)" opacity="0.45"/>
+                    <circle cx="18" cy="40" r="2.5" fill="url(#lg3p)" opacity="0.65"/>
+                    <defs>
+                        <linearGradient id="lg1p" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/>
+                        </linearGradient>
+                        <linearGradient id="lg2p" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#B45309"/>
+                        </linearGradient>
+                        <linearGradient id="lg3p" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#F59E0B"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
                 <div>
-                    <div class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-600 to-teal-500 dark:from-sky-400 dark:to-teal-300" style="letter-spacing:-0.5px">ESPER INVICTUS</div>
-                    <div class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">ห้องฉุกเฉิน · Emergency Department</div>
+                    <div class="pv-brand">ESPER INVICTUS</div>
+                    <div class="pv-sub">Public · MINIS</div>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <div class="text-right">
-                    <div id="time" class="text-3xl font-semibold text-gray-800 dark:text-white font-mono"></div>
-                    <div id="date" class="text-sm text-gray-500 dark:text-gray-400"></div>
+                <div class="pv-divider"></div>
+                <div style="text-align:center">
+                    <div id="time" class="pv-clock"></div>
+                    <div id="date" class="pv-date"></div>
                 </div>
-                <button id="themeToggle" class="px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                    <i id="themeIcon" class="fas fa-sun text-xl"></i>
+                <button id="themeToggle" class="pv-theme-btn">
+                    <i id="themeIcon" class="fas fa-sun"></i>
                 </button>
             </div>
         </div>
 
-        <!-- gEDWIN Banner — replaces crowding bar -->
+        <!-- gEDWIN Banner -->
         <div id="gedwin-banner" class="px-6 py-2">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3" style="border-radius:6px">
                 <span id="banner-icon" class="text-lg flex-shrink-0">✓</span>
                 <div class="flex-1 min-w-0">
-                    <p id="banner-th" class="font-bold text-sm text-gray-800 dark:text-gray-100 leading-snug" style="font-family:'Sarabun',sans-serif">ห้องฉุกเฉินพร้อมให้บริการ</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5" style="font-family:'Sarabun',sans-serif">
-                        <i class="fas fa-bell mr-1 opacity-60"></i>หากอาการเปลี่ยนแปลง กรุณาแจ้งเจ้าหน้าที่
+                    <p id="banner-th" class="banner-title">ห้องฉุกเฉินพร้อมให้บริการ</p>
+                    <p class="banner-sub mt-0.5">
+                        <i class="fas fa-bell mr-1 opacity-50"></i>หากอาการเปลี่ยนแปลง กรุณาแจ้งเจ้าหน้าที่
                     </p>
                 </div>
                 <span id="level-pill" class="level-pill flex-shrink-0" style="color:#16a34a;border-color:#16a34a;background:rgba(22,163,74,0.15)">ปกติ <span class="pill-en">Normal</span></span>
@@ -180,34 +231,31 @@
     <!-- MAIN CONTENT -->
     <main id="main-content" class="flex-grow grid grid-rows-2 gap-3 p-3 min-h-0">
 
-        <!-- WAITING PATIENTS — first, majority audience -->
-        <section class="section-wrap bg-gray-50 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-            <div class="sec-hdr flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">
-                <!-- Title -->
+        <!-- WAITING PATIENTS -->
+        <section class="section-wrap pv-section rounded-xl">
+            <div class="sec-hdr flex-shrink-0 p-4 pv-sec-border">
                 <div class="flex items-center gap-2 mb-2">
-                    <i class="fas fa-clock text-amber-500 text-lg"></i>
-                    <h2 class="text-xl font-bold text-gray-800 dark:text-white" style="font-family:'Sarabun',sans-serif">
-                        รอรับการรักษา <span class="text-base font-normal text-gray-400 dark:text-gray-500">· Waiting Patients</span>
+                    <i class="fas fa-clock" style="color:#f59e0b;font-size:16px"></i>
+                    <h2 class="sec-title-th text-xl pv-text">
+                        รอรับการรักษา <span class="sec-title-en text-base pv-sub-text">· Waiting</span>
                     </h2>
-                    <span id="wait-count" class="ml-auto text-sm font-bold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400">0</span>
+                    <span id="wait-count" class="ml-auto text-sm font-bold px-2.5 py-0.5 rounded-full cnt-wait">0</span>
                 </div>
-                <!-- Wait time cards -->
                 <div style="display:flex;gap:8px">
                     <div class="wcard wcard-3">
-                        <div class="font-bold mb-1" style="color:#d97706;font-family:'Sarabun',sans-serif;font-size:0.95rem;font-weight:700">ระดับ 3</div>
-                        <div class="font-bold text-gray-800 dark:text-white" id="wt3" style="font-family:'Sarabun',sans-serif;font-size:1.3rem">~2.5–3 ชม.</div>
+                        <div class="wcard-lbl mb-1" style="color:#eab308">ระดับ 3</div>
+                        <div class="wcard-val" id="wt3">~2.5–3 ชม.</div>
                     </div>
                     <div class="wcard wcard-4">
-                        <div class="font-bold mb-1" style="color:#16a34a;font-family:'Sarabun',sans-serif;font-size:0.95rem;font-weight:700">ระดับ 4</div>
-                        <div class="font-bold text-gray-800 dark:text-white" id="wt4" style="font-family:'Sarabun',sans-serif;font-size:1.3rem">~3–4 ชม.</div>
+                        <div class="wcard-lbl mb-1" style="color:#22c55e">ระดับ 4</div>
+                        <div class="wcard-val" id="wt4">~3–4 ชม.</div>
                     </div>
                     <div class="wcard wcard-5">
-                        <div class="font-bold mb-1" style="color:#2563eb;font-family:'Sarabun',sans-serif;font-size:0.95rem;font-weight:700">ระดับ 5</div>
-                        <div class="font-bold text-gray-800 dark:text-white" id="wt5" style="font-family:'Sarabun',sans-serif;font-size:1.3rem">~4–5 ชม.</div>
+                        <div class="wcard-lbl mb-1" style="color:#3b82f6">ระดับ 5</div>
+                        <div class="wcard-val" id="wt5">~4–5 ชม.</div>
                     </div>
                 </div>
-                <!-- Priority subtitle -->
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center" style="font-family:'Sarabun',sans-serif;margin-top:6px">
+                <p class="text-sm pv-sub-text text-center" style="font-family:'Sarabun',sans-serif;margin-top:6px">
                     ทีมแพทย์จะดูแลท่านตามความเร่งด่วนทางการแพทย์
                 </p>
             </div>
@@ -215,20 +263,18 @@
             <div class="page-dots" id="waiting-dots"></div>
         </section>
 
-        <!-- ACTIVE PATIENTS — second -->
-        <section class="section-wrap bg-gray-50 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-            <div class="sec-hdr flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">
-                <!-- Title -->
+        <!-- ACTIVE PATIENTS -->
+        <section class="section-wrap pv-section rounded-xl">
+            <div class="sec-hdr flex-shrink-0 p-4 pv-sec-border">
                 <div class="flex items-center gap-2 mb-2">
-                    <i class="fas fa-stethoscope text-green-500 text-lg"></i>
-                    <h2 class="text-xl font-bold text-gray-800 dark:text-white" style="font-family:'Sarabun',sans-serif">
-                        กำลังรับการรักษา <span class="text-base font-normal text-gray-400 dark:text-gray-500">· Active Patients</span>
+                    <i class="fas fa-stethoscope" style="color:#22c55e;font-size:16px"></i>
+                    <h2 class="sec-title-th text-xl pv-text">
+                        กำลังรับการรักษา <span class="sec-title-en text-base pv-sub-text">· Active</span>
                     </h2>
-                    <span id="active-count" class="ml-auto text-sm font-bold px-2.5 py-0.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400">0</span>
+                    <span id="active-count" class="ml-auto text-sm font-bold px-2.5 py-0.5 rounded-full cnt-active">0</span>
                 </div>
-                <!-- Disclaimer -->
                 <div class="active-note">
-                    <i class="fas fa-info-circle text-green-500 mr-2"></i>ทีมแพทย์กำลังดูแลผู้ป่วยอย่างเต็มที่
+                    <i class="fas fa-info-circle mr-2" style="color:#4ade80"></i>ทีมแพทย์กำลังดูแลผู้ป่วยอย่างเต็มที่
                     หากมีความคืบหน้า จะมีการแจ้งและเรียกญาติเป็นระยะ
                     ขอความกรุณารอในบริเวณที่จัดไว้
                     และกรุณาฝากเบอร์ติดต่อที่เคาเตอร์พยาบาล
@@ -352,32 +398,32 @@ document.addEventListener('DOMContentLoaded', function () {
     let activePatients  = Array.from({length:12}, () => generatePatient(true));
     let waitingPatients = Array.from({length:18}, () => generatePatient(false));
 
-    // Patient card — ORIGINAL FORMAT UNTOUCHED, showStatus flag added
+    // Patient card — restyled to Floor design
     function createPatientCard(patient, showStatus = true) {
         const label         = esiLabels[patient.esi];
         const cfg           = sc(patient.status);
         const isDisposition = FINAL_STATUSES.has(patient.status);
         const cardOpacity   = isDisposition ? 'opacity-50' : '';
-        const borderStyle   = isDisposition ? 'border-l-4 border-amber-400' : '';
         return `
-            <div class="patient-card-fixed flex items-center p-3 rounded-lg shadow-md bg-white dark:bg-gray-900/50 transition-shadow duration-300 hover:shadow-xl ${cardOpacity} ${borderStyle}">
-                <div class="esi-${patient.esi} rounded-lg w-20 h-20 flex-shrink-0 flex flex-col items-center justify-center mr-3 shadow-inner text-center gap-1">
-                    <div class="font-bold text-xl tracking-widest leading-none">**${patient.hnLast3}</div>
-                    <div class="text-xs font-bold tracking-widest uppercase opacity-80 w-full text-center mt-1">ESI ${patient.esi}</div>
+            <div class="patient-card-fixed flex items-center p-3 rounded-lg transition-all duration-200 ${cardOpacity}"
+                 style="background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--esi-${patient.esi}-c)">
+                <div class="esi-${patient.esi} rounded-lg flex-shrink-0 flex flex-col items-center justify-center mr-3 text-center gap-1" style="width:76px;height:76px">
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;letter-spacing:.08em;line-height:1">**${patient.hnLast3}</div>
+                    <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;margin-top:2px">ESI ${patient.esi}</div>
                 </div>
-                <div class="flex-shrink-0 w-28 mr-3 flex flex-col items-center justify-center h-20 border-r border-gray-200 dark:border-gray-700 pr-3">
+                <div class="flex-shrink-0 mr-3 flex flex-col items-center justify-center" style="width:90px;height:76px;border-right:1px solid var(--border);padding-right:12px">
                     <div class="esi-${patient.esi} rounded-lg px-2 py-1 mb-1 text-center w-full">
-                        <div class="font-bold text-base leading-tight" style="font-family:'Sarabun',sans-serif">${label.th}</div>
+                        <div style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;line-height:1.2">${label.th}</div>
                     </div>
-                    <div class="text-xs text-gray-400 dark:text-gray-500 font-medium text-center">${label.en}</div>
+                    <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em" class="pv-sub-text">${label.en}</div>
                 </div>
                 <div class="flex-grow min-w-0 pl-1">
-                    <p class="font-bold text-2xl text-gray-800 dark:text-white truncate" style="font-family:'Sarabun',sans-serif">${patient.name}</p>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5" style="font-family:'Sarabun',sans-serif">
+                    <p class="font-bold text-2xl truncate pv-text" style="font-family:'Sarabun',sans-serif">${patient.name}</p>
+                    <p class="mt-0.5 pv-sub-text" style="font-family:'Sarabun',sans-serif;font-size:13px">
                         ${patient.sex === 'M' ? 'ชาย' : patient.sex === 'F' ? 'หญิง' : 'เด็ก'} · ${patient.age} ปี
                     </p>
-                    ${showStatus ? `<p class="text-base font-semibold text-gray-600 dark:text-gray-300 mt-0.5 flex items-center gap-2">
-                        <i class="fas fa-circle-dot text-sm flex-shrink-0" style="color:${cfg.dot}"></i>
+                    ${showStatus ? `<p class="mt-0.5 flex items-center gap-2 pv-status-text" style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600">
+                        <span style="width:10px;height:10px;border-radius:50%;background:${cfg.dot};flex-shrink:0;display:inline-block"></span>
                         <span class="truncate">${cfg.pub}</span>
                     </p>` : ''}
                 </div>
@@ -395,8 +441,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const slice  = sorted.slice(pg*ps, pg*ps+ps);
         document.getElementById(slideId).innerHTML = slice.length
             ? slice.map(p => createPatientCard(p, showStatus)).join('')
-            : `<div class="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                 <i class="fas fa-inbox text-3xl"></i><span class="text-sm">ไม่มีผู้ป่วย</span>
+            : `<div class="flex flex-col items-center justify-center h-full pv-sub-text gap-2">
+                 <i class="fas fa-inbox text-3xl"></i><span class="text-sm" style="font-family:'Sarabun',sans-serif">ไม่มีผู้ป่วย</span>
                </div>`;
         const dotsEl = document.getElementById(dotsId);
         if (total > 1) {
@@ -470,20 +516,35 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Clock
+    // Clock — Floor style, Thai full date with BE
     function updateTime() {
         const now = new Date();
-        document.getElementById('time').textContent = now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-        document.getElementById('date').textContent = now.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+        document.getElementById('time').textContent = now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+        document.getElementById('date').textContent = now.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
     }
     updateTime();
     setInterval(updateTime, 1000);
 
-    // Theme — original logic
+    // Theme — Floor-aligned with CSS variables
     function applyTheme(isDark) {
         document.documentElement.classList.toggle('dark', isDark);
-        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
         localStorage.setItem('darkMode', isDark);
+        // Set CSS variables for card rendering
+        const root = document.documentElement.style;
+        if(isDark){
+            root.setProperty('--card-bg','#0f1a27');
+            root.setProperty('--border','#1a2840');
+        } else {
+            root.setProperty('--card-bg','#f8fafc');
+            root.setProperty('--border','#d0dbe8');
+        }
+        // ESI colors as variables for card left-border
+        root.setProperty('--esi-1-c','#ef4444');
+        root.setProperty('--esi-2-c','#ec4899');
+        root.setProperty('--esi-3-c','#eab308');
+        root.setProperty('--esi-4-c','#22c55e');
+        root.setProperty('--esi-5-c','#3b82f6');
         lastLevelIdx = -1;
         updateBanner();
     }
