@@ -11,6 +11,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>tailwind.config={darkMode:'class'}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;overflow:hidden;margin:0;scrollbar-width:thin;scrollbar-color:#1a2840 transparent}
@@ -656,6 +657,184 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 
 <script>
 // ══════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════
+const SUPABASE_URL = 'https://djsganssutgaoztvcrbg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqc2dhbnNzdXRnYW96dHZjcmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTgzNzQsImV4cCI6MjA4OTgzNDM3NH0.sb6Z6KQIvnrIFOzttE8d-IP-vF7dg19BcFwBtQxQweo';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ══════════════════════════════════════════
+// SUPABASE HELPERS
+// ══════════════════════════════════════════
+
+// Convert DB row to patient object (unified model)
+function dbToPatient(row) {
+  // row = joined visits + patients data
+  return {
+    id: row.visit_id || row.id,
+    patientId: row.patient_id,
+    hn: row.hn,
+    title: row.title || '',
+    firstName: row.first_name,
+    lastName: row.last_name,
+    sex: row.sex,
+    age: { y: row.age_y || 0, m: row.age_m || 0, d: row.age_d || 0 },
+    esi: row.esi,
+    tab: row.tab,
+    status: row.status,
+    cc: row.chief_complaint || '',
+    phones: [
+      { num: row.phone_1 || '', lbl: row.phone_1_label || '' },
+      { num: row.phone_2 || '', lbl: row.phone_2_label || '' }
+    ],
+    waitMin: row.arrived_at ? Math.floor((Date.now() - new Date(row.arrived_at).getTime()) / 60000) : 0,
+    stayMin: row.activated_at ? Math.floor((Date.now() - new Date(row.activated_at).getTime()) / 60000) : 0,
+    v: { bt:null, sbp:null, dbp:null, hr:null, rr:null, spo2:null, src:'RA', lpm:null, dtx:null },
+    trend: 's',
+    upd: row.updated_at ? new Date(row.updated_at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'}) : '—',
+    arrivedAt: row.arrived_at,
+    activatedAt: row.activated_at,
+    fastTrack: row.fast_track
+  };
+}
+
+// Load all active visits with patient data
+async function loadPatients() {
+  const { data, error } = await sb
+    .from('visits')
+    .select(`
+      id,
+      patient_id,
+      esi,
+      chief_complaint,
+      status,
+      tab,
+      fast_track,
+      arrived_at,
+      activated_at,
+      finalized_at,
+      updated_at,
+      patients (
+        id, hn, title, first_name, last_name, sex,
+        age_y, age_m, age_d,
+        phone_1, phone_1_label, phone_2, phone_2_label
+      )
+    `)
+    .order('arrived_at', { ascending: true });
+
+  if (error) { console.error('Load error:', error); return []; }
+
+  return data.map(row => {
+    const p = row.patients;
+    return dbToPatient({
+      visit_id: row.id,
+      patient_id: row.patient_id,
+      hn: p.hn,
+      title: p.title,
+      first_name: p.first_name,
+      last_name: p.last_name,
+      sex: p.sex,
+      age_y: p.age_y,
+      age_m: p.age_m,
+      age_d: p.age_d,
+      phone_1: p.phone_1,
+      phone_1_label: p.phone_1_label,
+      phone_2: p.phone_2,
+      phone_2_label: p.phone_2_label,
+      esi: row.esi,
+      chief_complaint: row.chief_complaint,
+      status: row.status,
+      tab: row.tab,
+      fast_track: row.fast_track,
+      arrived_at: row.arrived_at,
+      activated_at: row.activated_at,
+      updated_at: row.updated_at
+    });
+  });
+}
+
+// Register new patient to Supabase
+async function registerPatient(patientData, visitData) {
+  // 1. Insert or find patient
+  let patientId;
+  const { data: existing } = await sb
+    .from('patients')
+    .select('id')
+    .eq('hn', patientData.hn)
+    .maybeSingle();
+
+  if (existing) {
+    patientId = existing.id;
+    // Update patient info
+    await sb.from('patients').update({
+      title: patientData.title,
+      first_name: patientData.firstName,
+      last_name: patientData.lastName,
+      sex: patientData.sex,
+      age_y: patientData.age.y,
+      age_m: patientData.age.m,
+      age_d: patientData.age.d
+    }).eq('id', patientId);
+  } else {
+    const { data: newPt, error } = await sb
+      .from('patients')
+      .insert({
+        hn: patientData.hn,
+        title: patientData.title,
+        first_name: patientData.firstName,
+        last_name: patientData.lastName,
+        sex: patientData.sex,
+        age_y: patientData.age.y,
+        age_m: patientData.age.m,
+        age_d: patientData.age.d
+      })
+      .select('id')
+      .single();
+    if (error) { console.error('Insert patient error:', error); return null; }
+    patientId = newPt.id;
+  }
+
+  // 2. Create visit
+  const { data: visit, error: vErr } = await sb
+    .from('visits')
+    .insert({
+      patient_id: patientId,
+      esi: visitData.esi,
+      chief_complaint: visitData.cc,
+      status: visitData.status,
+      tab: visitData.tab,
+      fast_track: visitData.fastTrack || null,
+      activated_at: visitData.tab === 'active' ? new Date().toISOString() : null
+    })
+    .select('id')
+    .single();
+  if (vErr) { console.error('Insert visit error:', vErr); return null; }
+  return { patientId, visitId: visit.id };
+}
+
+// Update visit status
+async function updateVisitStatus(visitId, newStatus, newTab, activatedAt) {
+  const updates = { status: newStatus, tab: newTab };
+  if (newTab === 'active' && !activatedAt) updates.activated_at = new Date().toISOString();
+  if (newTab === 'finalized') updates.finalized_at = new Date().toISOString();
+
+  const { error } = await sb
+    .from('visits')
+    .update(updates)
+    .eq('id', visitId);
+  if (error) console.error('Update status error:', error);
+}
+
+// Update patient info (name, age, title, HN, phones)
+async function updatePatientInfo(patientId, fields) {
+  const { error } = await sb
+    .from('patients')
+    .update(fields)
+    .eq('id', patientId);
+  if (error) console.error('Update patient error:', error);
+}
+
+// ══════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════
 const ESI_CLR  = {1:'#ef4444',2:'#ec4899',3:'#eab308',4:'#22c55e',5:'#3b82f6'};
@@ -855,7 +1034,7 @@ function renderSFilter(){
   list.forEach(p=>{ counts[p.status]=(counts[p.status]||0)+1; });
   const statuses = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
 
-  if(statuses.length <= 1){ bar.style.display='none'; return; }
+  if(statuses.length < 1){ bar.style.display='none'; return; }
 
   bar.style.display='flex';
   let html = `<button class="sf-chip${statusFilter==='all'?' on':''}" onclick="setSFilter('all')">All <span class="sf-cnt">${list.length}</span></button>`;
@@ -1086,9 +1265,16 @@ function buildCard(p){
     </div>
 
     <!-- Time -->
-    <div style="flex-shrink:0;text-align:right;min-width:60px">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:${timeColor};line-height:1;${isWaiting && timeMin>=ESI_RED[p.esi]?'animation:blink 1.4s ease-in-out infinite':''}">${fm(timeMin)}</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:${timeColor};opacity:.8;margin-top:2px;letter-spacing:.12em">${isWaiting?'WAIT':'STAY'}</div>
+    <div style="flex-shrink:0;display:flex;align-items:center;gap:8px">
+      <div style="text-align:right;min-width:40px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:#4a6a88;line-height:1">${p.arrivedAt ? new Date(p.arrivedAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'}) : p.upd||''}</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:#4a6a88;opacity:.8;margin-top:2px;letter-spacing:.12em">TRIAGE</div>
+      </div>
+      <div style="width:1px;height:24px;background:#1a2840;flex-shrink:0"></div>
+      <div style="text-align:right;min-width:50px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:${timeColor};line-height:1;${isWaiting && timeMin>=ESI_RED[p.esi]?'animation:blink 1.4s ease-in-out infinite':''}">${fm(timeMin)}</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:${timeColor};opacity:.8;margin-top:2px;letter-spacing:.12em">${isWaiting?'WAIT':'STAY'}</div>
+      </div>
     </div>
 
   </div>`;
@@ -1249,7 +1435,7 @@ function updatePrev(){
   btn.className='can-confirm';
 }
 
-function confirmStatus(){
+async function confirmStatus(){
   const p=patients.find(x=>x.id===qvId);
   if(!p||!qvSel) return;
   const isClosing = qvGrp && qvGrp.includes('ปิดเคส');
@@ -1272,6 +1458,9 @@ function confirmStatus(){
   } else if(p.tab==='disposition' && FINAL_STATUSES.has(qvSel)){
     p.tab='finalized';
   }
+
+  // Write to Supabase
+  await updateVisitStatus(p.id, p.status, p.tab, p.activatedAt);
 
   const nm = [p.firstName,p.lastName].filter(Boolean).join(' ')||fullName(p);
   const movedTo = p.tab;
@@ -1874,7 +2063,8 @@ function resetRegForm(){
   document.querySelectorAll('.reg-ft-btn').forEach(b=>b.classList.remove('active'));
 }
 
-// HN input — format + search as you type
+// HN input — format + search after pause
+let _hnSearchTimer=null;
 function regHNInput(el){
   // Format as XXX-XXX-XXX
   const digits=el.value.replace(/\D/g,'').slice(0,9);
@@ -1884,8 +2074,15 @@ function regHNInput(el){
 
   const dd=document.getElementById('reg-hn-results');
 
-  // If less than 2 digits, hide dropdown
-  if(digits.length<2){ dd.style.display='none'; return; }
+  // If less than 3 digits, hide dropdown
+  if(digits.length<3){ dd.style.display='none'; return; }
+
+  // Debounce — wait 500ms after last keystroke
+  clearTimeout(_hnSearchTimer);
+  _hnSearchTimer=setTimeout(()=>regHNSearch(digits,dd),500);
+}
+
+function regHNSearch(digits,dd){
 
   // Search existing patients by HN digits
   const matches=patients.filter(p=>{
@@ -1899,6 +2096,7 @@ function regHNInput(el){
       <span style="color:#6b8ba4">ไม่พบ — กรอกข้อมูลผู้ป่วยใหม่ด้านล่าง</span>
     </div>`;
     dd.style.display='block';
+    setTimeout(()=>{ dd.style.display='none'; }, 2000);
     return;
   }
 
@@ -2024,7 +2222,7 @@ document.getElementById('reg-ft-clr').addEventListener('click',()=>{
   regEsiChange();
 });
 
-function submitReg(){
+async function submitReg(){
   const fp=_regFoundPatient; // returning patient or null
   const hnRaw=document.getElementById('reg-hn').value.replace(/[-\s]/g,'').trim();
   const title=fp ? fp.title : document.getElementById('reg-title').value;
@@ -2065,29 +2263,24 @@ function submitReg(){
   else if(esi===1){ status='กู้ชีพ'; tab='active'; }
   else { status='รอตรวจ'; tab='waiting'; }
 
-  // Build patient — unified data model
-  const newId = 'R'+(Date.now()%100000);
-  const p = {
-    id: newId,
-    hn: hn,
-    title: title,
-    firstName: fname,
-    lastName: lname,
-    sex: sex,
-    age: {y:ay, m:am, d:ad},
-    esi: esi,
-    tab: tab,
-    status: status,
-    cc: cc,
-    phones: [{num:'',lbl:''},{num:'',lbl:''}],
-    waitMin: 0,
-    stayMin: 0,
-    v: {bt:null,sbp:null,dbp:null,hr:null,rr:null,spo2:null,src:'RA',lpm:null,dtx:null},
-    trend: 's',
-    upd: new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'})
-  };
+  // Build patient data for Supabase
+  const ftName = _regFtActive ? document.querySelector('.reg-ft-btn.active')?.textContent?.trim() : null;
 
-  patients.push(p);
+  const result = await registerPatient(
+    { hn, title, firstName:fname, lastName:lname, sex, age:{y:ay,m:am,d:ad} },
+    { esi, cc, status, tab, fastTrack:ftName }
+  );
+
+  if (!result) {
+    errEl.textContent='เกิดข้อผิดพลาด กรุณาลองใหม่';
+    return;
+  }
+
+  // Reload from Supabase to get the new patient
+  const fresh = await loadPatients();
+  patients.length = 0;
+  fresh.forEach(p => patients.push(p));
+
   closeReg();
   renderSit();
   renderSFilter();
@@ -2097,24 +2290,60 @@ function submitReg(){
   if(targetBtn) switchTab(targetBtn);
   else renderCards();
 
-  requestAnimationFrame(()=>{
-    const card=document.getElementById('card-'+newId);
-    if(card){
-      card.scrollIntoView({behavior:'smooth',block:'nearest'});
-      card.classList.add('card-highlight');
-      setTimeout(()=>card.classList.remove('card-highlight'),3500);
-    }
-  });
-
-  showToast(`<div style="line-height:1.3"><div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:#dde6f0">${fullName(p)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;margin-top:2px">${fmtHN(p.hn)}</div><div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#22c55e;margin-top:3px">Registered → ${sc(status).label}</div></div>`, '#22c55e', 'fa-user-plus');
+  // Find the new visit to highlight
+  const newVisit = patients.find(p => p.hn === hn && p.tab === tab);
+  if(newVisit){
+    requestAnimationFrame(()=>{
+      const card=document.getElementById('card-'+newVisit.id);
+      if(card){
+        card.scrollIntoView({behavior:'smooth',block:'nearest'});
+        card.classList.add('card-highlight');
+        setTimeout(()=>card.classList.remove('card-highlight'),3500);
+      }
+    });
+    showToast(`<div style="line-height:1.3"><div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:#dde6f0">${fullName(newVisit)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;margin-top:2px">${fmtHN(newVisit.hn)}</div><div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#22c55e;margin-top:3px">Registered → ${sc(status).label}</div></div>`, '#22c55e', 'fa-user-plus');
+  }
 }
 
 // ══════════════════════════════════════════
-// INIT
+// INIT — Load from Supabase
 // ══════════════════════════════════════════
-renderSit();
-renderSFilter();
-renderCards();
+async function initApp() {
+  // Load patients from Supabase
+  const dbPatients = await loadPatients();
+  if (dbPatients.length) {
+    // Replace seed data with real data
+    patients.length = 0;
+    dbPatients.forEach(p => patients.push(p));
+  }
+  renderSit();
+  renderSFilter();
+  renderCards();
+
+  // Real-time subscription — update when other computers change data
+  sb
+    .channel('visits-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'visits' }, async () => {
+      const fresh = await loadPatients();
+      patients.length = 0;
+      fresh.forEach(p => patients.push(p));
+      renderSit();
+      renderSFilter();
+      renderCards();
+    })
+    .subscribe();
+
+  // Recalculate wait/stay times every 30 seconds
+  setInterval(() => {
+    patients.forEach(p => {
+      if (p.arrivedAt) p.waitMin = Math.floor((Date.now() - new Date(p.arrivedAt).getTime()) / 60000);
+      if (p.activatedAt) p.stayMin = Math.floor((Date.now() - new Date(p.activatedAt).getTime()) / 60000);
+    });
+    renderSit();
+    renderCards();
+  }, 30000);
+}
+initApp();
 </script>
 </body>
 </html>
