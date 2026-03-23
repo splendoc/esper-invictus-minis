@@ -375,21 +375,23 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 <!-- ══════════════ SITUATION BAR ══════════════ -->
 <section id="sit" class="flex items-center justify-center gap-4 px-4 py-3" style="border-bottom:1px solid #1a2840;background:#080e17">
 
-  <!-- W / A large-number display -->
-  <div class="sit-tbl-wrap flex items-center flex-shrink-0">
-    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:#5a8ab8;text-transform:uppercase;margin-bottom:2px">Waiting</div>
-      <div id="cnt-w" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:#93c5fd;line-height:1">0</div>
-    </div>
-    <div style="width:1px;background:#1a2840;align-self:stretch;margin:4px 0"></div>
-    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px">
+  <!-- Active panel -->
+  <div class="sit-tbl-wrap" style="display:flex;align-items:stretch;gap:0">
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid #1a2840">
       <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:#4a9070;text-transform:uppercase;margin-bottom:2px">Active</div>
       <div id="cnt-a" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:#86efac;line-height:1">0</div>
     </div>
+    <div id="sit-active" style="padding:4px 8px;display:flex;align-items:center"></div>
   </div>
 
-  <!-- Compact summary table -->
-  <div id="sit-table" style="overflow-x:auto;display:flex;align-items:center"></div>
+  <!-- Waiting panel -->
+  <div class="sit-tbl-wrap" style="display:flex;align-items:stretch;gap:0">
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid #1a2840">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:#5a8ab8;text-transform:uppercase;margin-bottom:2px">Waiting</div>
+      <div id="cnt-w" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:#93c5fd;line-height:1">0</div>
+    </div>
+    <div id="sit-waiting" style="padding:4px 8px;display:flex;align-items:center"></div>
+  </div>
 
 </section>
 
@@ -1013,34 +1015,41 @@ function renderSit(){
   document.getElementById('tc-a').textContent  = A.length;
   document.getElementById('tc-f').textContent  = F.length;
 
-  // Build compact summary table
-  const esis = [1,2,3,4,5].filter(e=> W.some(p=>p.esi===e) || A.some(p=>p.esi===e));
-  if(!esis.length){
-    document.getElementById('sit-table').innerHTML=`<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2a3f58;padding:8px">No patients</div>`;
-    return;
+  // Active table
+  const aEsis = [1,2,3,4,5].filter(e=>A.some(p=>p.esi===e));
+  if(!aEsis.length){
+    document.getElementById('sit-active').innerHTML=`<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2a3f58">—</span>`;
+  } else {
+    let ah=`<table class="sit-tbl"><thead><tr><th></th><th>Pts</th><th>Avg LOS</th><th>Max LOS</th></tr></thead><tbody>`;
+    aEsis.forEach(e=>{
+      const as=A.filter(p=>p.esi===e);
+      const cnt=as.length;
+      const avgLos=fm(Math.round(as.reduce((s,p)=>s+p.stayMin,0)/cnt));
+      const maxLos=fm(Math.max(...as.map(p=>p.stayMin)));
+      ah+=`<tr><td style="color:${ESI_CLR[e]}">ESI ${e}</td><td style="color:#86efac">${cnt}</td><td style="color:#c4b5fd">${avgLos}</td><td style="color:#c4b5fd">${maxLos}</td></tr>`;
+    });
+    ah+=`</tbody></table>`;
+    document.getElementById('sit-active').innerHTML=ah;
   }
-  let html=`<div class="sit-tbl-wrap"><table class="sit-tbl"><thead><tr>
-    <th></th><th>Waiting</th><th>Active</th><th>Avg Wait</th><th>Max Wait</th>
-  </tr></thead><tbody>`;
-  esis.forEach(e=>{
-    const ws = W.filter(p=>p.esi===e);
-    const as = A.filter(p=>p.esi===e);
-    const wCnt = ws.length;
-    const aCnt = as.length;
-    const avg = wCnt ? fm(Math.round(ws.reduce((s,p)=>s+p.waitMin,0)/wCnt)) : '—';
-    const mx  = wCnt ? fm(Math.max(...ws.map(p=>p.waitMin))) : '—';
-    const maxBreach = wCnt && ws.some(p=>p.waitMin >= ESI_RED[p.esi]);
-    const avgBreach = wCnt && (ws.reduce((s,p)=>s+p.waitMin,0)/wCnt) >= ESI_AMB[e];
-    html+=`<tr>
-      <td style="color:${ESI_CLR[e]}">ESI ${e}</td>
-      <td style="color:#93c5fd">${wCnt||'—'}</td>
-      <td style="color:#86efac">${aCnt||'—'}</td>
-      <td class="${avgBreach?'bc-am':''}">${avg}</td>
-      <td class="${maxBreach?'bc-rd bc-pulse':''}">${mx}</td>
-    </tr>`;
-  });
-  html+=`</tbody></table></div>`;
-  document.getElementById('sit-table').innerHTML=html;
+
+  // Waiting table
+  const wEsis = [1,2,3,4,5].filter(e=>W.some(p=>p.esi===e));
+  if(!wEsis.length){
+    document.getElementById('sit-waiting').innerHTML=`<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2a3f58">—</span>`;
+  } else {
+    let wh=`<table class="sit-tbl"><thead><tr><th></th><th>Pts</th><th>Avg Wait</th><th>Max Wait</th></tr></thead><tbody>`;
+    wEsis.forEach(e=>{
+      const ws=W.filter(p=>p.esi===e);
+      const cnt=ws.length;
+      const avgWait=fm(Math.round(ws.reduce((s,p)=>s+p.waitMin,0)/cnt));
+      const maxWait=fm(Math.max(...ws.map(p=>p.waitMin)));
+      const maxBreach=ws.some(p=>p.waitMin>=ESI_RED[p.esi]);
+      const avgBreach=(ws.reduce((s,p)=>s+p.waitMin,0)/cnt)>=ESI_AMB[e];
+      wh+=`<tr><td style="color:${ESI_CLR[e]}">ESI ${e}</td><td style="color:#93c5fd">${cnt}</td><td class="${avgBreach?'bc-am':''}">${avgWait}</td><td class="${maxBreach?'bc-rd bc-pulse':''}">${maxWait}</td></tr>`;
+    });
+    wh+=`</tbody></table>`;
+    document.getElementById('sit-waiting').innerHTML=wh;
+  }
 }
 
 // ══════════════════════════════════════════
