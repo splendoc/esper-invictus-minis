@@ -17,7 +17,7 @@
     <style>
         /* Global styles */
         body {
-            background-color: #f0f9ff;
+            background-color: #e2eaf2;
             font-family: 'Sarabun', sans-serif;
             overflow: hidden;
         }
@@ -60,6 +60,8 @@
         /* Logo Styles - Matching ESPER design */
         .logo-container {
             position: relative;
+            width: 120px;
+            height: 120px;
             transform-style: preserve-3d;
             perspective: 1000px;
             animation: logoFloat 6s ease-in-out infinite;
@@ -156,7 +158,7 @@
         /* Animations */
         @keyframes spin3D {
             0% { transform: rotateX(0deg) rotateY(0deg); }
-            100% { transform: rotateX(360deg) rotateY(180deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
         }
 
         @keyframes pulse {
@@ -230,7 +232,7 @@
         <div class="w-full max-w-md">
             <!-- Header with theme toggle -->
             <div class="flex justify-end items-center mb-6">
-                 <button id="themeToggle" class="px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition">
+                 <button id="themeToggle" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm border border-gray-300 dark:border-gray-600">
                      <i id="themeIcon" class="fas fa-moon"></i>
                  </button>
             </div>
@@ -248,7 +250,7 @@
                     </div>
                     <!-- Particles will be added dynamically by JavaScript -->
                 </div>
-                <h1 style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:.06em;line-height:1;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px">ESPER INVICTUS</h1>
+                <h1 style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:.06em;line-height:1;background:linear-gradient(90deg,#38bdf8 0%,#0ea5e9 40%,#0d9488 75%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px">ESPER INVICTUS</h1>
                 <p style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:#6b8ba4;letter-spacing:.16em;text-transform:uppercase">Minis</p>
             </div>
 
@@ -256,18 +258,18 @@
             <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
                 <form id="loginForm" class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-family:'Sarabun','Rajdhani',sans-serif;font-weight:700;letter-spacing:.04em">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em">
                             <i class="fas fa-user mr-2"></i>Username or Email
                         </label>
-                        <input type="text" id="username" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" style="font-family:'Sarabun',sans-serif" placeholder="Enter your username or email" required>
+                        <input type="text" id="username" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" style="font-family:'Rajdhani',sans-serif;font-size:14px" placeholder="Enter your username or email" required>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-family:'Sarabun','Rajdhani',sans-serif;font-weight:700;letter-spacing:.04em">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em">
                             <i class="fas fa-lock mr-2"></i>Password
                         </label>
                         <div class="relative">
-                            <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12" style="font-family:'Sarabun',sans-serif" placeholder="Enter your password" required>
+                            <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12" style="font-family:'Rajdhani',sans-serif;font-size:14px" placeholder="Enter your password" required>
                             <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
                                 <i class="fas fa-eye"></i>
                             </button>
@@ -287,8 +289,8 @@
                     </button>
                 </form>
 
-                <!-- Links -->
-                <div class="mt-6 space-y-4">
+                <!-- Links (hidden for soft launch) -->
+                <div class="mt-6 space-y-4" style="display:none">
                     <div class="text-center">
                         <button id="forgotPasswordBtn" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 text-sm font-medium transition-colors duration-300">
                             <i class="fas fa-key mr-1"></i>Forgot Password?
@@ -311,17 +313,11 @@
         <div class="max-w-md mx-auto border-t border-gray-200 dark:border-gray-700 pt-4">
             <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left space-y-2 sm:space-y-0">
                 <div>
-                    <p style="font-family:'Sarabun',sans-serif">&copy; 2025 ESPER INVICTUS. All rights reserved.</p>
-                    <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4">Developed by spendoc</p>
+                    <p style="font-family:'Rajdhani',sans-serif;letter-spacing:.04em">All rights reserved #DocD 2026</p>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button id="footerTermsLink" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 transition-colors duration-300">
-                        Terms of Service
-                    </button>
-                    <span class="text-gray-400 dark:text-gray-600">|</span>
-                    <button id="contactAdminBtn" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 transition-colors duration-300">
-                        Contact Admin
-                    </button>
+                <div class="flex items-center space-x-2" style="display:none">
+                    <button id="footerTermsLink">Terms of Service</button>
+                    <button id="contactAdminBtn">Contact Admin</button>
                 </div>
             </div>
         </div>
