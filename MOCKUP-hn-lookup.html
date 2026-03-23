@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOCKUP — HN Lookup Flow</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:flex;justify-content:center;padding:40px}
+.mono{font-family:'IBM Plex Mono',monospace}
+.raj{font-family:'Rajdhani',sans-serif}
+
+/* Panel mock */
+.panel{width:390px;background:#0c1520;border:1px solid #1a2840;border-radius:10px;overflow:hidden}
+.panel-hdr{padding:12px 16px;border-bottom:1px solid #1a2840;display:flex;align-items:center;justify-content:space-between}
+.panel-hdr span{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.panel-body{padding:14px 16px}
+
+/* Labels */
+.lbl{font-family:'Sarabun','Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4a6a88;margin-bottom:4px}
+
+/* Inputs */
+.fi{background:#070e18;border:1px solid #1a2840;border-radius:5px;color:#dde6f0;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:8px 10px;width:100%;outline:none}
+.fi:focus{border-color:#0ea5e9}
+.fi::placeholder{color:#2a4a62}
+.fi-thai{font-family:'Sarabun',sans-serif}
+
+/* HN search combo */
+.hn-wrap{display:flex;position:relative}
+.hn-input{flex:1;border-radius:5px 0 0 5px;font-size:14px;padding:10px 12px;letter-spacing:.08em}
+.hn-scan{padding:0 12px;background:#1a2840;color:#6b8ba4;border:1px solid #1a2840;border-left:none;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:color .15s}
+.hn-scan:hover{color:#0ea5e9}
+.hn-gen{padding:0 12px;background:#0369a1;color:#fff;border:none;border-radius:0 5px 5px 0;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em}
+
+/* Dropdown results */
+.hn-results{position:absolute;top:100%;left:0;right:0;background:#0d1826;border:1px solid #1a2840;border-top:none;border-radius:0 0 8px 8px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:10;max-height:240px;overflow-y:auto}
+.hn-results::-webkit-scrollbar{width:3px}
+.hn-results::-webkit-scrollbar-thumb{background:#1a2840;border-radius:2px}
+.hn-result{padding:10px 12px;cursor:pointer;border-bottom:1px solid #0a1420;transition:background .1s;display:flex;align-items:center;gap:10px}
+.hn-result:hover{background:#182838}
+.hn-result:last-child{border-bottom:none}
+.hn-result .esi-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;flex-shrink:0}
+.hn-no-result{padding:12px;text-align:center;color:#4a6a88;font-size:12px}
+
+/* Returning patient badge */
+.badge-return{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:5px;background:#0c1e3a;border:1px solid #1e3a5f;color:#93c5fd;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em}
+.badge-new{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:5px;background:#052e16;border:1px solid #14532d;color:#86efac;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em}
+
+/* Auto-filled field */
+.fi-filled{background:#0a1624;border-color:#1e3a5f;color:#93c5fd}
+
+/* Filled info card */
+.filled-card{background:#0a1624;border:1px solid #1e3a5f;border-radius:8px;padding:10px 14px;margin-top:10px;display:flex;align-items:center;gap:10px}
+
+/* Scenario tabs */
+.scenarios{display:flex;gap:8px;margin-bottom:30px}
+.sc-btn{padding:8px 18px;border-radius:8px;border:1px solid #1a2840;background:transparent;color:#6b8ba4;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all .15s}
+.sc-btn:hover{border-color:#3a5a7a;color:#dde6f0}
+.sc-btn.on{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+
+/* States */
+.state{display:none}
+.state.active{display:block}
+
+/* Form row */
+.row{display:flex;gap:8px;margin-bottom:10px}
+.row>div{flex:1}
+
+/* Section title */
+.sec{font-family:'Rajdhani','Sarabun',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b8ba4;padding:12px 0 8px}
+</style>
+</head>
+<body>
+
+<div>
+  <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#0ea5e9;letter-spacing:.08em;margin-bottom:6px">HN LOOKUP FLOW</div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88;margin-bottom:20px">Click each scenario to see the interaction</div>
+
+  <div class="scenarios">
+    <button class="sc-btn on" onclick="showState('empty')">1. Empty</button>
+    <button class="sc-btn" onclick="showState('typing')">2. Typing</button>
+    <button class="sc-btn" onclick="showState('found')">3. Found</button>
+    <button class="sc-btn" onclick="showState('notfound')">4. Not Found</button>
+    <button class="sc-btn" onclick="showState('selected')">5. Selected</button>
+    <button class="sc-btn" onclick="showState('newpt')">6. New Patient</button>
+  </div>
+
+  <!-- STATE 1: Empty — just opened -->
+  <div class="state active" id="s-empty">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Register Patient</span>
+        <button style="color:#6b8ba4;background:none;border:none;font-size:14px;cursor:pointer"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="panel-body">
+        <div class="lbl">HN <span style="font-weight:400;font-size:9px;color:#5a7a90;text-transform:none;letter-spacing:0">พิมพ์เลข HN หรือสแกนบาร์โค้ด</span></div>
+        <div class="hn-wrap">
+          <input class="fi hn-input" placeholder="พิมพ์ HN เพื่อค้นหา..." style="font-family:'Sarabun',sans-serif">
+          <button class="hn-scan"><i class="fas fa-barcode"></i></button>
+          <button class="hn-gen"><i class="fas fa-magic" style="margin-right:4px"></i>GEN</button>
+        </div>
+        <div style="margin-top:14px;text-align:center;color:#2a4a62;font-size:12px;padding:20px 0">
+          <i class="fas fa-search" style="font-size:20px;margin-bottom:8px;display:block;opacity:.5"></i>
+          พิมพ์เลข HN เพื่อค้นหาผู้ป่วยเดิม<br>หรือกด GEN สำหรับผู้ป่วยใหม่
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE 2: Typing — showing results -->
+  <div class="state" id="s-typing">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Register Patient</span>
+        <button style="color:#6b8ba4;background:none;border:none;font-size:14px;cursor:pointer"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="panel-body">
+        <div class="lbl">HN</div>
+        <div class="hn-wrap">
+          <input class="fi hn-input" value="123" style="border-color:#0ea5e9;font-size:14px;letter-spacing:.08em">
+          <button class="hn-scan"><i class="fas fa-barcode"></i></button>
+          <button class="hn-gen"><i class="fas fa-magic" style="margin-right:4px"></i>GEN</button>
+          <!-- Dropdown -->
+          <div class="hn-results">
+            <div class="hn-result">
+              <div class="esi-dot" style="background:#ef4444">1</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#dde6f0">นาย สมชาย ใจดี</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6b8ba4">HN 123-456-789 · M · 45 ปี</div>
+              </div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:10px;color:#4a6a88">ล่าสุด 15 มี.ค.</div>
+            </div>
+            <div class="hn-result">
+              <div class="esi-dot" style="background:#eab308">3</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#dde6f0">นาง พิมพ์ใจ รักษ์ดี</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6b8ba4">HN 123-789-012 · F · 19 ปี</div>
+              </div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:10px;color:#4a6a88">ล่าสุด 8 มี.ค.</div>
+            </div>
+            <div class="hn-result">
+              <div class="esi-dot" style="background:#3b82f6">5</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#dde6f0">นางสาว ดาวรุ่ง ฟ้าสีคราม</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6b8ba4">HN 123-011-011 · F · 24 ปี</div>
+              </div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:10px;color:#4a6a88">ล่าสุด 1 มี.ค.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE 3: Found but not selected yet -->
+  <div class="state" id="s-found">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Register Patient</span>
+        <button style="color:#6b8ba4;background:none;border:none;font-size:14px;cursor:pointer"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="panel-body">
+        <div class="lbl">HN</div>
+        <div class="hn-wrap">
+          <input class="fi hn-input" value="123456789" style="font-size:14px;letter-spacing:.08em">
+          <button class="hn-scan"><i class="fas fa-barcode"></i></button>
+          <button class="hn-gen"><i class="fas fa-magic" style="margin-right:4px"></i>GEN</button>
+          <div class="hn-results">
+            <div class="hn-result" style="background:#0a1e30">
+              <div class="esi-dot" style="background:#ef4444">1</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#dde6f0">นาย สมชาย ใจดี</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6b8ba4">HN 123-456-789 · M · 45 ปี</div>
+              </div>
+              <span class="badge-return"><i class="fas fa-rotate" style="font-size:9px"></i> ผู้ป่วยเดิม</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE 4: Not found -->
+  <div class="state" id="s-notfound">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Register Patient</span>
+        <button style="color:#6b8ba4;background:none;border:none;font-size:14px;cursor:pointer"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="panel-body">
+        <div class="lbl">HN</div>
+        <div class="hn-wrap">
+          <input class="fi hn-input" value="999888777" style="font-size:14px;letter-spacing:.08em">
+          <button class="hn-scan"><i class="fas fa-barcode"></i></button>
+          <button class="hn-gen"><i class="fas fa-magic" style="margin-right:4px"></i>GEN</button>
+          <div class="hn-results">
+            <div class="hn-no-result">
+              <i class="fas fa-user-slash" style="font-size:14px;margin-bottom:6px;display:block;color:#f59e0b"></i>
+              ไม่พบ HN นี้ในระบบ<br>
+              <span style="color:#6b8ba4">กรอกข้อมูลผู้ป่วยใหม่ด้านล่าง</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec" style="margin-top:8px">ข้อมูลผู้ป่วยใหม่</div>
+        <div class="row">
+          <div><div class="lbl">ชื่อจริง *</div><input class="fi fi-thai" placeholder=""></div>
+          <div><div class="lbl">นามสกุล *</div><input class="fi fi-thai" placeholder=""></div>
+        </div>
+        <div style="font-size:11px;color:#5a7a90;text-align:center">↓ กรอกข้อมูลผู้ป่วยใหม่ต่อด้านล่าง ↓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE 5: Selected — returning patient, auto-filled -->
+  <div class="state" id="s-selected">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Register Patient</span>
+        <button style="color:#6b8ba4;background:none;border:none;font-size:14px;cursor:pointer"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="panel-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="lbl" style="margin:0">HN</div>
+          <span class="badge-return"><i class="fas fa-rotate" style="font-size:9px"></i> ผู้ป่วยเดิม</span>
+        </div>
+        <div class="hn-wrap" style="margin-bottom:4px">
+          <input class="fi hn-input fi-filled" value="123-456-789" readonly style="font-size:14px;letter-spacing:.08em">
+          <button style="padding:0 12px;background:#1a2840;color:#f59e0b;border:1px solid #1a2840;border-left:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;border-radius:0 5px 5px 0"><i class="fas fa-pen" style="margin-right:3px"></i>เปลี่ยน</button>
+        </div>
+
+        <!-- Auto-filled patient info -->
+        <div class="filled-card">
+          <div class="esi-dot" style="background:#ef4444;width:36px;height:36px;font-size:14px">1</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:#dde6f0">นาย สมชาย ใจดี</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;margin-top:2px">M · 45 ปี</div>
+          </div>
+        </div>
+
+        <!-- Pre-filled fields (readonly) -->
+        <div class="row" style="margin-top:12px">
+          <div><div class="lbl">คำนำหน้า</div><input class="fi fi-thai fi-filled" value="นาย" readonly></div>
+          <div><div class="lbl">เพศ</div><input class="fi fi-thai fi-filled" value="ชาย" readonly></div>
+        </div>
+        <div class="row">
+          <div><div class="lbl">ชื่อจริง</div><input class="fi fi-thai fi-filled" value="สมชาย" readonly></div>
+          <div><div class="lbl">นามสกุล</div><input class="fi fi-thai fi-filled" value="ใจดี" readonly></div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div class="lbl">อายุ</div>
+          <input class="fi fi-thai fi-filled" value="45 ปี" readonly style="width:100px">
+        </div>
+
+        <!-- These still need to be filled -->
+        <div class="sec">การประเมินแรกรับ <span style="color:#f59e0b;font-size:9px">← กรอกใหม่ทุกครั้ง</span></div>
+        <div style="margin-bottom:10px">
+          <div class="lbl">CHIEF COMPLAINT *</div>
+          <textarea class="fi fi-thai" rows="2" placeholder="อาการสำคัญ..." style="resize:vertical"></textarea>
+        </div>
+        <div style="margin-bottom:10px">
+          <div class="lbl">ESI LEVEL *</div>
+          <select class="fi fi-thai" style="cursor:pointer">
+            <option value="">-- Select --</option>
+            <option>1 – Resuscitation</option>
+            <option>2 – Emergent</option>
+            <option>3 – Urgent</option>
+            <option>4 – Less Urgent</option>
+            <option>5 – Non-urgent</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE 6: New patient (GEN pressed) -->
+  <div class="state" id="s-newpt">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Register Patient</span>
+        <button style="color:#6b8ba4;background:none;border:none;font-size:14px;cursor:pointer"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="panel-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="lbl" style="margin:0">HN</div>
+          <span class="badge-new"><i class="fas fa-user-plus" style="font-size:9px"></i> ผู้ป่วยใหม่</span>
+        </div>
+        <div class="hn-wrap" style="margin-bottom:4px">
+          <input class="fi hn-input fi-filled" value="GEN000042" readonly style="font-size:14px;letter-spacing:.08em;color:#86efac">
+          <button style="padding:0 12px;background:#1a2840;color:#f59e0b;border:1px solid #1a2840;border-left:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;border-radius:0 5px 5px 0"><i class="fas fa-pen" style="margin-right:3px"></i>เปลี่ยน</button>
+        </div>
+
+        <div class="sec">ข้อมูลผู้ป่วย</div>
+        <div class="row">
+          <div><div class="lbl">คำนำหน้า</div><select class="fi fi-thai" style="cursor:pointer"><option value="">-- เลือก --</option><option>นาย</option><option>นาง</option></select></div>
+          <div><div class="lbl">เพศ *</div><select class="fi fi-thai" style="cursor:pointer"><option value="">-- เลือก --</option><option>ชาย</option><option>หญิง</option><option>X</option></select></div>
+        </div>
+        <div class="row">
+          <div><div class="lbl">ชื่อจริง *</div><input class="fi fi-thai" placeholder=""></div>
+          <div><div class="lbl">นามสกุล *</div><input class="fi fi-thai" placeholder=""></div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div class="lbl">อายุ * <span style="font-weight:400;font-size:10px;color:#5a7a90;text-transform:none;letter-spacing:0">กรอกอย่างน้อย 1 ช่อง</span></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" placeholder="ปี" style="width:55px;text-align:center;font-family:'Sarabun',sans-serif">
+            <span style="font-family:'Rajdhani',sans-serif;font-size:10px;color:#4a6a88">ปี</span>
+            <input class="fi" placeholder="ด." style="width:55px;text-align:center;font-family:'Sarabun',sans-serif">
+            <span style="font-family:'Rajdhani',sans-serif;font-size:10px;color:#4a6a88">เดือน</span>
+            <input class="fi" placeholder="ว." style="width:55px;text-align:center;font-family:'Sarabun',sans-serif">
+            <span style="font-family:'Rajdhani',sans-serif;font-size:10px;color:#4a6a88">วัน</span>
+          </div>
+        </div>
+
+        <div class="sec">การประเมินแรกรับ</div>
+        <div style="margin-bottom:10px">
+          <div class="lbl">CHIEF COMPLAINT *</div>
+          <textarea class="fi fi-thai" rows="2" placeholder="อาการสำคัญ..." style="resize:vertical"></textarea>
+        </div>
+        <div>
+          <div class="lbl">ESI LEVEL *</div>
+          <select class="fi fi-thai" style="cursor:pointer">
+            <option value="">-- Select --</option>
+            <option>1 – Resuscitation</option>
+            <option>2 – Emergent</option>
+            <option>3 – Urgent</option>
+            <option>4 – Less Urgent</option>
+            <option>5 – Non-urgent</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showState(id){
+  document.querySelectorAll('.state').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('on'));
+  event.target.classList.add('on');
+}
+</script>
+</body>
+</html>
