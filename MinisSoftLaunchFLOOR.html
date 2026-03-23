@@ -193,8 +193,8 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 .reg-hn-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid #0a1420;transition:background .1s;display:flex;align-items:center;gap:10px}
 .reg-hn-item:hover{background:#182838}
 .reg-hn-item:last-child{border-bottom:none}
-.reg-badge-return{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;background:#0c1e3a;border:1px solid #1e3a5f;color:#93c5fd;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em}
-.reg-badge-new{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;background:#052e16;border:1px solid #14532d;color:#86efac;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em}
+.reg-badge-return{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;background:#0c1e3a;border:1px solid #1e3a5f;color:#93c5fd;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:700}
+.reg-badge-new{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;background:#052e16;border:1px solid #14532d;color:#86efac;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:700}
 
 .reg-ft-btn{flex:1;height:32px;font-weight:700;font-size:11px;font-family:'Rajdhani',sans-serif;letter-spacing:.06em;border-radius:5px;border:none;cursor:pointer;color:#fff;transition:filter .15s,transform .15s}
 .reg-ft-btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
@@ -509,9 +509,10 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
       </div>
       <div style="position:relative">
         <div style="display:flex;gap:0">
-          <input id="reg-hn" type="text" class="qv-fi" placeholder="พิมพ์ HN เพื่อค้นหา..." maxlength="11" autocomplete="off" oninput="regHNInput(this)" style="flex:1;border-radius:5px 0 0 5px;font-family:'Sarabun',sans-serif;font-size:13px">
+          <input id="reg-hn" type="text" class="qv-fi" placeholder="XXX-XXX-XXX" maxlength="11" inputmode="numeric" autocomplete="off" oninput="regHNInput(this)" style="flex:1;border-radius:5px 0 0 5px;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em">
           <button onclick="regScanHN()" style="padding:0 10px;background:#1a2840;color:#6b8ba4;border:1px solid #1a2840;border-left:none;cursor:pointer;font-size:14px;transition:color .15s" onmouseover="this.style.color='#0ea5e9'" onmouseout="this.style.color='#6b8ba4'"><i class="fas fa-barcode"></i></button>
-          <button onclick="regGenHN()" style="padding:0 10px;background:#0369a1;color:#fff;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;border-radius:0 5px 5px 0"><i class="fas fa-magic" style="margin-right:4px"></i>GEN</button>
+          <button id="reg-gen-btn" onclick="regGenHN()" style="padding:0 10px;background:#0369a1;color:#fff;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;border-radius:0 5px 5px 0"><i class="fas fa-magic" style="margin-right:4px"></i>GEN</button>
+          <button id="reg-hn-clr" onclick="regClearHN()" style="display:none;padding:0 10px;background:#7f1d1d;color:#fca5a5;border:none;cursor:pointer;font-family:'Sarabun',sans-serif;font-weight:700;font-size:12px;border-radius:0 5px 5px 0"><i class="fas fa-times" style="margin-right:4px"></i>ล้าง</button>
         </div>
         <div id="reg-hn-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#0d1826;border:1px solid #1a2840;border-top:none;border-radius:0 0 8px 8px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:10;max-height:200px;overflow-y:auto"></div>
       </div>
@@ -1857,24 +1858,30 @@ function resetRegForm(){
   document.getElementById('reg-info-section').style.display='';
   document.getElementById('reg-hn').readOnly=false;
   document.getElementById('reg-hn').style.color='';
+  document.getElementById('reg-gen-btn').style.display='';
+  document.getElementById('reg-hn-clr').style.display='none';
   _regFtActive=false;
   _regFoundPatient=null;
   document.querySelectorAll('.reg-ft-btn').forEach(b=>b.classList.remove('active'));
 }
 
-// HN input — search as you type
+// HN input — format + search as you type
 function regHNInput(el){
-  const raw=el.value.trim();
+  // Format as XXX-XXX-XXX
+  const digits=el.value.replace(/\D/g,'').slice(0,9);
+  if(digits.length<=3) el.value=digits;
+  else if(digits.length<=6) el.value=digits.slice(0,3)+'-'+digits.slice(3);
+  else el.value=digits.slice(0,3)+'-'+digits.slice(3,6)+'-'+digits.slice(6);
+
   const dd=document.getElementById('reg-hn-results');
 
-  // If less than 2 chars, hide dropdown
-  if(raw.length<2){ dd.style.display='none'; return; }
+  // If less than 2 digits, hide dropdown
+  if(digits.length<2){ dd.style.display='none'; return; }
 
-  // Search existing patients by HN or name
-  const q=raw.toLowerCase();
+  // Search existing patients by HN digits
   const matches=patients.filter(p=>{
     const hnDigits=p.hn.replace(/\D/g,'');
-    return hnDigits.includes(q.replace(/\D/g,'')) || fullName(p).toLowerCase().includes(q);
+    return hnDigits.includes(digits);
   }).slice(0,5); // max 5 results
 
   if(!matches.length){
@@ -1949,11 +1956,28 @@ function regGenHN(){
   hnEl.readOnly=true;
   hnEl.style.color='#86efac';
   document.getElementById('reg-hn-results').style.display='none';
+  document.getElementById('reg-gen-btn').style.display='none';
+  document.getElementById('reg-hn-clr').style.display='';
   // Show new patient badge
   const badge=document.getElementById('reg-badge');
   badge.innerHTML='<span class="reg-badge-new"><i class="fas fa-user-plus" style="font-size:8px"></i> ผู้ป่วยใหม่</span>';
   badge.style.display='';
   // Clear any found patient
+  _regFoundPatient=null;
+  document.getElementById('reg-found').style.display='none';
+  document.getElementById('reg-info-section').style.display='';
+}
+
+function regClearHN(){
+  const hnEl=document.getElementById('reg-hn');
+  hnEl.value='';
+  hnEl.readOnly=false;
+  hnEl.style.color='';
+  hnEl.focus();
+  document.getElementById('reg-gen-btn').style.display='';
+  document.getElementById('reg-hn-clr').style.display='none';
+  document.getElementById('reg-badge').style.display='none';
+  document.getElementById('reg-hn-results').style.display='none';
   _regFoundPatient=null;
   document.getElementById('reg-found').style.display='none';
   document.getElementById('reg-info-section').style.display='';
@@ -2004,6 +2028,12 @@ function submitReg(){
   const cc=document.getElementById('reg-cc').value.trim();
   const esi=parseInt(document.getElementById('reg-esi').value);
   const errEl=document.getElementById('reg-err');
+
+  // Validate HN — must be 9 digits or GEN or returning patient
+  const hnDigits=hnRaw.replace(/\D/g,'');
+  if(!fp && !hnRaw.startsWith('GEN') && hnDigits.length!==9){
+    errEl.textContent=hnDigits.length?'HN ต้อง 9 หลัก (ขณะนี้ '+hnDigits.length+' หลัก)':'กรุณากรอก HN หรือกด GEN'; return;
+  }
 
   // Validate — skip name/sex/age for returning patients
   if(!fp){
