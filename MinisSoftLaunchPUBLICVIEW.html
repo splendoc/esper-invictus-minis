@@ -386,22 +386,47 @@ document.addEventListener('DOMContentLoaded', function () {
     const statusesActive = ['เข้าห้องตรวจ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์','รอผลตรวจ','สังเกตอาการ','ทำหัตถการ','ปรึกษาแพทย์เฉพาะทาง','รอขึ้นหอผู้ป่วย'];
     let patientCounter   = 100;
 
-    function maskName(fn, ln) {
-        const mk = (s,k) => s.length<=k ? s : s.substring(0,k)+'*'.repeat(s.length-k);
-        return `${mk(fn,3)} ${mk(ln,3)}`;
+    // Mask name for public display
+    function maskStr(s, show) { return s.length<=show ? s : s.substring(0,show)+'*'.repeat(s.length-show); }
+    function maskedName(p) { return `${maskStr(p.firstName,3)} ${maskStr(p.lastName,3)}`; }
+
+    // Format age — show ONE unit in Thai (no mixing, no Y/M/D letters)
+    function fmtAgePub(a) {
+        if(typeof a==='number') return a+' ปี';
+        if(a.y) return a.y+' ปี';
+        if(a.m) return a.m+' เดือน';
+        if(a.d) return a.d+' วัน';
+        return '0 วัน';
     }
+
+    const titles = ['นาย','นาง','นางสาว','เด็กชาย','เด็กหญิง'];
 
     function generatePatient(isActive) {
         patientCounter++;
         const esi    = Math.floor(Math.random()*5)+1;
-        const fn     = firstNames[Math.floor(Math.random()*firstNames.length)];
-        const ln     = lastNames[Math.floor(Math.random()*lastNames.length)];
-        const hnFull = String(60000000+Math.floor(Math.random()*9999999));
-        const status = isActive ? statusesActive[Math.floor(Math.random()*statusesActive.length)] : 'รอตรวจ';
-        const sex    = Math.random() > 0.5 ? 'M' : 'F';
-        const age    = Math.floor(Math.random() * 75) + 5;
-        return { id:patientCounter, name:maskName(fn,ln), hn:hnFull, hnLast3:hnFull.slice(-3), esi, status, sex, age,
-                 dispositionAt: FINAL_STATUSES.has(status) ? Date.now() : null };
+        const firstName = firstNames[Math.floor(Math.random()*firstNames.length)];
+        const lastName  = lastNames[Math.floor(Math.random()*lastNames.length)];
+        const title     = titles[Math.floor(Math.random()*titles.length)];
+        const hnDigits  = String(60000000+Math.floor(Math.random()*9999999)).slice(0,9);
+        const hn        = 'HN'+hnDigits;
+        const status    = isActive ? statusesActive[Math.floor(Math.random()*statusesActive.length)] : 'รอตรวจ';
+        const sex       = Math.random()>0.5 ? 'M' : 'F';
+        const ageY      = Math.floor(Math.random()*75)+5;
+        return {
+            id: patientCounter,
+            hn: hn,
+            hnLast3: hnDigits.slice(-3),
+            title: title,
+            firstName: firstName,
+            lastName: lastName,
+            sex: sex,
+            age: {y:ageY, m:0, d:0},
+            esi: esi,
+            status: status,
+            cc: '',
+            phones: [{num:'',lbl:''},{num:'',lbl:''}],
+            dispositionAt: FINAL_STATUSES.has(status) ? Date.now() : null
+        };
     }
 
     let activePatients  = Array.from({length:12}, () => generatePatient(true));
@@ -427,9 +452,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em" class="pv-sub-text">${label.en}</div>
                 </div>
                 <div class="flex-grow min-w-0 pl-1">
-                    <p class="font-bold text-2xl truncate pv-text" style="font-family:'Sarabun',sans-serif">${patient.name}</p>
+                    <p class="font-bold text-2xl truncate pv-text" style="font-family:'Sarabun',sans-serif">${maskedName(patient)}</p>
                     <p class="mt-0.5 pv-sub-text" style="font-family:'Sarabun',sans-serif;font-size:13px">
-                        ${patient.sex === 'M' ? 'ชาย' : patient.sex === 'F' ? 'หญิง' : 'เด็ก'} · ${patient.age} ปี
+                        ${patient.sex === 'M' ? 'ชาย' : patient.sex === 'F' ? 'หญิง' : 'X'} · ${fmtAgePub(patient.age)}
                     </p>
                     ${showStatus ? `<p class="mt-0.5 flex items-center gap-2 pv-status-text" style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600">
                         <span style="width:10px;height:10px;border-radius:50%;background:${cfg.dot};flex-shrink:0;display:inline-block"></span>
