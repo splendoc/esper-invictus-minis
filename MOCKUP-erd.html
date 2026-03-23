@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERD — ESPER Invictus Database Design</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;padding:32px;overflow-y:auto}
+.mono{font-family:'IBM Plex Mono',monospace}
+.raj{font-family:'Rajdhani',sans-serif}
+h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;color:#0ea5e9;text-transform:uppercase;margin-bottom:4px}
+.subtitle{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88;margin-bottom:32px}
+
+/* Table card */
+.tbl{background:#0c1520;border:1px solid #1a2840;border-radius:10px;overflow:hidden;margin-bottom:24px}
+.tbl-hdr{padding:10px 16px;border-bottom:1px solid #1a2840;display:flex;align-items:center;gap:10px}
+.tbl-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:.06em;color:#dde6f0}
+.tbl-desc{font-family:'Sarabun',sans-serif;font-size:12px;color:#6b8ba4}
+.tbl-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+
+/* Column rows */
+.col{display:flex;align-items:center;gap:8px;padding:6px 16px;border-bottom:1px solid #0a1420;font-size:13px}
+.col:last-child{border-bottom:none}
+.col-name{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#7dd3fc;min-width:140px}
+.col-type{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;min-width:90px}
+.col-desc{font-family:'Sarabun',sans-serif;font-size:12px;color:#5a7a90;flex:1}
+.col-badge{font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;padding:1px 6px;border-radius:3px;flex-shrink:0}
+.badge-pk{background:#0c1e3a;color:#93c5fd;border:1px solid #1e3a5f}
+.badge-fk{background:#1a0f40;color:#c4b5fd;border:1px solid #4c1d95}
+.badge-req{background:#4c0a0a;color:#fca5a5;border:1px solid #7f1d1d}
+.badge-opt{background:#111c2a;color:#64748b;border:1px solid #1a2840}
+.badge-auto{background:#052e16;color:#86efac;border:1px solid #14532d}
+
+/* Layout */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+/* Relationship lines */
+.rel{background:#0f1a27;border:1px solid #1a2840;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.rel-arrow{color:#0ea5e9;font-size:14px;flex-shrink:0}
+.rel-from,.rel-to{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#7dd3fc}
+.rel-desc{font-family:'Sarabun',sans-serif;font-size:12px;color:#6b8ba4;flex:1}
+.rel-type{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;color:#4a6a88;flex-shrink:0}
+
+/* Section */
+.section{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b8ba4;border-bottom:1px solid #1a2840;padding-bottom:8px;margin-bottom:16px;margin-top:32px;display:flex;align-items:center;gap:8px}
+.section i{font-size:11px}
+
+/* Notes */
+.note{background:#0a1624;border:1px solid #1e3a5f;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#7a9ab8;line-height:1.6}
+.note strong{color:#dde6f0}
+</style>
+</head>
+<body>
+
+<h1>Database Design (ERD)</h1>
+<p class="subtitle">ESPER Invictus · Supabase Tables · Soft Launch</p>
+
+<div class="note">
+  <strong>Soft Launch Scope:</strong> เฉพาะตารางที่จำเป็นสำหรับการใช้งานจริง — ไม่เพิ่มตารางที่ยังไม่ใช้<br>
+  <strong>Full Scale:</strong> จะเพิ่มตาราง allergies, vitals_history, audit_log, departments ฯลฯ ภายหลัง
+</div>
+
+
+<div class="section"><i class="fas fa-database"></i> Tables</div>
+
+<div class="grid">
+
+  <!-- PATIENTS -->
+  <div class="tbl">
+    <div class="tbl-hdr">
+      <div class="tbl-icon" style="background:#0c1e3a;color:#0ea5e9"><i class="fas fa-user-injured"></i></div>
+      <div>
+        <div class="tbl-name">patients</div>
+        <div class="tbl-desc">ข้อมูลพื้นฐานผู้ป่วย — ใช้ซ้ำทุกครั้งที่มาโรงพยาบาล</div>
+      </div>
+    </div>
+    <div class="col"><span class="col-name">id</span><span class="col-type">uuid</span><span class="col-badge badge-pk">PK</span><span class="col-badge badge-auto">AUTO</span><span class="col-desc">Supabase auto-generated</span></div>
+    <div class="col"><span class="col-name">hn</span><span class="col-type">text</span><span class="col-badge badge-req">UNIQUE</span><span class="col-desc">Hospital Number (HN123456789 or GEN######)</span></div>
+    <div class="col"><span class="col-name">title</span><span class="col-type">text</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">คำนำหน้า: นาย, นาง, ด.ช. ฯลฯ</span></div>
+    <div class="col"><span class="col-name">first_name</span><span class="col-type">text</span><span class="col-badge badge-req">REQ</span><span class="col-desc">ชื่อจริง</span></div>
+    <div class="col"><span class="col-name">last_name</span><span class="col-type">text</span><span class="col-badge badge-req">REQ</span><span class="col-desc">นามสกุล</span></div>
+    <div class="col"><span class="col-name">sex</span><span class="col-type">text</span><span class="col-badge badge-req">REQ</span><span class="col-desc">M / F / X</span></div>
+    <div class="col"><span class="col-name">age_y</span><span class="col-type">int</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">อายุ ปี</span></div>
+    <div class="col"><span class="col-name">age_m</span><span class="col-type">int</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">อายุ เดือน</span></div>
+    <div class="col"><span class="col-name">age_d</span><span class="col-type">int</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">อายุ วัน</span></div>
+    <div class="col"><span class="col-name">phone_1</span><span class="col-type">text</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">เบอร์โทร 1</span></div>
+    <div class="col"><span class="col-name">phone_1_label</span><span class="col-type">text</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">เช่น ผู้ป่วย, แม่</span></div>
+    <div class="col"><span class="col-name">phone_2</span><span class="col-type">text</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">เบอร์โทร 2</span></div>
+    <div class="col"><span class="col-name">phone_2_label</span><span class="col-type">text</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">เช่น พ่อ, ญาติ</span></div>
+    <div class="col"><span class="col-name">created_at</span><span class="col-type">timestamp</span><span class="col-badge badge-auto">AUTO</span><span class="col-desc">วันที่สร้างข้อมูล</span></div>
+    <div class="col"><span class="col-name">updated_at</span><span class="col-type">timestamp</span><span class="col-badge badge-auto">AUTO</span><span class="col-desc">วันที่แก้ไขล่าสุด</span></div>
+  </div>
+
+  <!-- VISITS -->
+  <div class="tbl">
+    <div class="tbl-hdr">
+      <div class="tbl-icon" style="background:#052e16;color:#22c55e"><i class="fas fa-hospital"></i></div>
+      <div>
+        <div class="tbl-name">visits</div>
+        <div class="tbl-desc">แต่ละครั้งที่ผู้ป่วยมา ER — 1 คนมาได้หลายครั้ง</div>
+      </div>
+    </div>
+    <div class="col"><span class="col-name">id</span><span class="col-type">uuid</span><span class="col-badge badge-pk">PK</span><span class="col-badge badge-auto">AUTO</span><span class="col-desc">Supabase auto-generated</span></div>
+    <div class="col"><span class="col-name">patient_id</span><span class="col-type">uuid</span><span class="col-badge badge-fk">FK</span><span class="col-badge badge-req">REQ</span><span class="col-desc">→ patients.id</span></div>
+    <div class="col"><span class="col-name">esi</span><span class="col-type">int</span><span class="col-badge badge-req">REQ</span><span class="col-desc">ESI Level 1-5</span></div>
+    <div class="col"><span class="col-name">chief_complaint</span><span class="col-type">text</span><span class="col-badge badge-req">REQ</span><span class="col-desc">อาการสำคัญ</span></div>
+    <div class="col"><span class="col-name">status</span><span class="col-type">text</span><span class="col-badge badge-req">REQ</span><span class="col-desc">สถานะปัจจุบัน: รอตรวจ, กู้ชีพ, Discharge ฯลฯ</span></div>
+    <div class="col"><span class="col-name">tab</span><span class="col-type">text</span><span class="col-badge badge-req">REQ</span><span class="col-desc">waiting / active / finalized</span></div>
+    <div class="col"><span class="col-name">fast_track</span><span class="col-type">text</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">Trauma / ACS / Stroke / Sepsis / null</span></div>
+    <div class="col"><span class="col-name">arrived_at</span><span class="col-type">timestamp</span><span class="col-badge badge-auto">AUTO</span><span class="col-desc">เวลาที่ลงทะเบียน = เริ่มนับ wait time</span></div>
+    <div class="col"><span class="col-name">activated_at</span><span class="col-type">timestamp</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">เวลาที่ย้ายเข้า active = เริ่มนับ stay time</span></div>
+    <div class="col"><span class="col-name">finalized_at</span><span class="col-type">timestamp</span><span class="col-badge badge-opt">OPT</span><span class="col-desc">เวลาที่ปิดเคส</span></div>
+    <div class="col"><span class="col-name">created_at</span><span class="col-type">timestamp</span><span class="col-badge badge-auto">AUTO</span><span class="col-desc">วันที่สร้าง</span></div>
+    <div class="col"><span class="col-name">updated_at</span><span class="col-type">timestamp</span><span class="col-badge badge-auto">AUTO</span><span class="col-desc">วันที่แก้ไขล่าสุด</span></div>
+  </div>
+
+</div>
+
+
+<div class="section"><i class="fas fa-link"></i> Relationships</div>
+
+<div class="rel">
+  <span class="rel-from">patients</span>
+  <span class="rel-arrow"><i class="fas fa-arrow-right"></i></span>
+  <span class="rel-to">visits</span>
+  <span class="rel-desc">ผู้ป่วย 1 คน → มาได้หลายครั้ง (revisit)</span>
+  <span class="rel-type">1 : N</span>
+</div>
+
+
+<div class="section"><i class="fas fa-shield-halved"></i> Access Rules (RLS)</div>
+
+<div class="note">
+  <strong>Floor (staff):</strong> อ่าน + เขียน + แก้ไข patients และ visits ได้ทั้งหมด — ต้อง login<br>
+  <strong>Public View:</strong> อ่านอย่างเดียว — เฉพาะ visits ที่ tab = 'waiting' หรือ 'active' + patient name (masked) — ไม่ต้อง login<br>
+  <strong>No delete:</strong> ไม่ให้ลบข้อมูล — finalize only
+</div>
+
+
+<div class="section"><i class="fas fa-arrows-rotate"></i> Real-time Subscriptions</div>
+
+<div class="note">
+  <strong>Floor:</strong> subscribe to visits table — เมื่อคอมพิวเตอร์เครื่องอื่นเปลี่ยนสถานะ → update ทันที<br>
+  <strong>Public View:</strong> subscribe to visits table — เมื่อผู้ป่วยถูกลงทะเบียนหรือเปลี่ยนสถานะ → update ทันที<br>
+  <strong>ทั้ง 5 เครื่อง</strong> เห็นข้อมูลเดียวกัน real-time
+</div>
+
+
+<div class="section"><i class="fas fa-arrows-left-right"></i> Data Flow</div>
+
+<div style="background:#0f1a27;border:1px solid #1a2840;border-radius:10px;padding:20px;margin-bottom:24px">
+  <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap">
+
+    <!-- Registration -->
+    <div style="text-align:center">
+      <div style="background:#0369a1;color:#fff;border-radius:8px;padding:10px 16px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em">REGISTER</div>
+      <div style="font-size:11px;color:#6b8ba4;margin-top:4px">+New Patient</div>
+    </div>
+
+    <i class="fas fa-arrow-right" style="color:#0ea5e9;font-size:12px"></i>
+
+    <!-- Supabase -->
+    <div style="text-align:center">
+      <div style="background:#1a2840;border:2px solid #0ea5e9;border-radius:10px;padding:14px 20px">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#0ea5e9;letter-spacing:.08em">SUPABASE</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6b8ba4;margin-top:4px">patients + visits</div>
+      </div>
+    </div>
+
+    <i class="fas fa-arrows-left-right" style="color:#22c55e;font-size:12px"></i>
+
+    <!-- Floor -->
+    <div style="text-align:center">
+      <div style="background:#0f1a27;border:1px solid #1a2840;border-radius:8px;padding:10px 16px">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dde6f0;letter-spacing:.06em">FLOOR</div>
+        <div style="font-size:10px;color:#6b8ba4">read + write</div>
+      </div>
+      <div style="font-size:11px;color:#6b8ba4;margin-top:4px">× 5 computers</div>
+    </div>
+
+    <i class="fas fa-arrow-right" style="color:#f59e0b;font-size:12px;transform:rotate(180deg)"></i>
+
+    <!-- Public View -->
+    <div style="text-align:center">
+      <div style="background:#0f1a27;border:1px solid #1a2840;border-radius:8px;padding:10px 16px">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dde6f0;letter-spacing:.06em">PUBLIC VIEW</div>
+        <div style="font-size:10px;color:#6b8ba4">read only</div>
+      </div>
+      <div style="font-size:11px;color:#6b8ba4;margin-top:4px">TV display</div>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="section"><i class="fas fa-clock-rotate-left"></i> Wait / Stay Time Calculation</div>
+
+<div class="note">
+  <strong>Wait time</strong> = now() - arrived_at (เมื่อ tab = 'waiting')<br>
+  <strong>Stay time</strong> = now() - activated_at (เมื่อ tab = 'active')<br>
+  ไม่ต้องเก็บ waitMin / stayMin ใน database — คำนวณ real-time จาก timestamp<br>
+  <strong>ข้อดี:</strong> แม่นยำเสมอ ไม่ต้อง increment ทุกนาที
+</div>
+
+
+<div class="section"><i class="fas fa-rocket"></i> Future (Full Scale)</div>
+
+<div style="background:#0f1a27;border:1px solid #1a2840;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px;margin-bottom:24px">
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="color:#4a6a88;font-size:11px"><i class="fas fa-circle"></i></span>
+    <span style="font-size:13px;color:#6b8ba4"><strong style="color:#dde6f0">vitals_history</strong> — บันทึก vitals ทุกครั้งที่วัด (bt, bp, hr, rr, spo2, dtx)</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="color:#4a6a88;font-size:11px"><i class="fas fa-circle"></i></span>
+    <span style="font-size:13px;color:#6b8ba4"><strong style="color:#dde6f0">allergies</strong> — ประวัติแพ้ยา</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="color:#4a6a88;font-size:11px"><i class="fas fa-circle"></i></span>
+    <span style="font-size:13px;color:#6b8ba4"><strong style="color:#dde6f0">status_log</strong> — ประวัติการเปลี่ยนสถานะ (audit trail)</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="color:#4a6a88;font-size:11px"><i class="fas fa-circle"></i></span>
+    <span style="font-size:13px;color:#6b8ba4"><strong style="color:#dde6f0">staff</strong> — ข้อมูลบุคลากร แพทย์ พยาบาล</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="color:#4a6a88;font-size:11px"><i class="fas fa-circle"></i></span>
+    <span style="font-size:13px;color:#6b8ba4"><strong style="color:#dde6f0">departments</strong> — แผนก/วอร์ด สำหรับ refer/admit</span>
+  </div>
+</div>
+
+</body>
+</html>
