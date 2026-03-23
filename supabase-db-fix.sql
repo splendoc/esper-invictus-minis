@@ -3,14 +3,14 @@
 -- Run this in Supabase SQL Editor
 -- ══════════════════════════════════════════
 
--- 1. Add age constraints
+-- 1. Delete all test data
+DELETE FROM visits;
+DELETE FROM patients;
+
+-- 2. Add age constraints
 ALTER TABLE patients ADD CONSTRAINT chk_age_m CHECK (age_m BETWEEN 0 AND 11);
 ALTER TABLE patients ADD CONSTRAINT chk_age_d CHECK (age_d BETWEEN 0 AND 30);
 ALTER TABLE patients ADD CONSTRAINT chk_age_y CHECK (age_y BETWEEN 0 AND 150);
-
--- 2. Fix existing bad data (age_m = 20 → clamp to 11)
-UPDATE patients SET age_m = 11 WHERE age_m > 11;
-UPDATE patients SET age_d = 30 WHERE age_d > 30;
 
 -- 3. Add sex constraint
 ALTER TABLE patients ADD CONSTRAINT chk_sex CHECK (sex IN ('M', 'F', 'X'));

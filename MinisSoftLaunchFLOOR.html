@@ -544,6 +544,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
           <option>นาย</option><option>นาง</option><option>นางสาว</option>
           <option>เด็กชาย</option><option>เด็กหญิง</option>
           <option>ด.ช.</option><option>ด.ญ.</option>
+          <option>Mr.</option><option>Ms.</option><option>Mrs.</option>
           <option>พระภิกษุ</option><option>แม่ชี</option>
           <option value="other">อื่นๆ</option>
         </select>
@@ -564,6 +565,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
           <option value="">-- เลือก --</option>
           <option value="M">ชาย</option><option value="F">หญิง</option><option value="X">X</option>
         </select>
+        <button type="button" class="qv-cancel-btn" id="reg-sex-clr" onclick="regSexClear()" style="display:none;font-size:14px"><i class="fas fa-times"></i></button>
       </div>
 
       <!-- AGE row -->
@@ -2059,6 +2061,8 @@ function resetRegForm(){
   document.getElementById('reg-title').value='';
   document.getElementById('reg-title-other').value='';
   document.getElementById('reg-title-other').style.display='none';
+  document.getElementById('reg-sex').disabled=false;
+  document.getElementById('reg-sex-clr').style.display='none';
   regAgeClear();
   document.getElementById('reg-sex').value='';
   document.getElementById('reg-esi').value='';
@@ -2271,6 +2275,7 @@ function regAgeClear(){
 function regTitleChange(){
   const sel=document.getElementById('reg-title');
   const other=document.getElementById('reg-title-other');
+  const sexEl=document.getElementById('reg-sex');
   if(sel.value==='other'){
     other.style.display='';
     other.focus();
@@ -2278,6 +2283,22 @@ function regTitleChange(){
     other.style.display='none';
     other.value='';
   }
+  // Auto-select sex based on title and lock
+  const mTitles=['นาย','เด็กชาย','ด.ช.','พระภิกษุ','Mr.'];
+  const fTitles=['นาง','นางสาว','เด็กหญิง','ด.ญ.','แม่ชี','Ms.','Mrs.'];
+  const sexClr=document.getElementById('reg-sex-clr');
+  if(mTitles.includes(sel.value)){ sexEl.value='M'; sexEl.disabled=true; sexClr.style.display=''; }
+  else if(fTitles.includes(sel.value)){ sexEl.value='F'; sexEl.disabled=true; sexClr.style.display=''; }
+  else { sexEl.value=''; sexEl.disabled=false; sexClr.style.display='none'; }
+}
+
+function regSexClear(){
+  document.getElementById('reg-sex').value='';
+  document.getElementById('reg-sex').disabled=false;
+  document.getElementById('reg-sex-clr').style.display='none';
+  document.getElementById('reg-title').value='';
+  document.getElementById('reg-title-other').value='';
+  document.getElementById('reg-title-other').style.display='none';
 }
 
 function regGetTitle(){
