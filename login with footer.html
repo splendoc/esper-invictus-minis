@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPER INVICTUS · Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global styles */
+        body {
+            background-color: #f0f9ff;
+            font-family: 'Sarabun', sans-serif;
+            overflow: hidden;
+        }
+
+        .dark body {
+            background-color: #080e17;
+        }
+        
+        /* --- Animated Background --- */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1; /* Place it behind all content */
+        }
+
+        .floating-bubble {
+            position: absolute;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+        .light-bubble {
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0) 70%);
+        }
+        .dark-bubble {
+            background: radial-gradient(circle, rgba(125, 211, 252, 0.1) 0%, rgba(125, 211, 252, 0) 70%);
+        }
+
+        @keyframes float-bubble {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(1.2); opacity: 0; }
+        }
+
+        /* Logo Styles - Matching ESPER design */
+        .logo-container {
+            position: relative;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            animation: logoFloat 6s ease-in-out infinite;
+        }
+
+        .logo-ring {
+            position: absolute;
+            border-radius: 50%;
+            border-style: solid;
+            border-width: 4px;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: spin3D 12s linear infinite;
+        }
+
+        .logo-ring-1 {
+            border-color: #F59E0B transparent #EA580C transparent;
+            animation-duration: 12s;
+        }
+
+        .logo-ring-2 {
+            width: 80%;
+            height: 80%;
+            left: 10%;
+            top: 10%;
+            border-color: transparent #D97706 transparent #C2410C;
+            animation-duration: 8s;
+            animation-direction: reverse;
+        }
+
+        .logo-ring-3 {
+            width: 60%;
+            height: 60%;
+            left: 20%;
+            top: 20%;
+            border-color: #B45309 transparent #92400E transparent;
+            animation-duration: 6s;
+        }
+
+        .logo-core {
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            left: 30%;
+            top: 30%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #FFFFFF, #FEF9C3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        .logo-cross {
+            position: absolute;
+            background: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+        }
+
+        .logo-cross-h {
+            width: 60%;
+            height: 15%;
+            left: 20%;
+            top: 42.5%;
+            border-radius: 4px;
+        }
+
+        .logo-cross-v {
+            width: 15%;
+            height: 60%;
+            left: 42.5%;
+            top: 20%;
+            border-radius: 4px;
+        }
+
+        .logo-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #F59E0B, #EA580C);
+            opacity: 0;
+            filter: blur(1px);
+        }
+
+        .logo-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(245, 158, 11, 0.3), transparent 70%);
+            animation: glowPulse 4s ease-in-out infinite alternate;
+        }
+
+        /* Animations */
+        @keyframes spin3D {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            100% { transform: rotateX(360deg) rotateY(180deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
+        @keyframes glowPulse {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes particleFade {
+            0% { opacity: 0; transform: translate(0, 0); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)); }
+        }
+        
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
+        }
+
+        .pulse-red {
+            animation: pulseRed 2s infinite;
+        }
+
+        @keyframes pulseRed {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+
+        .pulse-green {
+            animation: pulseGreen 2s infinite;
+        }
+
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        }
+
+        .pulse-blue {
+            animation: pulseBlue 2s infinite;
+        }
+
+        @keyframes pulseBlue {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+        }
+
+        /* Fix for autofill/filled background in dark mode */
+        .dark input:-webkit-autofill,
+        .dark input:-webkit-autofill:hover,
+        .dark input:-webkit-autofill:focus,
+        .dark input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #374151 inset !important;
+            -webkit-text-fill-color: #f9fafb !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Animated Background Container -->
+    <div id="animated-bg" class="animated-bg"></div>
+
+    <!-- Main Container -->
+    <main class="flex-grow flex items-center justify-center p-4 relative z-10">
+        <div class="w-full max-w-md">
+            <!-- Header with theme toggle -->
+            <div class="flex justify-end items-center mb-6">
+                 <button id="themeToggle" class="px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition">
+                     <i id="themeIcon" class="fas fa-moon"></i>
+                 </button>
+            </div>
+
+            <!-- Logo Section -->
+            <div class="text-center mb-8">
+                <div class="logo-container mx-auto">
+                    <div class="logo-glow"></div>
+                    <div class="logo-ring logo-ring-1"></div>
+                    <div class="logo-ring logo-ring-2"></div>
+                    <div class="logo-ring logo-ring-3"></div>
+                    <div class="logo-core">
+                        <div class="logo-cross logo-cross-h"></div>
+                        <div class="logo-cross logo-cross-v"></div>
+                    </div>
+                    <!-- Particles will be added dynamically by JavaScript -->
+                </div>
+                <h1 style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:.06em;line-height:1;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px">ESPER INVICTUS</h1>
+                <p style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:#6b8ba4;letter-spacing:.16em;text-transform:uppercase">Minis</p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-family:'Sarabun','Rajdhani',sans-serif;font-weight:700;letter-spacing:.04em">
+                            <i class="fas fa-user mr-2"></i>Username or Email
+                        </label>
+                        <input type="text" id="username" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" style="font-family:'Sarabun',sans-serif" placeholder="Enter your username or email" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-family:'Sarabun','Rajdhani',sans-serif;font-weight:700;letter-spacing:.04em">
+                            <i class="fas fa-lock mr-2"></i>Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12" style="font-family:'Sarabun',sans-serif" placeholder="Enter your password" required>
+                            <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div id="errorAlert" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 pulse-red">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                            <span class="text-red-700 dark:text-red-300 text-sm" id="errorMessage"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:.06em">
+                        <i class="fas fa-sign-in-alt mr-2"></i>SIGN IN
+                    </button>
+                </form>
+
+                <!-- Links -->
+                <div class="mt-6 space-y-4">
+                    <div class="text-center">
+                        <button id="forgotPasswordBtn" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 text-sm font-medium transition-colors duration-300">
+                            <i class="fas fa-key mr-1"></i>Forgot Password?
+                        </button>
+                    </div>
+                    
+                    <div class="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-400 text-sm">Don't have an account? </span>
+                        <button id="registerBtn" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-medium transition-colors duration-300">
+                            <i class="fas fa-user-plus mr-1"></i>Register
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-sm text-gray-600 dark:text-gray-400 relative z-10 py-4 px-6">
+        <div class="max-w-md mx-auto border-t border-gray-200 dark:border-gray-700 pt-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left space-y-2 sm:space-y-0">
+                <div>
+                    <p style="font-family:'Sarabun',sans-serif">&copy; 2025 ESPER INVICTUS. All rights reserved.</p>
+                    <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4">Developed by spendoc</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="footerTermsLink" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 transition-colors duration-300">
+                        Terms of Service
+                    </button>
+                    <span class="text-gray-400 dark:text-gray-600">|</span>
+                    <button id="contactAdminBtn" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 transition-colors duration-300">
+                        Contact Admin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-200 dark:border-gray-700 transform transition-all duration-300">
+            <div class="text-center mb-6">
+                <div class="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-key text-blue-600 dark:text-blue-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Reset Password</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mt-2">Enter your email to receive reset instructions</p>
+            </div>
+
+            <form id="forgotPasswordForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                    <input type="email" id="resetEmail" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="Enter your email" required>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" id="cancelForgotPassword" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                        Send Reset Link
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Email Sent Success Modal -->
+    <div id="emailSentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-200 dark:border-gray-700 transform transition-all duration-300">
+            <div class="text-center">
+                <div class="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-4 pulse-green">
+                    <i class="fas fa-check text-green-600 dark:text-green-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Email Sent!</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-6">We've sent password reset instructions to your email address. Please check your inbox and follow the link to reset your password.</p>
+                <button id="closeEmailSent" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    Got it!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Success Modal -->
+    <div id="loginSuccessModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-200 dark:border-gray-700 transform transition-all duration-300">
+            <div class="text-center">
+                <div class="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-4 pulse-green">
+                    <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back!</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-6">Login successful. Redirecting to Emergency Room Dashboard...</p>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
+                    <div id="progressBar" class="bg-green-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-200 dark:border-gray-700 transform transition-all duration-300 max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-6">
+                <div class="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-user-plus text-blue-600 dark:text-blue-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Create Account</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mt-2">Join ESPER : Invictus Emergency System</p>
+            </div>
+
+            <form id="registerForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">คำนำหน้า (Title)</label>
+                    <select id="title" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                        <option value="">Select Title</option>
+                        <option value="พว.">พว.</option>
+                        <option value="พญ.">พญ.</option>
+                        <option value="นพ.">นพ.</option>
+                        <option value="นาย">นาย</option>
+                        <option value="นาง">นาง</option>
+                        <option value="นางสาว">นางสาว</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                    <input type="text" id="titleOther" class="hidden w-full mt-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="Please specify">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ชื่อจริง (First Name)</label>
+                        <input type="text" id="firstName" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="John" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">นามสกุล (Last Name)</label>
+                        <input type="text" id="lastName" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="Doe" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">แผนก (Department)</label>
+                    <select id="department" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                        <option value="">Select Department</option>
+                        <option value="ER">ER ห้องฉุกเฉิน</option>
+                        <option value="OPD">OPD ผู้ป่วยนอก</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ตำแหน่ง (Position)</label>
+                    <select id="position" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                        <option value="">Select Position</option>
+                        <option value="RN">RN</option>
+                        <option value="PN">PN</option>
+                        <option value="EMT">EMT</option>
+                        <option value="EP">EP</option>
+                        <option value="Intern">Intern</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                    <input type="text" id="positionOther" class="hidden w-full mt-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="Please specify">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                    <input type="email" id="registerEmail" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="john.doe@hospital.com" required>
+                    <div id="emailStatus" class="mt-2 text-sm hidden">
+                        <span id="emailStatusText"></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username</label>
+                    <input type="text" id="registerUsername" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="Choose a username (at least 4 characters)" required>
+                    <div id="usernameStatus" class="mt-2 text-sm hidden">
+                        <span id="usernameStatusText"></span>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="agreeTerms" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" required>
+                    <label for="agreeTerms" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                        I agree to the <a href="#" id="termsLink" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline">Terms of Service</a>
+                    </label>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" id="cancelRegister" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submitRegister" class="flex-1 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" disabled>
+                        Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account Activation Email Modal -->
+    <div id="activationEmailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-200 dark:border-gray-700 transform transition-all duration-300">
+            <div class="text-center">
+                <div class="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4 pulse-blue">
+                    <i class="fas fa-envelope text-blue-600 dark:text-blue-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Account Created!</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-6">We've sent an activation link to your email address. Please check your inbox and click the link to activate your account before logging in.</p>
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-3"></i>
+                        <span class="text-blue-700 dark:text-blue-300 text-sm">Check your spam folder if you don't see the email within a few minutes.</span>
+                    </div>
+                </div>
+                <button id="closeActivationEmail" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    Got it!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div id="termsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 border border-gray-200 dark:border-gray-700 transform transition-all duration-300 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Terms of Service</h3>
+                <button id="closeTermsModal" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed space-y-4">
+                <p>Welcome to ESPER : Invictus Emergency System. By accessing or using our services, you agree to be bound by these Terms of Service. If you do not agree, you are not permitted to use our services.</p>
+                <p><strong>1. Use of Service</strong>. The ESPER : Invictus system is intended for use by authorized medical professionals for the purpose of managing emergency room and patient data. Any unauthorized access, use, or distribution of this service or its data is strictly prohibited and may result in legal action.</p>
+                <p><strong>2. Account Security</strong>. You are responsible for maintaining the confidentiality of your account credentials. You must not share your username and password with any third party. Any actions taken under your account are your sole responsibility.</p>
+                <p><strong>3. Data Privacy</strong>. We are committed to protecting patient data. All data is handled in accordance with applicable privacy laws and regulations. You agree to handle all patient information with the utmost care and confidentiality.</p>
+                <p><strong>4. Limitations of Liability</strong>. The system is provided "as is" without any warranties. We are not liable for any direct, indirect, incidental, or consequential damages resulting from your use or inability to use the service.</p>
+                <p><strong>5. Termination</strong>. We reserve the right to suspend or terminate your account at our discretion, without notice, if we believe you have violated these terms. You may terminate your account at any time by contacting us.</p>
+                <p><strong>6. Changes to Terms</strong>. We may update these terms at any time. It is your responsibility to review them periodically. Continued use of the service after changes constitutes acceptance of the new terms.</p>
+                <p>For any questions regarding these terms, please contact our support team.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Admin Modal -->
+    <div id="contactAdminModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-200 dark:border-gray-700 transform transition-all duration-300">
+            <div class="text-center">
+                <div class="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4 pulse-blue">
+                    <i class="fas fa-headset text-blue-600 dark:text-blue-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Contact Admin Team</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-6">If you are experiencing issues or need assistance, please contact the Emergency Department's administration team at:</p>
+                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                        Email: <a href="mailto:admin@emergency.com" class="text-sky-600 dark:text-sky-400 hover:underline">admin@emergency.com</a>
+                    </p>
+                </div>
+                <button id="closeContactAdmin" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mock login credentials for testing
+            // Email: demo@esperinvictus.com
+            // Password: demo123
+
+            // --- Theme Toggle ---
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const html = document.documentElement;
+
+            function updateTheme(isDark) {
+                if (isDark) {
+                    html.classList.add('dark');
+                    themeIcon.className = 'fas fa-sun';
+                    localStorage.setItem('darkMode', 'true');
+                } else {
+                    html.classList.remove('dark');
+                    themeIcon.className = 'fas fa-moon';
+                    localStorage.setItem('darkMode', 'false');
+                }
+            }
+
+            const savedMode = localStorage.getItem('darkMode') === 'true';
+            updateTheme(savedMode);
+
+            themeToggle.addEventListener('click', () => {
+                const isDark = !html.classList.contains('dark');
+                updateTheme(isDark);
+            });
+
+
+            // Password Toggle
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+
+            // Modal Functions
+            function showModal(modalId) {
+                document.getElementById(modalId).classList.remove('hidden');
+            }
+
+            function hideModal(modalId) {
+                document.getElementById(modalId).classList.add('hidden');
+            }
+
+            function showError(message) {
+                const errorAlert = document.getElementById('errorAlert');
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = message;
+                errorAlert.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    errorAlert.classList.add('hidden');
+                }, 5000);
+            }
+
+            // Username availability states
+            function setUsernameStatus(status, message) {
+                const usernameInput = document.getElementById('registerUsername');
+                const usernameStatus = document.getElementById('usernameStatus');
+                const usernameStatusText = document.getElementById('usernameStatusText');
+                
+                // This function is being replaced by setFieldStatus
+                // to be more generic. Kept for backwards compatibility if needed.
+                setFieldStatus('username', status, message);
+            }
+
+            // Generic function to set status for a field (username or email)
+            function setFieldStatus(field, status, message) {
+                const statusDiv = document.getElementById(`${field}Status`);
+                const statusText = document.getElementById(`${field}StatusText`);
+                
+                if (!statusDiv || !statusText) return;
+
+                statusDiv.classList.remove('hidden');
+                
+                if (status === 'available') {
+                    statusText.innerHTML = `<i class="fas fa-check text-green-600 mr-2"></i> ${message}`;
+                    statusText.className = 'text-green-600';
+                } else if (status === 'taken') {
+                    statusText.innerHTML = `<i class="fas fa-times text-red-600 mr-2"></i> ${message}`;
+                    statusText.className = 'text-red-600';
+                } else if (status === 'checking') {
+                    statusText.innerHTML = `<i class="fas fa-spinner fa-spin text-yellow-600 mr-2"></i> ${message}`;
+                    statusText.className = 'text-yellow-600';
+                } else {
+                    statusDiv.classList.add('hidden');
+                }
+            }
+            
+            let usernameCheckTimeout;
+            let emailCheckTimeout;
+            let isUsernameAvailable = false;
+            let isEmailAvailable = false;
+
+            // Mock database of taken usernames and emails
+            const takenUsernames = ['admin', 'doctor', 'nurse', 'test', 'user', 'demo'];
+            const takenEmails = ['admin@hospital.com', 'doctor@hospital.com', 'nurse@hospital.com'];
+
+            function checkUsernameAvailability() {
+                const username = document.getElementById('registerUsername').value.trim();
+                isUsernameAvailable = false;
+
+                if (username.length < 4) {
+                    setFieldStatus('username', 'taken', 'Username must be at least 4 characters.');
+                    updateSubmitButton();
+                    return;
+                }
+                
+                setFieldStatus('username', 'checking', 'Checking availability...');
+                
+                // Simulate network delay
+                setTimeout(() => {
+                    if (takenUsernames.includes(username.toLowerCase())) {
+                        setFieldStatus('username', 'taken', 'Username is already taken.');
+                        isUsernameAvailable = false;
+                    } else {
+                        setFieldStatus('username', 'available', 'Username is available!');
+                        isUsernameAvailable = true;
+                    }
+                    updateSubmitButton();
+                }, 1000);
+            }
+
+            function checkEmailAvailability() {
+                const emailInput = document.getElementById('registerEmail');
+                const email = emailInput.value.trim();
+                isEmailAvailable = false;
+
+                // Basic email format validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    setFieldStatus('email', 'taken', 'Please enter a valid email address.');
+                    updateSubmitButton();
+                    return;
+                }
+                
+                setFieldStatus('email', 'checking', 'Checking email...');
+                
+                // Simulate network delay
+                setTimeout(() => {
+                    if (takenEmails.includes(email.toLowerCase())) {
+                        setFieldStatus('email', 'taken', 'This email is already registered.');
+                        isEmailAvailable = false;
+                    } else {
+                        setFieldStatus('email', 'available', 'Email is available.');
+                        isEmailAvailable = true;
+                    }
+                    updateSubmitButton();
+                }, 1000);
+            }
+            
+            document.getElementById('registerUsername').addEventListener('input', () => {
+                clearTimeout(usernameCheckTimeout);
+                document.getElementById('usernameStatus').classList.add('hidden');
+                isUsernameAvailable = false;
+                updateSubmitButton();
+                usernameCheckTimeout = setTimeout(checkUsernameAvailability, 1500); // Check after user stops typing
+            });
+
+             document.getElementById('registerEmail').addEventListener('input', () => {
+                clearTimeout(emailCheckTimeout);
+                document.getElementById('emailStatus').classList.add('hidden');
+                isEmailAvailable = false;
+                updateSubmitButton();
+                emailCheckTimeout = setTimeout(checkEmailAvailability, 1500); // Check after user stops typing
+            });
+
+
+            // Login Form Handler
+            document.getElementById('loginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+
+                // Validation
+                if (!username) {
+                    showError('Please enter your username or email address.');
+                    return;
+                }
+
+                if (!password) {
+                    showError('Please enter your password.');
+                    return;
+                }
+
+                // Demo validation - in real app, this would be server-side
+                if (username === 'demo@esperinvictus.com' && password === 'demo123') {
+                    // Success
+                    showModal('loginSuccessModal');
+                    
+                    // Progress bar animation
+                    const progressBar = document.getElementById('progressBar');
+                    let width = 0;
+                    const interval = setInterval(() => {
+                        width += 2;
+                        progressBar.style.width = width + '%';
+                        
+                        if (width >= 100) {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                hideModal('loginSuccessModal');
+                                // In real app, redirect to dashboard
+                                // window.location.href = '/dashboard';
+                                // Replaced alert with custom modal for better UX
+                                // alert('Redirecting to Emergency Room Dashboard...'); 
+                                showError('Redirecting to Emergency Room Dashboard...');
+                            }, 500);
+                        }
+                    }, 30);
+                } else {
+                    showError('Invalid username/email or password. Please try again.');
+                }
+            });
+
+            // Forgot Password Modal
+            document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
+                showModal('forgotPasswordModal');
+            });
+
+            document.getElementById('cancelForgotPassword').addEventListener('click', () => {
+                hideModal('forgotPasswordModal');
+            });
+
+            document.getElementById('forgotPasswordForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('resetEmail').value;
+                
+                if (email) {
+                    hideModal('forgotPasswordModal');
+                    showModal('emailSentModal');
+                }
+            });
+
+            document.getElementById('closeEmailSent').addEventListener('click', () => {
+                hideModal('emailSentModal');
+            });
+
+            // Register Modal
+            document.getElementById('registerBtn').addEventListener('click', () => {
+                showModal('registerModal');
+            });
+
+            document.getElementById('cancelRegister').addEventListener('click', () => {
+                hideModal('registerModal');
+                // Reset form
+                document.getElementById('registerForm').reset();
+                isUsernameAvailable = false;
+                isEmailAvailable = false;
+                document.getElementById('titleOther').classList.add('hidden');
+                document.getElementById('positionOther').classList.add('hidden');
+                document.getElementById('usernameStatus').classList.add('hidden');
+                document.getElementById('emailStatus').classList.add('hidden');
+                updateSubmitButton();
+            });
+            
+            function updateSubmitButton() {
+                const submitButton = document.getElementById('submitRegister');
+                const title = document.getElementById('title').value;
+                const titleOther = document.getElementById('titleOther').value.trim();
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const department = document.getElementById('department').value;
+                const position = document.getElementById('position').value;
+                const positionOther = document.getElementById('positionOther').value.trim();
+                const agreeTerms = document.getElementById('agreeTerms').checked;
+                
+                const isTitleValid = title && (title !== 'อื่นๆ' || (title === 'อื่นๆ' && titleOther));
+                const isPositionValid = position && (position !== 'อื่นๆ' || (position === 'อื่นๆ' && positionOther));
+
+                const allFieldsFilled = isTitleValid && firstName && lastName && department && isPositionValid && agreeTerms && isUsernameAvailable && isEmailAvailable;
+                submitButton.disabled = !allFieldsFilled;
+            }
+
+            ['title', 'titleOther', 'firstName', 'lastName', 'department', 'position', 'positionOther', 'agreeTerms'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateSubmitButton);
+                document.getElementById(id).addEventListener('change', updateSubmitButton);
+            });
+
+            document.getElementById('registerForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Hide register modal and show activation email modal
+                hideModal('registerModal');
+                showModal('activationEmailModal');
+                
+                // Reset form
+                document.getElementById('registerForm').reset();
+                document.getElementById('titleOther').classList.add('hidden');
+                document.getElementById('positionOther').classList.add('hidden');
+                updateSubmitButton();
+            });
+
+            document.getElementById('closeActivationEmail').addEventListener('click', () => {
+                hideModal('activationEmailModal');
+            });
+
+            // Terms Modal
+            document.getElementById('termsLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                showModal('termsModal');
+            });
+            document.getElementById('footerTermsLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                showModal('termsModal');
+            });
+
+            document.getElementById('closeTermsModal').addEventListener('click', () => {
+                hideModal('termsModal');
+            });
+
+            // Contact Admin Modal
+            document.getElementById('contactAdminBtn').addEventListener('click', () => {
+                showModal('contactAdminModal');
+            });
+
+            document.getElementById('closeContactAdmin').addEventListener('click', () => {
+                hideModal('contactAdminModal');
+            });
+
+            // Show/hide 'Other' input fields
+            document.getElementById('title').addEventListener('change', (e) => {
+                document.getElementById('titleOther').classList.toggle('hidden', e.target.value !== 'อื่นๆ');
+            });
+            document.getElementById('position').addEventListener('change', (e) => {
+                document.getElementById('positionOther').classList.toggle('hidden', e.target.value !== 'อื่นๆ');
+            });
+
+
+            const logoContainer = document.querySelector('.logo-container');
+            
+            // Sizing and positioning logic from the React props
+            const sizeConfig = {
+                small: { width: 80, height: 80 },
+                medium: { width: 120, height: 120 },
+                large: { width: 180, height: 180 }
+            };
+            
+            const size = 'medium'; // Can be changed
+            const { width, height } = sizeConfig[size];
+            
+            logoContainer.style.width = `${width}px`;
+            logoContainer.style.height = `${height}px`;
+
+            const createParticles = () => {
+                if (!logoContainer) return;
+
+                // Clear existing particles
+                const existingParticles = logoContainer.querySelectorAll('.logo-particle');
+                existingParticles.forEach(p => p.remove());
+
+                const particleCount = 12;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('logo-particle');
+
+                    // Random position around the core
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 30 + Math.random() * 20;
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+
+                    particle.style.left = `calc(50% + ${x}px)`;
+                    particle.style.top = `calc(50% + ${y}px)`;
+
+                    // Random movement direction
+                    const tx = (Math.random() - 0.5) * 60;
+                    const ty = (Math.random() - 0.5) * 60;
+                    particle.style.setProperty('--tx', `${tx}px`);
+                    particle.style.setProperty('--ty', `${ty}px`);
+
+                    // Animation
+                    particle.style.animation = `particleFade ${1 + Math.random() * 2}s ease-out forwards`;
+                    particle.style.animationDelay = `${Math.random() * 2}s`;
+
+                    logoContainer.appendChild(particle);
+                }
+            };
+
+            // Initialize and re-create particles periodically
+            createParticles();
+            setInterval(createParticles, 3000);
+
+            // --- Animated Background ---
+            function createAnimatedBackground() {
+                const container = document.getElementById('animated-bg');
+                if (!container) return;
+                
+                const isDark = document.documentElement.classList.contains('dark');
+                
+                Array.from({ length: 12 }).forEach(() => {
+                    const bubble = document.createElement('div');
+                    const size = 150 + Math.random() * 350;
+                    const duration = 20 + Math.random() * 40;
+                    // Reduced delay for a faster animation start
+                    const delay = Math.random() * 2;
+
+                    bubble.className = `floating-bubble ${isDark ? 'dark-bubble' : 'light-bubble'}`;
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${Math.random() * 100}%`;
+                    bubble.style.top = `${Math.random() * 100}%`;
+                    bubble.style.setProperty('--tx', `${-50 + Math.random() * 100}px`);
+                    bubble.style.setProperty('--ty', `${-50 + Math.random() * 100}px`);
+                    bubble.style.animation = `float-bubble ${duration}s ease-in-out ${delay}s infinite`;
+
+                    container.appendChild(bubble);
+                });
+            }
+            createAnimatedBackground();
+
+        });
+    </script>
+</body>
+</html>
