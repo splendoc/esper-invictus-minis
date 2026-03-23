@@ -67,7 +67,7 @@
             border-radius:8px; padding:10px 12px;
             background:#f0fdf4; border:1px solid #86efac;
             font-family:'Sarabun',sans-serif;
-            font-size:0.88rem; line-height:1.7;
+            font-size:15px; line-height:1.7;
             color:#15803d;
         }
         .dark .active-note { color:#86efac; background:rgba(5,46,22,0.5); border-color:rgba(34,197,94,0.25); }
@@ -87,17 +87,21 @@
         /* ── gEDWIN level pill badge ── */
         .level-pill {
             display:inline-flex; align-items:center; gap:6px;
-            padding:5px 16px; border-radius:20px;
+            padding:6px 20px; border-radius:20px;
             font-family:'Sarabun',sans-serif;
-            font-size:0.9rem; font-weight:700;
+            font-size:1rem; font-weight:700;
             border:2px solid; white-space:nowrap;
             transition:all 0.8s ease; flex-shrink:0;
         }
         .level-pill .pill-en {
             font-family:'IBM Plex Mono',monospace;
-            font-size:0.78rem; font-weight:700;
+            font-size:0.82rem; font-weight:700;
             letter-spacing:.04em;
         }
+        @keyframes pill-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+        .level-pill.blink { animation:pill-blink 2s ease-in-out infinite; }
+        #gedwin-banner.blink { animation:pill-blink 2s ease-in-out infinite; }
+        #banner-icon.blink { animation:pill-blink 2s ease-in-out infinite; }
 
         /* ── Pagination ── */
         .page-area { flex:1; min-height:0; overflow:hidden; position:relative; }
@@ -121,7 +125,7 @@
         .dark .pv-sub { color:#3a6a8a; }
         .pv-clock { font-family:'IBM Plex Mono',monospace; font-size:23px; font-weight:600; letter-spacing:.06em; line-height:1; color:#0c2340; }
         .dark .pv-clock { color:#dde6f0; }
-        .pv-date { font-family:'Sarabun',sans-serif; font-size:12px; font-weight:600; color:#4a6a88; letter-spacing:.02em; margin-top:3px; }
+        .pv-date { font-family:'Sarabun',sans-serif; font-size:15px; font-weight:600; color:#4a6a88; letter-spacing:.02em; margin-top:3px; }
         .pv-theme-btn { width:36px; height:36px; border-radius:8px; border:1px solid #d0dbe8; display:flex; align-items:center; justify-content:center; color:#6b8ba4; font-size:14px; cursor:pointer; background:#f8fafc; }
         .dark .pv-theme-btn { border-color:#1a2840; background:rgba(255,255,255,.03); }
         .pv-divider { width:1px; height:32px; background:#d0dbe8; flex-shrink:0; }
@@ -154,9 +158,9 @@
         .dark .cnt-active { background:#052e16; color:#86efac; }
 
         /* ── Banner text ── */
-        .banner-title { font-family:'Sarabun',sans-serif; font-weight:700; font-size:14px; color:#15803d; }
+        .banner-title { font-family:'Sarabun',sans-serif; font-weight:700; font-size:20px; color:#15803d; }
         .dark .banner-title { color:#dde6f0; }
-        .banner-sub { font-family:'Sarabun',sans-serif; font-size:12px; color:#4a6a88; }
+        .banner-sub { font-family:'Sarabun',sans-serif; font-size:16px; color:#4a6a88; }
         .dark .banner-sub { color:#6b8ba4; }
 
         /* ── Section titles ── */
@@ -213,9 +217,9 @@
         </div>
 
         <!-- gEDWIN Banner -->
-        <div id="gedwin-banner" class="px-6 py-2">
+        <div id="gedwin-banner" class="px-6 py-3">
             <div class="flex items-center gap-3" style="border-radius:6px">
-                <span id="banner-icon" class="text-lg flex-shrink-0">✓</span>
+                <span id="banner-icon" style="font-size:40px;flex-shrink:0">✓</span>
                 <div class="flex-1 min-w-0">
                     <p id="banner-th" class="banner-title">ห้องฉุกเฉินพร้อมให้บริการ</p>
                     <p class="banner-sub mt-0.5">
@@ -243,19 +247,19 @@
                 </div>
                 <div style="display:flex;gap:8px">
                     <div class="wcard wcard-3">
-                        <div class="wcard-lbl mb-1" style="color:#eab308">ระดับ 3</div>
+                        <div class="wcard-lbl mb-1" style="color:#eab308">กึ่งฉุกเฉิน</div>
                         <div class="wcard-val" id="wt3">~2.5–3 ชม.</div>
                     </div>
                     <div class="wcard wcard-4">
-                        <div class="wcard-lbl mb-1" style="color:#22c55e">ระดับ 4</div>
+                        <div class="wcard-lbl mb-1" style="color:#22c55e">ไม่ฉุกเฉิน</div>
                         <div class="wcard-val" id="wt4">~3–4 ชม.</div>
                     </div>
                     <div class="wcard wcard-5">
-                        <div class="wcard-lbl mb-1" style="color:#3b82f6">ระดับ 5</div>
+                        <div class="wcard-lbl mb-1" style="color:#3b82f6">ทั่วไป</div>
                         <div class="wcard-val" id="wt5">~4–5 ชม.</div>
                     </div>
                 </div>
-                <p class="text-sm pv-sub-text text-center" style="font-family:'Sarabun',sans-serif;margin-top:6px">
+                <p class="pv-sub-text text-center" style="font-family:'Sarabun',sans-serif;font-size:15px;margin-top:2px;padding-bottom:6px">
                     ทีมแพทย์จะดูแลท่านตามความเร่งด่วนทางการแพทย์
                 </p>
             </div>
@@ -350,15 +354,20 @@ document.addEventListener('DOMContentLoaded', function () {
     function sc(s) { return SC[s] || {dot:'#6b8ba4', pub:s}; }
 
     const LEVELS = [
-        { max:2.06,     bdr:'#16a34a', bgl:'#dcfce7', bgd:'rgba(5,46,22,0.5)',   icon:'✓',  pill:'ปกติ',         pillEn:'Normal',       pillBg:'rgba(22,163,74,0.15)',  pillC:'#16a34a',
+        { max:2.06,     bdr:'#16a34a', bgl:'#dcfce7', bgd:'rgba(5,46,22,0.5)',   icon:'✓',  pill:'ปกติ',         pillEn:'Normal',
+          pillDark:{bg:'#16a34a',c:'#fff',bdr:'#16a34a'}, pillLight:{bg:'#dcfce7',c:'#15803d',bdr:'#16a34a'}, blink:false,
           th:'ห้องฉุกเฉินพร้อมให้บริการ',                                         mult:1.0 },
-        { max:2.34,     bdr:'#d97706', bgl:'#fef3c7', bgd:'rgba(28,20,0,0.65)',  icon:'ℹ️', pill:'ปานกลาง',      pillEn:'Medium',       pillBg:'rgba(217,119,6,0.15)',  pillC:'#b45309',
+        { max:2.34,     bdr:'#d97706', bgl:'#fef3c7', bgd:'rgba(28,20,0,0.65)',  icon:'ℹ️', pill:'ปานกลาง',      pillEn:'Medium',
+          pillDark:{bg:'#d97706',c:'#fff',bdr:'#d97706'}, pillLight:{bg:'#fef3c7',c:'#92400e',bdr:'#d97706'}, blink:true,
           th:'ห้องฉุกเฉินมีผู้ป่วยในระดับปานกลาง',                                mult:1.3 },
-        { max:3.50,     bdr:'#ea580c', bgl:'#ffedd5', bgd:'rgba(28,10,0,0.65)',  icon:'⚠️', pill:'หนาแน่น',      pillEn:'Crowded',      pillBg:'rgba(234,88,12,0.15)',  pillC:'#c2410c',
+        { max:3.50,     bdr:'#ea580c', bgl:'#ffedd5', bgd:'rgba(28,10,0,0.65)',  icon:'⚠️', pill:'หนาแน่น',      pillEn:'Crowded',
+          pillDark:{bg:'#ea580c',c:'#fff',bdr:'#ea580c'}, pillLight:{bg:'#ffedd5',c:'#c2410c',bdr:'#ea580c'}, blink:true,
           th:'ห้องฉุกเฉินมีผู้ป่วยค่อนข้างมาก  เวลารออาจนานกว่าปกติ',             mult:1.6 },
-        { max:5.00,     bdr:'#dc2626', bgl:'#fee2e2', bgd:'rgba(28,0,0,0.65)',   icon:'⚠️', pill:'หนาแน่นมาก',   pillEn:'Very Crowded', pillBg:'rgba(220,38,38,0.15)',  pillC:'#b91c1c',
+        { max:5.00,     bdr:'#dc2626', bgl:'#fee2e2', bgd:'rgba(28,0,0,0.65)',   icon:'⚠️', pill:'หนาแน่นมาก',   pillEn:'Very Crowded',
+          pillDark:{bg:'#dc2626',c:'#fff',bdr:'#dc2626'}, pillLight:{bg:'#fee2e2',c:'#991b1b',bdr:'#dc2626'}, blink:true,
           th:'ห้องฉุกเฉินมีผู้ป่วยหนาแน่น  กรุณาเตรียมใจรอนานกว่าปกติ',          mult:2.0 },
-        { max:Infinity, bdr:'#991b1b', bgl:'#fecaca', bgd:'rgba(21,0,0,0.65)',   icon:'🚨', pill:'วิกฤต',         pillEn:'Critical',     pillBg:'rgba(153,27,27,0.2)',   pillC:'#991b1b',
+        { max:Infinity, bdr:'#991b1b', bgl:'#fecaca', bgd:'rgba(21,0,0,0.65)',   icon:'🚨', pill:'วิกฤต',         pillEn:'Critical',
+          pillDark:{bg:'#dc2626',c:'#fff',bdr:'#dc2626'}, pillLight:{bg:'#fecaca',c:'#991b1b',bdr:'#991b1b'}, blink:true,
           th:'ขณะนี้มีผู้ป่วยวิกฤตฉุกเฉินหลายราย  กรุณาเตรียมใจรอนานมากกว่าปกติ', mult:2.5 }
     ];
 
@@ -482,28 +491,39 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     let lastLevelIdx = -1;
+    let forceRefresh = false;
     function updateBanner() {
         const score = calcGEDWIN();
         const level = getLevel(score);
         const idx   = LEVELS.indexOf(level);
-        if (idx === lastLevelIdx) return;
+        if (idx === lastLevelIdx && !forceRefresh) return;
+        const levelChanged = idx !== lastLevelIdx;
         lastLevelIdx = idx;
+        forceRefresh = false;
         const isDark  = document.documentElement.classList.contains('dark');
         const banner  = document.getElementById('gedwin-banner');
-        banner.style.opacity = '0';
-        setTimeout(() => {
+        if(levelChanged) banner.style.opacity = '0';
+        const apply = () => {
             banner.style.borderLeftColor = level.bdr;
             banner.style.backgroundColor = isDark ? level.bgd : level.bgl;
             document.getElementById('banner-icon').textContent = level.icon;
             document.getElementById('banner-th').textContent   = level.th;
+            // Banner title color matches severity
+            document.getElementById('banner-th').style.color = isDark ? '#dde6f0' : level.bdr;
             const pill = document.getElementById('level-pill');
+            const ps = isDark ? level.pillDark : level.pillLight;
             pill.innerHTML         = `${level.pill} <span class="pill-en">${level.pillEn}</span>`;
-            pill.style.color       = level.pillC;
-            pill.style.borderColor = level.pillC;
-            pill.style.background  = level.pillBg;
+            pill.style.color       = ps.c;
+            pill.style.borderColor = ps.bdr;
+            pill.style.background  = ps.bg;
+            pill.classList.toggle('blink', !!level.blink);
+            document.getElementById('banner-icon').classList.toggle('blink', !!level.blink);
+            banner.classList.remove('blink');
             banner.style.opacity = '1';
             updateWaitTimes(level.mult);
-        }, FADE_MS);
+        };
+        if(levelChanged) setTimeout(apply, FADE_MS);
+        else apply();
     }
 
     function updateWaitTimes(mult) {
@@ -545,7 +565,7 @@ document.addEventListener('DOMContentLoaded', function () {
         root.setProperty('--esi-3-c','#eab308');
         root.setProperty('--esi-4-c','#22c55e');
         root.setProperty('--esi-5-c','#3b82f6');
-        lastLevelIdx = -1;
+        forceRefresh = true;
         updateBanner();
     }
     const saved = localStorage.getItem('darkMode');
