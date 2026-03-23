@@ -14,10 +14,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;overflow:hidden;margin:0;scrollbar-width:thin;scrollbar-color:#1a2840 transparent}
-body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:flex;flex-direction:column}
+body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:flex;flex-direction:column;zoom:1.1}
 
-#hdr  {flex:0 0 56px;border-bottom:1px solid #1a2840;background:#080e17}
-#sit  {flex:0 0 auto;border-bottom:1px solid #1a2840;background:#0a1420}
+#hdr  {flex:0 0 64px;border-bottom:1px solid #1a2840;background:#080e17}
+#sit  {flex:0 0 auto;border-bottom:1px solid #1a2840;background:#080e17}
 #tabs {flex:0 0 44px;border-bottom:1px solid #1a2840;background:#080e17}
 #sfilter{flex:0 0 auto;border-bottom:1px solid #1a2840;background:#080e17;padding:6px 12px;display:none;gap:6px;overflow-x:auto;flex-wrap:nowrap;align-items:center}
 #sfilter::-webkit-scrollbar{height:0}
@@ -72,7 +72,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 .sp-default {background:#111c2a;color:#64748b;border:1px solid #1a2840}
 
 /* Cards */
-.pcard{background:#0f1a27;border-radius:7px;overflow:visible;transition:box-shadow .15s,background .15s;flex-shrink:0}
+.pcard{background:#142030;border-radius:7px;overflow:visible;transition:box-shadow .15s,background .15s;flex-shrink:0}
 .pcard:hover{background:#152233;box-shadow:0 0 0 1px #2a4a6a,0 8px 32px rgba(0,0,0,.6)}
 .pcard-sel{background:#0d2035 !important;box-shadow:0 0 0 1px #0ea5e9,0 8px 32px rgba(14,165,233,.15) !important}
 .z1{cursor:pointer}
@@ -90,7 +90,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 .st-btn:hover{border-color:#6b8ba4}
 
 /* Tabs */
-.tab-btn{height:100%;padding:0 14px;border:none;background:transparent;color:#6b8ba4;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12px;letter-spacing:.07em;cursor:pointer;position:relative;transition:color .15s}
+.tab-btn{height:100%;padding:0 14px;border:none;background:transparent;color:#7a9ab8;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:.07em;cursor:pointer;position:relative;transition:color .15s}
 .tab-btn.on{color:#dde6f0}
 .tab-btn.on::after{content:'';position:absolute;bottom:0;left:14px;right:14px;height:2px;background:#0ea5e9;border-radius:1px 1px 0 0}
 .tcnt{font-size:10px;font-weight:700;padding:1px 4px;border-radius:8px;margin-left:4px;font-family:'IBM Plex Mono',monospace;vertical-align:middle}
@@ -100,18 +100,18 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 .tc-f{background:#111c2a;color:#7a9ab8}
 
 /* Quick View */
-#qv{position:fixed;top:0;right:0;width:390px;height:100vh;background:#0c1520;border-left:1px solid #1a2840;z-index:100;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+#qv{position:fixed;top:0;right:0;width:390px;bottom:0;background:#0c1520;border-left:1px solid #1a2840;z-index:100;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
 #qv.open{transform:translateX(0)}
 #bd{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;display:none}
 #bd.on{display:block}
 .qv-grp{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b8ba4;padding:10px 16px 4px;font-family:'Rajdhani','Sarabun',sans-serif}
 .qv-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;transition:background .1s;border-left:2px solid transparent}
-.qv-item:hover{background:#0f1a27}
+.qv-item:hover{background:#182838}
 .qv-item.sel{background:#0a1e30;border-left-color:#0ea5e9}
 .qv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* Toast */
-#toast{position:fixed;bottom:20px;right:20px;z-index:200;background:#0c1520;border:1px solid #1a2840;border-radius:8px;padding:9px 14px;font-size:13px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.04em;transform:translateY(60px);opacity:0;transition:transform .2s,opacity .2s;pointer-events:none;display:flex;align-items:center;gap:8px;max-width:280px}
+#toast{position:fixed;top:20px;right:20px;transform:translateY(-60px);z-index:200;background:#0c1520;border:1px solid #1a2840;border-radius:8px;padding:9px 18px;font-size:13px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.04em;opacity:0;transition:transform .2s,opacity .2s;pointer-events:none;display:flex;align-items:center;gap:8px;max-width:360px}
 #toast.on{transform:translateY(0);opacity:1}
 
 /* Trend */
@@ -135,16 +135,14 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 .pop-sub{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:500;letter-spacing:.04em;color:#6b8ba4;margin-top:2px}
 .pop-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}
 
-/* Sit panels */
-.sit-panel{background:#0d1a28;border:1px solid #162436;border-radius:10px;padding:10px 14px;flex:1;min-width:0;display:flex;flex-direction:column;min-height:158px}
-.sit-panel-title{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#4a6a88;text-transform:uppercase;margin-bottom:8px;white-space:nowrap}
-.sit-esi-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
-.sit-esi-lbl{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em}
-.sit-esi-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;min-width:62px;text-align:right}
-.sit-counts{display:flex;flex-direction:column;gap:4px;padding:8px 16px;border-right:1px solid #1a2840;justify-content:center;flex-shrink:0}
-.sit-count-row{display:flex;align-items:baseline;gap:6px}
-.sit-count-num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:#dde6f0;line-height:1}
-.sit-count-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:#4a6a88;letter-spacing:.1em;text-transform:uppercase}
+/* Sit table */
+.sit-tbl-wrap{background:#0d1a28;border:1px solid #162436;border-radius:10px;padding:8px 16px}
+.sit-tbl{border-collapse:collapse}
+.sit-tbl th{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4a6a88;padding:4px 24px;text-align:right;white-space:nowrap}
+.sit-tbl th:first-child{text-align:left}
+.sit-tbl td{padding:4px 24px;white-space:nowrap}
+.sit-tbl td:first-child{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em}
+.sit-tbl td:not(:first-child){font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;text-align:right}
 
 /* QV inline edit fields */
 .qv-edit-row{display:none;align-items:center;gap:8px;padding:7px 16px;border-top:1px solid #0d1e2e}
@@ -184,21 +182,21 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 #confirm-btn{width:100%;height:36px;border-radius:8px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;transition:opacity .15s,background .15s}
 #confirm-btn.can-confirm{background:#0ea5e9;color:#fff;}
 #confirm-btn.can-confirm:hover{opacity:.88}
-#confirm-btn.no-change{background:#111c2a;color:#3a5a7a;cursor:not-allowed;border:1px solid #1a2840}
+#confirm-btn.no-change{background:#1a2840;color:#5a7a90;cursor:not-allowed;border:1px solid #2a4a6a}
 .hdr-div{width:1px;height:28px;background:#1a2840;flex-shrink:0}
 
 /* Header clock */
-#clock{font-size:15px;font-weight:600;letter-spacing:.06em;color:#e2eaf4}
-#dateD{font-size:12px;color:#6b8ba4;letter-spacing:.04em}
+#clock{font-size:22px;font-weight:600;letter-spacing:.06em;color:#e2eaf4}
+#dateD{font-size:14px;color:#6b8ba4;letter-spacing:.04em}
 
 /* New Patient button */
 .new-pt-btn{
-  display:flex;align-items:center;gap:7px;
+  display:flex;align-items:center;gap:8px;
   background:linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%);
-  border:none;border-radius:7px;
+  border:none;border-radius:8px;
   color:#fff;font-family:'Rajdhani',sans-serif;
-  font-size:13px;font-weight:700;letter-spacing:.07em;
-  padding:0 16px;height:34px;cursor:pointer;flex-shrink:0;
+  font-size:15px;font-weight:700;letter-spacing:.07em;
+  padding:0 22px;height:40px;cursor:pointer;flex-shrink:0;
   box-shadow:0 2px 12px rgba(14,165,233,.25);
   transition:opacity .15s,box-shadow .15s
 }
@@ -225,18 +223,18 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0
 }
-.hosp-name{font-size:12px;font-weight:700;color:#c8dff2;font-family:'Rajdhani',sans-serif;letter-spacing:.08em;line-height:1.1}
-.hosp-dept{font-size:10px;font-weight:700;color:#4a7298;font-family:'Rajdhani',sans-serif;letter-spacing:.1em;line-height:1.4;text-transform:uppercase}
+.hosp-name{font-size:14px;font-weight:700;color:#c8dff2;font-family:'Rajdhani',sans-serif;letter-spacing:.12em;line-height:1.1}
+.hosp-dept{font-size:12px;font-weight:700;color:#4a7298;font-family:'Rajdhani',sans-serif;letter-spacing:.14em;line-height:1.4;text-transform:uppercase}
 
 /* Brand text */
 .brand-name{
-  font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;
+  font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
   letter-spacing:.06em;line-height:1;
   background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text
 }
 .brand-sub{
-  font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;
   color:#3a6a8a;letter-spacing:.16em;line-height:1;margin-top:3px;text-transform:uppercase
 }
 </style>
@@ -251,7 +249,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
     <button id="logo-btn" onclick="toggleLogoPop()">
 
       <!-- Full brand SVG from static_logo (scaled to 38px) -->
-      <svg width="34" height="34" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+      <svg width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
         <circle cx="40" cy="40" r="38" stroke="url(#lg1)" stroke-width="2" fill="none" opacity="0.7"/>
         <circle cx="40" cy="40" r="28" fill="url(#lg2)" opacity="0.92"/>
         <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
@@ -318,7 +316,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
   <div class="flex items-center gap-3 flex-shrink-0">
     <div class="flex flex-col" style="line-height:1">
       <span id="clock" class="mono"></span>
-      <span id="dateD" class="mono" style="font-size:10px;color:#4a6a88;letter-spacing:.05em;margin-top:2px"></span>
+      <span id="dateD" style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#4a6a88;letter-spacing:.02em;margin-top:4px"></span>
     </div>
   </div>
 
@@ -353,44 +351,23 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 
 
 <!-- ══════════════ SITUATION BAR ══════════════ -->
-<section id="sit" class="flex items-stretch gap-3 px-4 py-3" style="border-bottom:1px solid #1a2840;background:#080e17">
+<section id="sit" class="flex items-center justify-center gap-4 px-4 py-3" style="border-bottom:1px solid #1a2840;background:#080e17">
 
   <!-- W / A large-number display -->
-  <div class="flex items-center flex-shrink-0" style="border-right:1px solid #162436;margin-right:4px;padding-right:4px;align-self:center">
-    <div style="display:flex;flex-direction:column;justify-content:center;padding:10px 20px 10px 4px">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;color:#5a8ab8;text-transform:uppercase;margin-bottom:4px">Waiting</div>
-      <div id="cnt-w" style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:#93c5fd;line-height:1">0</div>
+  <div class="sit-tbl-wrap flex items-center flex-shrink-0">
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:#5a8ab8;text-transform:uppercase;margin-bottom:2px">Waiting</div>
+      <div id="cnt-w" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:#93c5fd;line-height:1">0</div>
     </div>
-    <div style="width:1px;background:#162436;align-self:stretch;margin:8px 0"></div>
-    <div style="display:flex;flex-direction:column;justify-content:center;padding:10px 20px">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;color:#4a9070;text-transform:uppercase;margin-bottom:4px">Active</div>
-      <div id="cnt-a" style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:#86efac;line-height:1">0</div>
+    <div style="width:1px;background:#1a2840;align-self:stretch;margin:4px 0"></div>
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:#4a9070;text-transform:uppercase;margin-bottom:2px">Active</div>
+      <div id="cnt-a" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:#86efac;line-height:1">0</div>
     </div>
   </div>
 
-  <!-- Active by ESI -->
-  <div class="sit-panel">
-    <div class="sit-panel-title">Active Patients</div>
-    <div id="sp-act"></div>
-  </div>
-
-  <!-- Waiting Patients by ESI -->
-  <div class="sit-panel">
-    <div class="sit-panel-title">Waiting Patients</div>
-    <div id="sp-wait"></div>
-  </div>
-
-  <!-- Avg Wait Time by ESI -->
-  <div class="sit-panel">
-    <div class="sit-panel-title">Avg. Wait Time</div>
-    <div id="sp-avg"></div>
-  </div>
-
-  <!-- Longest Wait by ESI -->
-  <div class="sit-panel">
-    <div class="sit-panel-title">Longest Wait</div>
-    <div id="sp-lw"></div>
-  </div>
+  <!-- Compact summary table -->
+  <div id="sit-table" style="overflow-x:auto;display:flex;align-items:center"></div>
 
 </section>
 
@@ -402,10 +379,10 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
   <button class="tab-btn"    data-tab="finalized" onclick="switchTab(this)"><i class="fas fa-check-double" style="font-size:11px;margin-right:6px"></i>FINALIZED <span class="tcnt tc-f" id="tc-f">0</span></button>
   <div class="flex-1"></div>
   <div class="relative mr-1" style="display:flex;align-items:center">
-    <i class="fas fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2" style="font-size:10px;color:#4a6a88;pointer-events:none"></i>
+    <i class="fas fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2" style="font-size:12px;color:#6b8ba4;pointer-events:none"></i>
     <input id="srch" type="text" placeholder="HN / Name…" oninput="renderCards();document.getElementById('srch-clr').style.display=this.value?'flex':'none'" autocomplete="off"
-      class="h-7 pl-7 pr-6 rounded-lg outline-none border"
-      style="background:#0a1420;border-color:#1a2840;color:#6b8ba4;width:160px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;transition:border-color .15s,color .15s"
+      class="h-8 pl-8 pr-6 rounded-lg outline-none border"
+      style="background:#080e17;border-color:#1a2840;color:#7a9ab8;width:180px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;transition:border-color .15s,color .15s"
       onfocus="this.style.borderColor='#0ea5e9';this.style.color='#dde6f0'"
       onblur="this.style.borderColor='#1a2840';this.style.color=this.value?'#dde6f0':'#6b8ba4'">
     <button id="srch-clr" onclick="clearSearch()" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#4a6a88;padding:0;line-height:1;font-size:11px" onmouseover="this.style.color='#dde6f0'" onmouseout="this.style.color='#4a6a88'">
@@ -414,19 +391,19 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
   </div>
 
   <!-- Barcode scan button -->
-  <button id="scan-btn" onclick="openScanner()" title="Scan barcode" class="h-7 px-2.5 rounded-lg border flex items-center justify-center flex-shrink-0 mr-1"
-    style="border-color:#1a2840;color:#6b8ba4;background:transparent;cursor:pointer;transition:border-color .15s,color .15s"
+  <button id="scan-btn" onclick="openScanner()" title="Scan barcode" class="h-8 px-3 rounded-lg border flex items-center justify-center flex-shrink-0 mr-1"
+    style="border-color:#1a2840;color:#7a9ab8;background:transparent;cursor:pointer;transition:border-color .15s,color .15s"
     onmouseover="this.style.borderColor='#3a5a7a';this.style.color='#93c5fd'"
-    onmouseout="this.style.borderColor='#1a2840';this.style.color='#6b8ba4'">
-    <i class="fas fa-barcode" style="font-size:14px"></i>
+    onmouseout="this.style.borderColor='#1a2840';this.style.color='#7a9ab8'">
+    <i class="fas fa-barcode" style="font-size:16px"></i>
   </button>
 
   <!-- Filter dropdown -->
   <div style="position:relative;flex-shrink:0;margin-right:8px;display:flex;align-items:center;gap:4px" id="esi-dd-wrap">
-    <button id="esi-dd-btn" onclick="toggleEsiDD()" class="h-7 px-3 rounded-lg border flex items-center gap-1.5 flex-shrink-0" style="border-color:#1a2840;color:#6b8ba4;background:transparent;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;transition:color .15s,border-color .15s">
-      <i class="fas fa-sliders" style="font-size:10px"></i>
+    <button id="esi-dd-btn" onclick="toggleEsiDD()" class="h-8 px-3 rounded-lg border flex items-center gap-1.5 flex-shrink-0" style="border-color:#1a2840;color:#7a9ab8;background:transparent;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;transition:color .15s,border-color .15s">
+      <i class="fas fa-sliders" style="font-size:12px"></i>
       <span id="esi-dd-label">Filter</span>
-      <i class="fas fa-chevron-down" style="font-size:8px"></i>
+      <i class="fas fa-chevron-down" style="font-size:9px"></i>
     </button>
     <button id="esi-clr" onclick="setEsiFilter('all')" style="display:none;background:none;border:none;cursor:pointer;color:#4a6a88;padding:2px 4px;font-size:11px;line-height:1" onmouseover="this.style.color='#dde6f0'" onmouseout="this.style.color='#4a6a88'" title="Clear filter">
       <i class="fas fa-times"></i>
@@ -485,8 +462,8 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
   </div>
   <div id="qv-pt" class="px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840"></div>
   <div id="qv-opts" class="flex-1 overflow-y-auto"></div>
-  <div class="px-4 py-3 border-t flex-shrink-0" style="border-color:#1a2840">
-    <div id="qv-prev" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88;margin-bottom:8px;min-height:14px;letter-spacing:.04em"></div>
+  <div class="px-4 border-t flex-shrink-0" style="border-color:#1a2840;height:120px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding-bottom:16px">
+    <div id="qv-prev" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88;min-height:14px;letter-spacing:.04em"></div>
     <button id="confirm-btn" onclick="confirmStatus()" class="no-change">
       Confirm Update
     </button>
@@ -837,8 +814,7 @@ function tick(){
   const n = new Date();
   const p = v => String(v).padStart(2,'0');
   document.getElementById('clock').textContent = p(n.getHours())+':'+p(n.getMinutes());
-  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][n.getMonth()];
-  document.getElementById('dateD').textContent = n.getDate()+' '+mo+' '+n.getFullYear();
+  document.getElementById('dateD').textContent = n.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
 }
 setInterval(tick,1000); tick();
 
@@ -880,42 +856,34 @@ function renderSit(){
   document.getElementById('tc-a').textContent  = A.length;
   document.getElementById('tc-f').textContent  = F.length;
 
-  const ESI_NAMES = {1:'ESI 1',2:'ESI 2',3:'ESI 3',4:'ESI 4',5:'ESI 5'};
-  const EMPTY = `<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2a3f58">No data</div>`;
-
-  function esiRows(list, valFn, showBreach){
-    const esis = [1,2,3,4,5].filter(e=>list.some(p=>p.esi===e));
-    if(!esis.length) return EMPTY;
-    return esis.map(e=>{
-      const sub = list.filter(p=>p.esi===e);
-      const val = valFn(sub, e);
-      const inBreach = showBreach && sub.some(p=>p.waitMin >= ESI_RED[p.esi]);
-      return `<div class="sit-esi-row">
-        <span class="sit-esi-lbl" style="color:${ESI_CLR[e]}">${ESI_NAMES[e]}</span>
-        <span class="sit-esi-val${inBreach?' bc-rd bc-pulse':''}">${val}</span>
-      </div>`;
-    }).join('');
+  // Build compact summary table
+  const esis = [1,2,3,4,5].filter(e=> W.some(p=>p.esi===e) || A.some(p=>p.esi===e));
+  if(!esis.length){
+    document.getElementById('sit-table').innerHTML=`<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2a3f58;padding:8px">No patients</div>`;
+    return;
   }
-
-  function isWait(p){ return p.tab==='waiting'; }
-
-  // Panel 1 — Waiting count by ESI (no blink — count is a fact)
-  document.getElementById('sp-wait').innerHTML = esiRows(W, (sub)=> sub.length, false);
-
-  // Panel 2 — Avg wait time (blink if avg exceeds breach)
-  document.getElementById('sp-avg').innerHTML = esiRows(W, (sub,e)=>{
-    const avg = Math.round(sub.reduce((s,p)=>s+p.waitMin,0)/sub.length);
-    return fm(avg);
-  }, true);
-
-  // Panel 3 — Longest wait
-  document.getElementById('sp-lw').innerHTML = esiRows(W, (sub,e)=>{
-    const mx = Math.max(...sub.map(p=>p.waitMin));
-    return fm(mx);
-  }, true);
-
-  // Panel 4 — Active by ESI
-  document.getElementById('sp-act').innerHTML = esiRows(A, (sub)=> sub.length, false);
+  let html=`<div class="sit-tbl-wrap"><table class="sit-tbl"><thead><tr>
+    <th></th><th>Waiting</th><th>Active</th><th>Avg Wait</th><th>Max Wait</th>
+  </tr></thead><tbody>`;
+  esis.forEach(e=>{
+    const ws = W.filter(p=>p.esi===e);
+    const as = A.filter(p=>p.esi===e);
+    const wCnt = ws.length;
+    const aCnt = as.length;
+    const avg = wCnt ? fm(Math.round(ws.reduce((s,p)=>s+p.waitMin,0)/wCnt)) : '—';
+    const mx  = wCnt ? fm(Math.max(...ws.map(p=>p.waitMin))) : '—';
+    const maxBreach = wCnt && ws.some(p=>p.waitMin >= ESI_RED[p.esi]);
+    const avgBreach = wCnt && (ws.reduce((s,p)=>s+p.waitMin,0)/wCnt) >= ESI_AMB[e];
+    html+=`<tr>
+      <td style="color:${ESI_CLR[e]}">ESI ${e}</td>
+      <td style="color:#93c5fd">${wCnt||'—'}</td>
+      <td style="color:#86efac">${aCnt||'—'}</td>
+      <td class="${avgBreach?'bc-am':''}">${avg}</td>
+      <td class="${maxBreach?'bc-rd bc-pulse':''}">${mx}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  document.getElementById('sit-table').innerHTML=html;
 }
 
 // ══════════════════════════════════════════
@@ -946,7 +914,7 @@ function buildCard(p){
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
         <span class="pt-name" style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#dde6f0;line-height:1.3">${fullName(p)}</span>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#4e7a9a">${fmtHN(p.hn)}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5a7a90"> · ${p.sex} · ${fmtAge(p.age)}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#4e7a9a">${fmtHN(p.hn)}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#5a7a90"> · ${p.sex} · ${fmtAge(p.age)}</span>
       </div>
       <div style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:400;color:#7a9ab8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.cc}</div>
     </div>
@@ -966,7 +934,7 @@ function buildCard(p){
       <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};display:inline-block;flex-shrink:0"></span>
       <span class="${cfg.pill} sp" style="border:none;background:transparent;padding:0;font-size:12px">${cfg.label}</span>
       <i class="fas fa-lock" style="font-size:9px;color:#2a4a62;margin-left:2px"></i>
-      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88">${p.upd||'—'}</span>
+      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b8ba4">${p.upd||'—'}</span>
     </div>`;
   } else {
     Z2 = `<div style="padding:4px 12px 7px;display:flex;align-items:center;gap:8px;border-top:1px solid #0a1420">
@@ -975,7 +943,7 @@ function buildCard(p){
         <span class="${cfg.pill} sp" style="border:none;background:transparent;padding:0;font-size:12px">${cfg.label}</span>
         <i class="fas fa-chevron-down" style="font-size:8px;color:#6b8ba4;margin-left:2px"></i>
       </button>
-      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88">Upd ${p.upd||'—'}</span>
+      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b8ba4">Upd ${p.upd||'—'}</span>
     </div>`;
   }
 
@@ -1042,18 +1010,17 @@ function openQV(id,evt){
   document.getElementById('qv').classList.remove('edit-mode');
   const cfg=sc(p.status);
   document.getElementById('qv-pt').innerHTML=`
-    <div style="display:flex;align-items:center;gap:12px;padding-bottom:10px">
-      <div style="width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px" class="esi-c-${p.esi}">${p.esi}</div>
+    <div style="display:flex;gap:12px;padding-bottom:10px">
+      <div style="width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;margin-top:2px" class="esi-c-${p.esi}">${p.esi}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:#dde6f0;line-height:1.2">${fullName(p)}</div>
-        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:#7a9ab8;margin-top:2px">${p.cc}</div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:600;color:#dde6f0;line-height:1.2">${fullName(p)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#4e7a9a;margin-top:4px">${fmtHN(p.hn)} <span style="color:#5a7a90">· ${p.sex} · ${fmtAge(p.age)}</span></div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:#7a9ab8;margin-top:4px">${p.cc}</div>
       </div>
       <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <span class="sp ${cfg.pill}">${cfg.label}</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#6b8ba4">${p.tab==='waiting'?'Wait '+fm(p.waitMin):'Stay '+fm(p.stayMin)}</div>
-          <button class="qv-toggle-edit" onclick="toggleQVEditMode()"><i class="fas fa-pen" style="font-size:9px"></i> Edit</button>
-        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b8ba4">${p.tab==='waiting'?'Wait '+fm(p.waitMin):'Stay '+fm(p.stayMin)}</div>
+        <button class="qv-toggle-edit" onclick="toggleQVEditMode()"><i class="fas fa-pen" style="font-size:9px"></i> Edit</button>
       </div>
     </div>
     ${_renderQVEditRows(p)}`;
@@ -1166,7 +1133,7 @@ function confirmStatus(){
     }
   });
 
-  showToast(`${nm} → ${sc(qvSel).label}`, '#22c55e', 'fa-check-circle');
+  showToast(`<div style="line-height:1.3"><div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:#dde6f0">${fullName(p)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;margin-top:2px">${fmtHN(p.hn)}</div><div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#22c55e;margin-top:3px">→ ${sc(qvSel).label}</div></div>`, '#22c55e', 'fa-check-circle');
 }
 
 // ══════════════════════════════════════════
@@ -1566,20 +1533,19 @@ function openFinalizedQV(id){
   document.querySelector('#qv .flex.items-center.justify-between span').textContent='Edit Details';
 
   document.getElementById('qv-pt').innerHTML=`
-    <div style="display:flex;align-items:center;gap:12px;padding-bottom:10px">
-      <div style="width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px" class="esi-c-${p.esi}">${p.esi}</div>
+    <div style="display:flex;gap:12px;padding-bottom:10px">
+      <div style="width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;margin-top:2px" class="esi-c-${p.esi}">${p.esi}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:#dde6f0;line-height:1.2">${fullName(p)}</div>
-        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:#7a9ab8;margin-top:2px">${p.cc}</div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:600;color:#dde6f0;line-height:1.2">${fullName(p)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#4e7a9a;margin-top:4px">${fmtHN(p.hn)} <span style="color:#5a7a90">· ${p.sex} · ${fmtAge(p.age)}</span></div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:#7a9ab8;margin-top:4px">${p.cc}</div>
       </div>
       <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <span class="sp ${cfg.pill}">${cfg.label}</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3a5a7a;display:flex;align-items:center;gap:4px">
-            <i class="fas fa-lock" style="font-size:9px"></i> Finalized
-          </div>
-          <button class="qv-toggle-edit" onclick="toggleQVEditMode()"><i class="fas fa-pen" style="font-size:9px"></i> Edit</button>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3a5a7a;display:flex;align-items:center;gap:4px">
+          <i class="fas fa-lock" style="font-size:9px"></i> Finalized
         </div>
+        <button class="qv-toggle-edit" onclick="toggleQVEditMode()"><i class="fas fa-pen" style="font-size:9px"></i> Edit</button>
       </div>
     </div>
     ${_renderQVEditRows(p)}`;
@@ -1686,7 +1652,7 @@ function closeScanner(){
 let _tt=null;
 function showToast(msg,color,icon){
   const t=document.getElementById('toast');
-  document.getElementById('t-msg').textContent=msg;
+  document.getElementById('t-msg').innerHTML=msg;
   document.getElementById('t-icon').className=`fas ${icon}`;
   document.getElementById('t-icon').style.color=color;
   t.style.borderColor=color+'55';
