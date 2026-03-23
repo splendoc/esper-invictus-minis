@@ -14,7 +14,7 @@
     </script>
     <style>
         /* ── Base ── */
-        body { background-color:#edf2f7; font-family:'Sarabun',sans-serif; overflow:hidden; }
+        body { background-color:#e2eaf2; font-family:'Sarabun',sans-serif; overflow:hidden; }
         .dark body { background-color:#080e17; }
         .mono { font-family:'IBM Plex Mono',monospace; }
         .raj  { font-family:'Rajdhani',sans-serif; }
@@ -126,7 +126,7 @@
         .pv-clock { font-family:'IBM Plex Mono',monospace; font-size:23px; font-weight:600; letter-spacing:.06em; line-height:1; color:#0c2340; }
         .dark .pv-clock { color:#dde6f0; }
         .pv-date { font-family:'Sarabun',sans-serif; font-size:15px; font-weight:600; color:#4a6a88; letter-spacing:.02em; margin-top:3px; }
-        .pv-theme-btn { width:36px; height:36px; border-radius:8px; border:1px solid #d0dbe8; display:flex; align-items:center; justify-content:center; color:#6b8ba4; font-size:14px; cursor:pointer; background:#f8fafc; }
+        .pv-theme-btn { width:36px; height:36px; border-radius:8px; border:1px solid #c0cdd8; display:flex; align-items:center; justify-content:center; color:#6b8ba4; font-size:14px; cursor:pointer; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.08); }
         .dark .pv-theme-btn { border-color:#1a2840; background:rgba(255,255,255,.03); }
         .pv-divider { width:1px; height:32px; background:#d0dbe8; flex-shrink:0; }
         .dark .pv-divider { background:#1a2840; }
@@ -177,8 +177,8 @@
         <!-- Top bar -->
         <div class="flex justify-between items-center" style="padding:14px 32px">
             <div class="flex items-center gap-3">
-                <!-- Amber logo — same as Floor -->
-                <svg width="50" height="50" viewBox="0 0 80 80" fill="none" style="flex-shrink:0">
+                <!-- Amber logo — click to toggle theme -->
+                <svg id="themeToggle" width="50" height="50" viewBox="0 0 80 80" fill="none" style="flex-shrink:0;cursor:pointer">
                     <circle cx="40" cy="40" r="38" stroke="url(#lg1p)" stroke-width="2" fill="none" opacity="0.7"/>
                     <circle cx="40" cy="40" r="28" fill="url(#lg2p)" opacity="0.92"/>
                     <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
@@ -205,14 +205,15 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <div class="pv-divider"></div>
-                <div style="text-align:center">
+                <div style="text-align:right">
                     <div id="time" class="pv-clock"></div>
                     <div id="date" class="pv-date"></div>
                 </div>
-                <button id="themeToggle" class="pv-theme-btn">
-                    <i id="themeIcon" class="fas fa-sun"></i>
-                </button>
+                <div class="pv-divider"></div>
+                <div style="text-align:right">
+                    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:.12em;line-height:1" class="pv-text">BANGBUATONG</div>
+                    <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-top:3px;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">EMERGENCY</div>
+                </div>
             </div>
         </div>
 
@@ -573,7 +574,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Theme — Floor-aligned with CSS variables
     function applyTheme(isDark) {
         document.documentElement.classList.toggle('dark', isDark);
-        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        const themeIcon = document.getElementById('themeIcon');
+        if(themeIcon) themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
         localStorage.setItem('darkMode', isDark);
         // Set CSS variables for card rendering
         const root = document.documentElement.style;
