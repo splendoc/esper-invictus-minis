@@ -177,7 +177,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 /* Age edit */
 .qv-age-inputs{display:flex;gap:4px;flex:1;min-width:0;align-items:center}
 .qv-age-inputs .qv-fi{width:42px;text-align:center;flex:0 0 42px;padding:4px 2px}
-.qv-age-unit{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;color:#4a6a88;flex-shrink:0}
+.qv-age-unit{font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;color:#5a7a90;flex-shrink:0}
 
 /* QV Confirm button states */
 #confirm-btn{width:100%;height:36px;border-radius:8px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;transition:opacity .15s,background .15s}
@@ -430,7 +430,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
       <span id="esi-dd-label">Filter</span>
       <i class="fas fa-chevron-down" style="font-size:9px"></i>
     </button>
-    <button id="esi-clr" onclick="setEsiFilter('all')" style="display:none;background:none;border:none;cursor:pointer;color:#4a6a88;padding:2px 4px;font-size:11px;line-height:1" onmouseover="this.style.color='#dde6f0'" onmouseout="this.style.color='#4a6a88'" title="Clear filter">
+    <button id="esi-clr" class="qv-cancel-btn" onclick="setEsiFilter('all')" style="display:none;font-size:12px" title="Clear filter">
       <i class="fas fa-times"></i>
     </button>
     <div id="esi-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#0d1826;border:1px solid #1a2840;border-radius:10px;min-width:160px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:200;overflow:hidden">
@@ -483,7 +483,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 <aside id="qv">
   <div class="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840">
     <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff">Status Update</span>
-    <button onclick="closeQV()" style="color:#6b8ba4;background:none;border:none;cursor:pointer;font-size:14px"><i class="fas fa-times"></i></button>
+    <button class="qv-cancel-btn" onclick="closeQV()" style="font-size:14px"><i class="fas fa-times"></i></button>
   </div>
   <div id="qv-pt" class="px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840"></div>
   <div id="qv-opts" class="flex-1 overflow-y-auto"></div>
@@ -499,10 +499,10 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 <!-- ══════════════ REGISTRATION PANEL ══════════════ -->
 <aside id="reg">
   <div class="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840">
-    <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff"><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Register Patient</span>
-    <button onclick="closeReg()" style="color:#6b8ba4;background:none;border:none;cursor:pointer;font-size:14px"><i class="fas fa-times"></i></button>
+    <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff"><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Patient Register</span>
+    <button class="qv-cancel-btn" onclick="closeReg()" style="font-size:14px"><i class="fas fa-times"></i></button>
   </div>
-  <div id="reg-body" class="flex-1 overflow-y-auto" style="padding:14px 16px">
+  <div id="reg-body" class="flex-1 overflow-y-auto" style="padding:10px 16px">
 
     <!-- HN Lookup -->
     <div style="margin-bottom:6px">
@@ -512,10 +512,10 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
       </div>
       <div style="position:relative">
         <div style="display:flex;gap:0">
-          <input id="reg-hn" type="text" class="qv-fi" placeholder="XXX-XXX-XXX" maxlength="11" inputmode="numeric" autocomplete="off" oninput="regHNInput(this)" style="flex:1;border-radius:5px 0 0 5px;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em">
+          <input id="reg-hn" type="text" class="qv-fi" placeholder="XXX-XXX-XXX" maxlength="11" inputmode="numeric" autocomplete="off" oninput="regHNInput(this)" style="flex:1;border-radius:5px 0 0 5px;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;padding:8px 10px">
           <button onclick="regScanHN()" style="padding:0 10px;background:#1a2840;color:#6b8ba4;border:1px solid #1a2840;border-left:none;cursor:pointer;font-size:14px;transition:color .15s" onmouseover="this.style.color='#0ea5e9'" onmouseout="this.style.color='#6b8ba4'"><i class="fas fa-barcode"></i></button>
           <button id="reg-gen-btn" onclick="regGenHN()" style="padding:0 10px;background:#0369a1;color:#fff;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;border-radius:0 5px 5px 0"><i class="fas fa-magic" style="margin-right:4px"></i>GEN</button>
-          <button id="reg-hn-clr" onclick="regClearHN()" style="display:none;padding:0 10px;background:#7f1d1d;color:#fca5a5;border:none;cursor:pointer;font-family:'Sarabun',sans-serif;font-weight:700;font-size:12px;border-radius:0 5px 5px 0"><i class="fas fa-times" style="margin-right:4px"></i>ล้าง</button>
+          <button id="reg-hn-clr" class="qv-cancel-btn" onclick="regClearHN()" style="display:none;font-size:14px;padding:0 8px"><i class="fas fa-times"></i></button>
         </div>
         <div id="reg-hn-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#0d1826;border:1px solid #1a2840;border-top:none;border-radius:0 0 8px 8px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:10;max-height:200px;overflow-y:auto"></div>
       </div>
@@ -535,23 +535,25 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 
     <!-- Section: Patient Info (hidden when returning patient selected) -->
     <div id="reg-info-section">
-      <div class="qv-grp" style="padding:4px 0 8px">ข้อมูลผู้ป่วย</div>
+      <div class="qv-grp" style="padding:2px 0 6px">ข้อมูลผู้ป่วย</div>
 
       <!-- Title + Sex -->
-      <div style="display:flex;gap:8px;margin-bottom:10px">
+      <div style="display:flex;gap:8px;margin-bottom:6px">
         <div style="flex:1">
           <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px;font-family:'Sarabun','Rajdhani',sans-serif;font-size:12px">คำนำหน้า</div>
-          <select id="reg-title" class="qv-fi" style="cursor:pointer;font-family:'Sarabun',sans-serif">
+          <select id="reg-title" class="qv-fi" style="cursor:pointer;font-family:'Sarabun',sans-serif;padding:8px 10px" onchange="regTitleChange()">
             <option value="">-- เลือก --</option>
             <option>นาย</option><option>นาง</option><option>นางสาว</option>
             <option>เด็กชาย</option><option>เด็กหญิง</option>
             <option>ด.ช.</option><option>ด.ญ.</option>
             <option>พระภิกษุ</option><option>แม่ชี</option>
+            <option value="other">อื่นๆ</option>
           </select>
+          <input id="reg-title-other" type="text" class="qv-fi" placeholder="ระบุคำนำหน้า" autocomplete="off" style="display:none;margin-top:4px;font-family:'Sarabun',sans-serif">
         </div>
         <div style="flex:1">
           <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px;font-family:'Sarabun','Rajdhani',sans-serif;font-size:12px">เพศ <span style="color:#ef4444">*</span></div>
-          <select id="reg-sex" class="qv-fi" style="cursor:pointer;font-family:'Sarabun',sans-serif">
+          <select id="reg-sex" class="qv-fi" style="cursor:pointer;font-family:'Sarabun',sans-serif;padding:8px 10px">
             <option value="">-- เลือก --</option>
             <option value="M">ชาย</option><option value="F">หญิง</option><option value="X">X</option>
           </select>
@@ -559,54 +561,57 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
       </div>
 
       <!-- First + Last name -->
-      <div style="display:flex;gap:8px;margin-bottom:10px">
+      <div style="display:flex;gap:8px;margin-bottom:6px">
         <div style="flex:1">
           <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px;font-family:'Sarabun','Rajdhani',sans-serif;font-size:12px">ชื่อจริง <span style="color:#ef4444">*</span></div>
-          <input id="reg-fname" type="text" class="qv-fi" autocomplete="off" style="font-family:'Sarabun',sans-serif">
+          <input id="reg-fname" type="text" class="qv-fi" autocomplete="off" style="font-family:'Sarabun',sans-serif;padding:8px 10px">
         </div>
         <div style="flex:1">
           <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px;font-family:'Sarabun','Rajdhani',sans-serif;font-size:12px">นามสกุล <span style="color:#ef4444">*</span></div>
-          <input id="reg-lname" type="text" class="qv-fi" autocomplete="off" style="font-family:'Sarabun',sans-serif">
+          <input id="reg-lname" type="text" class="qv-fi" autocomplete="off" style="font-family:'Sarabun',sans-serif;padding:8px 10px">
         </div>
       </div>
 
       <!-- Age -->
-      <div style="margin-bottom:10px">
-        <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px;font-family:'Sarabun','Rajdhani',sans-serif;font-size:12px">อายุ <span style="color:#ef4444">*</span> <span style="font-weight:400;font-size:10px;color:#5a7a90;text-transform:none;letter-spacing:0">กรอกอย่างน้อย 1 ช่อง</span></div>
-        <div style="display:flex;gap:6px;max-width:240px;align-items:center">
-          <input id="reg-age-y" type="number" class="qv-fi" placeholder="ปี" min="0" max="150" style="width:60px;text-align:center;font-family:'Sarabun',sans-serif">
+      <div style="margin-bottom:6px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="qv-edit-lbl" style="width:auto;margin:0;font-family:'Sarabun','Rajdhani',sans-serif;font-size:12px">อายุ <span style="color:#ef4444">*</span> <span style="font-weight:400;font-size:10px;color:#5a7a90;text-transform:none;letter-spacing:0">กรอกเพียง 1 ช่อง</span></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="reg-age-y" type="number" class="qv-fi" placeholder="ปี" min="0" max="150" oninput="regAgeLock('y')" style="flex:1;text-align:center;font-family:'Sarabun',sans-serif;padding:8px 6px">
           <span class="qv-age-unit">ปี</span>
-          <input id="reg-age-m" type="number" class="qv-fi" placeholder="ด." min="0" max="11" style="width:60px;text-align:center;font-family:'Sarabun',sans-serif">
+          <input id="reg-age-m" type="number" class="qv-fi" placeholder="เดือน" min="1" max="11" oninput="regAgeLock('m')" style="flex:1;text-align:center;font-family:'Sarabun',sans-serif;padding:8px 6px">
           <span class="qv-age-unit">เดือน</span>
-          <input id="reg-age-d" type="number" class="qv-fi" placeholder="ว." min="0" max="30" style="width:60px;text-align:center;font-family:'Sarabun',sans-serif">
+          <input id="reg-age-d" type="number" class="qv-fi" placeholder="วัน" min="1" max="30" oninput="regAgeLock('d')" style="flex:1;text-align:center;font-family:'Sarabun',sans-serif;padding:8px 6px">
           <span class="qv-age-unit">วัน</span>
+          <button type="button" class="qv-cancel-btn" onclick="regAgeClear()" id="reg-age-clr" style="display:none;font-size:14px"><i class="fas fa-times"></i></button>
         </div>
       </div>
     </div>
 
     <!-- Section: Triage -->
-    <div class="qv-grp" style="padding:12px 0 8px">การประเมินแรกรับ</div>
+    <div class="qv-grp" style="padding:6px 0 6px">การประเมินแรกรับ</div>
 
     <!-- Fast Track -->
-    <div style="margin-bottom:10px">
+    <div style="margin-bottom:6px">
       <div class="qv-edit-lbl" style="width:auto;margin-bottom:6px;font-size:12px">FAST TRACK</div>
       <div id="reg-ft" style="display:flex;gap:4px">
         <button type="button" data-esi="1" class="reg-ft-btn" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">Trauma</button>
         <button type="button" data-esi="2" class="reg-ft-btn" style="background:linear-gradient(135deg,#db2777,#be185d)">ACS</button>
         <button type="button" data-esi="2" class="reg-ft-btn" style="background:linear-gradient(135deg,#c026d3,#a21caf)">Stroke</button>
         <button type="button" data-esi="2" class="reg-ft-btn" style="background:linear-gradient(135deg,#ea580c,#c2410c)">Sepsis</button>
-        <button type="button" id="reg-ft-clr" style="width:32px;height:32px;flex:none;background:#1a2840;color:#6b8ba4;border-radius:5px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
+        <button type="button" id="reg-ft-clr" style="width:32px;height:32px;flex:none;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border-radius:5px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
       </div>
     </div>
 
     <!-- Chief Complaint -->
-    <div style="margin-bottom:10px">
+    <div style="margin-bottom:6px">
       <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px;font-family:'Sarabun','Rajdhani',sans-serif;font-size:12px">CHIEF COMPLAINT <span style="color:#ef4444">*</span></div>
-      <textarea id="reg-cc" class="qv-fi" rows="3" style="resize:vertical;font-family:'Sarabun',sans-serif;min-height:60px"></textarea>
+      <textarea id="reg-cc" class="qv-fi" rows="2" style="resize:vertical;font-family:'Sarabun',sans-serif;min-height:44px"></textarea>
     </div>
 
     <!-- ESI -->
-    <div style="margin-bottom:10px">
+    <div style="margin-bottom:6px">
       <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px;font-family:'Sarabun','Rajdhani',sans-serif;font-size:12px">ESI LEVEL <span style="color:#ef4444">*</span></div>
       <select id="reg-esi" class="qv-fi" style="cursor:pointer;font-weight:700;font-family:'Sarabun',sans-serif;font-size:13px;padding:8px 8px" onchange="regEsiChange()">
         <option value="">-- Select --</option>
@@ -625,7 +630,7 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
   <div class="px-4 border-t flex-shrink-0" style="border-color:#1a2840;height:120px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding-bottom:16px">
     <div id="reg-err" style="font-family:'Sarabun',sans-serif;font-size:12px;color:#ef4444;min-height:14px"></div>
     <button id="reg-submit" onclick="submitReg()" style="width:100%;height:36px;border-radius:8px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;background:#0ea5e9;color:#fff;transition:opacity .15s">
-      REGISTER PATIENT
+      PATIENT REGISTER
     </button>
   </div>
 </aside>
@@ -2045,6 +2050,9 @@ function resetRegForm(){
     const el=document.getElementById(id); if(el) el.value='';
   });
   document.getElementById('reg-title').value='';
+  document.getElementById('reg-title-other').value='';
+  document.getElementById('reg-title-other').style.display='none';
+  regAgeClear();
   document.getElementById('reg-sex').value='';
   document.getElementById('reg-esi').value='';
   document.getElementById('reg-esi').className='qv-fi';
@@ -2194,6 +2202,59 @@ function regScanHN(){
   showToast('Barcode scanner — จะเชื่อมต่อเร็วๆ นี้','#0ea5e9','fa-barcode');
 }
 
+// Age — lock other boxes when one is filled
+function regAgeLock(which){
+  const y=document.getElementById('reg-age-y');
+  const m=document.getElementById('reg-age-m');
+  const d=document.getElementById('reg-age-d');
+  const clr=document.getElementById('reg-age-clr');
+
+  // Clamp values
+  if(which==='y' && y.value){ y.value=Math.min(Math.max(parseInt(y.value)||0,0),150); }
+  if(which==='m' && m.value){ m.value=Math.min(Math.max(parseInt(m.value)||1,1),11); }
+  if(which==='d' && d.value){ d.value=Math.min(Math.max(parseInt(d.value)||1,1),30); }
+
+  const hasValue = y.value || m.value || d.value;
+
+  if(hasValue){
+    // Lock the other two
+    if(which==='y'||y.value){ m.disabled=true; d.disabled=true; y.disabled=false; }
+    if(which==='m'||m.value){ y.disabled=true; d.disabled=true; m.disabled=false; }
+    if(which==='d'||d.value){ y.disabled=true; m.disabled=true; d.disabled=false; }
+    clr.style.display='';
+  } else {
+    y.disabled=false; m.disabled=false; d.disabled=false;
+    clr.style.display='none';
+  }
+}
+
+function regAgeClear(){
+  const y=document.getElementById('reg-age-y');
+  const m=document.getElementById('reg-age-m');
+  const d=document.getElementById('reg-age-d');
+  y.value=''; m.value=''; d.value='';
+  y.disabled=false; m.disabled=false; d.disabled=false;
+  document.getElementById('reg-age-clr').style.display='none';
+}
+
+function regTitleChange(){
+  const sel=document.getElementById('reg-title');
+  const other=document.getElementById('reg-title-other');
+  if(sel.value==='other'){
+    other.style.display='';
+    other.focus();
+  } else {
+    other.style.display='none';
+    other.value='';
+  }
+}
+
+function regGetTitle(){
+  const sel=document.getElementById('reg-title');
+  if(sel.value==='other') return document.getElementById('reg-title-other').value.trim();
+  return sel.value;
+}
+
 function regEsiChange(){
   const sel=document.getElementById('reg-esi');
   sel.className='qv-fi';
@@ -2225,7 +2286,7 @@ document.getElementById('reg-ft-clr').addEventListener('click',()=>{
 async function submitReg(){
   const fp=_regFoundPatient; // returning patient or null
   const hnRaw=document.getElementById('reg-hn').value.replace(/[-\s]/g,'').trim();
-  const title=fp ? fp.title : document.getElementById('reg-title').value;
+  const title=fp ? fp.title : regGetTitle();
   const fname=fp ? fp.firstName : document.getElementById('reg-fname').value.trim();
   const lname=fp ? fp.lastName : document.getElementById('reg-lname').value.trim();
   const sex=fp ? fp.sex : document.getElementById('reg-sex').value;
