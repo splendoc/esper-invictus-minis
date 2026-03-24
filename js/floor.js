@@ -536,9 +536,16 @@ function toggleTheme(){
 function updateHospIcon(isDark){
   const cross=document.getElementById('hosp-cross');
   const rect=document.getElementById('hosp-rect');
-  // Show opposite theme colors as hint of what you'll switch to
+  const icon=cross?.closest('.hosp-icon');
+  // Show opposite theme as hint of what you'll switch to
   if(cross) cross.setAttribute('stroke', isDark ? '#1e3a5f' : '#60a5fa');
   if(rect)  rect.setAttribute('stroke', isDark ? '#94a3b8' : '#1e4a80');
+  if(icon){
+    icon.style.background = isDark
+      ? 'linear-gradient(135deg,#f0f0f3,#e8e8ec)'  // light bg in dark mode
+      : 'linear-gradient(135deg,#0a1e38,#0d2a50)';  // dark bg in light mode
+    icon.style.borderColor = isDark ? '#d9d9de' : '#1a3a60';
+  }
 }
 (function(){
   const saved=localStorage.getItem('darkMode');
