@@ -74,61 +74,62 @@
 
 /* ── Light Theme ── */
 :root:not(.dark) {
-  --bg-body:       #f1f5f9;
-  --bg-card:       #ffffff;
-  --bg-panel:      #ffffff;
-  --bg-input:      #f8fafc;
-  --bg-elevated:   #ffffff;
-  --bg-sit:        #f8fafc;
-  --bg-hn-pfx:     #f1f5f9;
+  /* Supabase / Radix Slate light theme */
+  --bg-body:       #f9f9fb;     /* Slate 2 — page bg */
+  --bg-card:       #ffffff;     /* pure white cards */
+  --bg-panel:      #ffffff;     /* side panels */
+  --bg-input:      #fcfcfd;     /* Slate 1 — input bg */
+  --bg-elevated:   #ffffff;     /* dropdowns, popovers */
+  --bg-sit:        #f0f0f3;     /* Slate 3 — sit bar */
+  --bg-hn-pfx:     #f0f0f3;     /* Slate 3 */
 
-  --border:        #e2e8f0;
-  --border-subtle: #e2e8f0;
-  --border-sit:    #e2e8f0;
-  --border-card:   #e2e8f0;
+  --border:        #e0e0e5;     /* Slate 5 */
+  --border-subtle: #e8e8ec;     /* Slate 4 */
+  --border-sit:    #e0e0e5;     /* Slate 5 */
+  --border-card:   #e8e8ec;     /* Slate 4 */
 
-  --text-primary:  #1e293b;
-  --text-sub:      #334155;
-  --text-muted:    #64748b;
-  --text-dim:      #94a3b8;
-  --text-detail:   #64748b;
-  --text-faint:    #cbd5e1;
-  --text-clock:    #1e293b;
+  --text-primary:  #1c2024;     /* Slate 12 — headings, names */
+  --text-sub:      #60646c;     /* Slate 11 — body text */
+  --text-muted:    #8b8d98;     /* Slate 9 — secondary */
+  --text-dim:      #80838d;     /* Slate 10 — labels */
+  --text-detail:   #8b8d98;     /* Slate 9 */
+  --text-faint:    #b9bbc6;     /* Slate 8 — placeholders */
+  --text-clock:    #1c2024;     /* Slate 12 */
 
-  --accent:        #0284c7;
+  --accent:        #0284c7;     /* keep our blue */
   --accent-hover:  #0369a1;
-  --accent-bg:     #e0f2fe;
+  --accent-bg:     #dbeafe;
 
-  --scrollbar:     #e2e8f0;
-  --scrollbar-hover:#cbd5e1;
+  --scrollbar:     #d9d9de;     /* Slate 6 */
+  --scrollbar-hover:#cdced6;    /* Slate 7 */
 
-  --card-hover-bg: #f8fafc;
-  --card-hover-ring:#cbd5e1;
-  --card-sel-bg:   #e0f2fe;
+  --card-hover-bg: #f9f9fb;     /* Slate 2 */
+  --card-hover-ring:#cdced6;    /* Slate 7 */
+  --card-sel-bg:   #dbeafe;
 
-  --item-hover-bg: #f1f5f9;
-  --item-sel-bg:   #e0f2fe;
-  --pop-hover-bg:  #f1f5f9;
+  --item-hover-bg: #f0f0f3;     /* Slate 3 */
+  --item-sel-bg:   #dbeafe;
+  --pop-hover-bg:  #f0f0f3;     /* Slate 3 */
 
-  --hosp-bg-start: #e0ecf8;
-  --hosp-bg-end:   #d0e0f0;
-  --hosp-border:   #b0c8e0;
-  --hosp-name:     #0c2340;
-  --hosp-dept:     #4a6a88;
+  --hosp-bg-start: #f0f0f3;    /* Slate 3 */
+  --hosp-bg-end:   #e8e8ec;    /* Slate 4 */
+  --hosp-border:   #d9d9de;    /* Slate 6 */
+  --hosp-name:     #1c2024;    /* Slate 12 */
+  --hosp-dept:     #8b8d98;    /* Slate 9 */
 
-  --confirm-disabled-bg: #e2e8f0;
-  --confirm-disabled-text: #8a9ab0;
-  --confirm-disabled-border: #d0dbe8;
+  --confirm-disabled-bg: #e8e8ec;    /* Slate 4 */
+  --confirm-disabled-text: #8b8d98;  /* Slate 9 */
+  --confirm-disabled-border: #d9d9de;/* Slate 6 */
 
-  --brand-sub:     #6b8ba4;
+  --brand-sub:     #8b8d98;    /* Slate 9 */
 
-  --backdrop:      rgba(0,0,0,.25);
+  --backdrop:      rgba(0,0,0,.2);
 
   --logo-btn-hover: rgba(0,0,0,.04);
-  --divider:       #d0dbe8;
-  --ph-lbl-bg:     #e8eef4;
-  --ph-lbl-border: #d0dbe8;
-  --ph-lbl-text:   #4a6a88;
+  --divider:       #e0e0e5;    /* Slate 5 */
+  --ph-lbl-bg:     #f0f0f3;    /* Slate 3 */
+  --ph-lbl-border: #e0e0e5;    /* Slate 5 */
+  --ph-lbl-text:   #60646c;    /* Slate 11 */
 }
 
 
@@ -234,10 +235,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .tc-a{background:#052e16;color:#86efac}
 .tc-d{background:#1a0f40;color:#c4b5fd}
 .tc-f{background:#111c2a;color:var(--text-sub)}
-:root:not(.dark) .tc-w{background:#dbeafe;color:#1e40af}
-:root:not(.dark) .tc-a{background:#dcfce7;color:#166534}
-:root:not(.dark) .tc-d{background:#ede9fe;color:#5b21b6}
-:root:not(.dark) .tc-f{background:#f3f4f6;color:#4b5563}
+:root:not(.dark) .tc-w{background:#dbeafe;color:#1d4ed8}
+:root:not(.dark) .tc-a{background:#dcfce7;color:#15803d}
+:root:not(.dark) .tc-d{background:#ede9fe;color:#6d28d9}
+:root:not(.dark) .tc-f{background:#f0f0f3;color:#60646c}
 
 /* Quick View */
 #qv{position:fixed;top:0;right:0;width:390px;bottom:0;background:var(--bg-panel);border-left:1px solid var(--border);z-index:100;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
@@ -247,7 +248,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .qv-grp{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);padding:10px 16px 4px;font-family:'Rajdhani','Sarabun',sans-serif}
 .qv-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;transition:background .1s;border-left:2px solid transparent}
 .qv-item:hover{background:var(--item-hover-bg)}
-:root:not(.dark) .qv-item:hover{background:#e8f0fe;border-left-color:#93c5fd}
+:root:not(.dark) .qv-item:hover{background:#f0f0f3;border-left-color:#cdced6}
 .qv-item.sel{background:var(--item-sel-bg);border-left-color:var(--accent)}
 .qv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
