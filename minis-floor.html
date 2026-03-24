@@ -412,16 +412,13 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
     <i class="fas fa-plus" style="font-size:11px"></i> New Patient
   </button>
 
-  <!-- Theme toggle -->
-  <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">
-    <i id="themeIcon" class="fas fa-moon"></i>
-  </button>
-
   <div class="hdr-div"></div>
 
-  <!-- Hospital identity -->
+  <!-- Hospital identity (cross icon = theme toggle) -->
   <div class="hosp-badge">
-    <div class="hosp-icon">
+    <div class="hosp-icon" onclick="toggleTheme()" style="cursor:pointer;transition:border-color .15s,background .15s" title="Toggle theme"
+      onmouseenter="this.style.borderColor='#3a5a7a';this.style.background='linear-gradient(135deg,#0d2a50,#0f3060)'"
+      onmouseleave="this.style.borderColor='#1a3a60';this.style.background='linear-gradient(135deg,#0a1e38,#0d2a50)'">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M8 2v12M2 8h12" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
         <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="#1e4a80" stroke-width="1"/>
@@ -1248,20 +1245,12 @@ let qvGrp     = null;  // tracks which group the selected status came from
 function toggleTheme(){
   const isDark=!document.documentElement.classList.contains('dark');
   document.documentElement.classList.toggle('dark',isDark);
-  document.getElementById('themeIcon').className=isDark?'fas fa-moon':'fas fa-sun';
-  document.getElementById('themeToggle').style.color=isDark?'#6b8ba4':'#f59e0b';
   localStorage.setItem('darkMode',isDark);
 }
 (function(){
   const saved=localStorage.getItem('darkMode');
   const isDark=saved===null?true:saved==='true';
   document.documentElement.classList.toggle('dark',isDark);
-  document.addEventListener('DOMContentLoaded',function(){
-    const icon=document.getElementById('themeIcon');
-    const btn=document.getElementById('themeToggle');
-    if(icon) icon.className=isDark?'fas fa-moon':'fas fa-sun';
-    if(btn)  btn.style.color=isDark?'#6b8ba4':'#f59e0b';
-  });
 })();
 
 // ══════════════════════════════════════════
