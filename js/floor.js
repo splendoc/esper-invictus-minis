@@ -610,7 +610,7 @@ function renderSit(){
       const avgLos=fm(Math.round(as.reduce((s,p)=>s+p.stayMin,0)/cnt));
       const maxPt=as.reduce((a,b)=>a.stayMin>b.stayMin?a:b);
       const maxLos=fm(maxPt.stayMin);
-      ah+=`<tr><td style="color:${ESI_CLR[e]}">ESI ${e}</td><td style="color:#86efac">${cnt}</td><td style="color:#c4b5fd">${avgLos}</td><td style="color:${ESI_CLR[e]};cursor:pointer;font-weight:700" onclick="goToPatient('${maxPt.id}','active')">${maxLos}</td></tr>`;
+      ah+=`<tr><td style="color:${ESI_CLR[e]}">ESI ${e}</td><td style="color:var(--sit-pts-active)">${cnt}</td><td style="color:var(--sit-avg)">${avgLos}</td><td style="color:${ESI_CLR[e]};cursor:pointer;font-weight:700" onclick="goToPatient('${maxPt.id}','active')">${maxLos}</td></tr>`;
     });
     ah+=`</tbody></table>`;
     document.getElementById('sit-active').innerHTML=ah;
@@ -630,7 +630,7 @@ function renderSit(){
       const maxWait=fm(maxPt.waitMin);
       const maxBreach=ws.some(p=>p.waitMin>=ESI_RED[p.esi]);
       const avgBreach=(ws.reduce((s,p)=>s+p.waitMin,0)/cnt)>=ESI_AMB[e];
-      wh+=`<tr><td style="color:${ESI_CLR[e]}">ESI ${e}</td><td style="color:#93c5fd">${cnt}</td><td class="${avgBreach?'bc-am':''}">${avgWait}</td><td class="${maxBreach?'bc-rd bc-pulse':''}" style="cursor:pointer;color:${ESI_CLR[e]};font-weight:700" onclick="goToPatient('${maxPt.id}','waiting')">${maxWait}</td></tr>`;
+      wh+=`<tr><td style="color:${ESI_CLR[e]}">ESI ${e}</td><td style="color:var(--sit-pts-waiting)">${cnt}</td><td class="${avgBreach?'bc-am':''}">${avgWait}</td><td class="${maxBreach?'bc-rd bc-pulse':''}" style="cursor:pointer;color:${ESI_CLR[e]};font-weight:700" onclick="goToPatient('${maxPt.id}','waiting')">${maxWait}</td></tr>`;
     });
     wh+=`</tbody></table>`;
     document.getElementById('sit-waiting').innerHTML=wh;

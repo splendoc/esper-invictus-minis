@@ -58,6 +58,15 @@
   --confirm-disabled-text: #5a7a90;
   --confirm-disabled-border: #2a4a6a;
 
+  /* ── Sit bar counts ── */
+  --sit-active-label: #4a9070;
+  --sit-active-count: #86efac;
+  --sit-waiting-label: #5a8ab8;
+  --sit-waiting-count: #93c5fd;
+  --sit-pts-active: #86efac;
+  --sit-pts-waiting: #93c5fd;
+  --sit-avg: #c4b5fd;
+
   /* ── Brand ── */
   --brand-sub:     #3a6a8a;
 
@@ -120,6 +129,15 @@
   --confirm-disabled-bg: #e8e8ec;    /* Slate 4 */
   --confirm-disabled-text: #8b8d98;  /* Slate 9 */
   --confirm-disabled-border: #d9d9de;/* Slate 6 */
+
+  /* ── Sit bar counts ── */
+  --sit-active-label: #15803d;
+  --sit-active-count: #16a34a;
+  --sit-waiting-label: #1d4ed8;
+  --sit-waiting-count: #2563eb;
+  --sit-pts-active: #15803d;
+  --sit-pts-waiting: #1d4ed8;
+  --sit-avg: #7c3aed;
 
   --brand-sub:     #60646c;    /* Slate 11 — darker subtitle */
 
