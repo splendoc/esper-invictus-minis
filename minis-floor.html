@@ -265,30 +265,19 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 <body>
 
 <!-- ══════════════ LOCK SCREEN ══════════════ -->
-<div id="lockscreen" style="position:fixed;inset:0;z-index:9999;background:#080e17;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .4s">
+<div id="lockscreen" style="position:fixed;inset:0;z-index:9999;background:rgba(8,14,23,0.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .4s">
 
-  <!-- Logo -->
+  <!-- Logo (same as Floor header) -->
   <div style="margin-bottom:28px">
     <svg width="64" height="64" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="40" cy="40" r="38" stroke="url(#lk1)" stroke-width="2" fill="none" opacity="0.7"/>
-      <circle cx="40" cy="40" r="28" fill="url(#lk2)" opacity="0.92"/>
+      <circle cx="40" cy="40" r="38" stroke="url(#lg1)" stroke-width="2" fill="none" opacity="0.7"/>
+      <circle cx="40" cy="40" r="28" fill="url(#lg2)" opacity="0.92"/>
       <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
       <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
-      <circle cx="40" cy="18" r="3" fill="url(#lk3)" opacity="0.85"/>
-      <circle cx="62" cy="40" r="2.5" fill="url(#lk3)" opacity="0.65"/>
-      <circle cx="40" cy="62" r="2" fill="url(#lk3)" opacity="0.45"/>
-      <circle cx="18" cy="40" r="2.5" fill="url(#lk3)" opacity="0.65"/>
-      <defs>
-        <linearGradient id="lk1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/>
-        </linearGradient>
-        <linearGradient id="lk2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#B45309"/>
-        </linearGradient>
-        <linearGradient id="lk3" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#FDE68A"/><stop offset="100%" stop-color="#F59E0B"/>
-        </linearGradient>
-      </defs>
+      <circle cx="40" cy="18" r="3" fill="url(#lg3)" opacity="0.85"/>
+      <circle cx="62" cy="40" r="2.5" fill="url(#lg3)" opacity="0.65"/>
+      <circle cx="40" cy="62" r="2" fill="url(#lg3)" opacity="0.45"/>
+      <circle cx="18" cy="40" r="2.5" fill="url(#lg3)" opacity="0.65"/>
     </svg>
   </div>
 
@@ -627,13 +616,8 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
       <!-- AGE row -->
       <div class="qv-edit-row" style="display:flex;border:none">
         <span class="qv-edit-lbl">AGE <span style="color:#ef4444">*</span></span>
-        <input id="reg-age-y" type="number" class="qv-fi" placeholder="ปี" min="0" max="150" oninput="regAgeLock('y')" style="flex:1;text-align:center;font-family:'Sarabun',sans-serif">
+        <input id="reg-age" type="number" class="qv-fi" placeholder="อายุ (ปี)" min="0" max="150" oninput="regAgeClamp()" style="flex:1;text-align:center;font-family:'IBM Plex Mono',monospace">
         <span class="qv-age-unit">ปี</span>
-        <input id="reg-age-m" type="number" class="qv-fi" placeholder="ด." min="1" max="11" oninput="regAgeLock('m')" style="flex:1;text-align:center;font-family:'Sarabun',sans-serif">
-        <span class="qv-age-unit">เดือน</span>
-        <input id="reg-age-d" type="number" class="qv-fi" placeholder="ว." min="1" max="30" oninput="regAgeLock('d')" style="flex:1;text-align:center;font-family:'Sarabun',sans-serif">
-        <span class="qv-age-unit">วัน</span>
-        <button type="button" class="qv-cancel-btn" onclick="regAgeClear()" id="reg-age-clr" style="display:none;font-size:14px"><i class="fas fa-times"></i></button>
       </div>
 
     </div>
@@ -1813,20 +1797,12 @@ function _renderQVEditRows(p){
     </div>
     <div class="qv-edit-row" id="qv-age-row">
       <span class="qv-edit-lbl">AGE</span>
-      <span class="qv-edit-val mono" id="qv-age-display">${fmtAge(p.age)}</span>
+      <span class="qv-edit-val mono" id="qv-age-display">${a.y||0} ปี</span>
       <button class="qv-edit-btn" id="qv-age-edit-btn" onclick="toggleQVAgeEdit()" style="margin-left:auto"><i class="fas fa-pen-to-square"></i></button>
       <div class="qv-field-wrap" id="qv-age-field-wrap">
-        <div class="qv-age-inputs">
-          <input class="qv-fi" id="qv-age-y" type="number" min="0" max="150" value="${a.y||''}" placeholder="0" autocomplete="off"
-            onkeydown="if(event.key==='Enter')saveQVAge();if(event.key==='Escape')cancelQVAgeEdit()">
-          <span class="qv-age-unit">ปี</span>
-          <input class="qv-fi" id="qv-age-m" type="number" min="0" max="11" value="${a.m||''}" placeholder="0" autocomplete="off"
-            onkeydown="if(event.key==='Enter')saveQVAge();if(event.key==='Escape')cancelQVAgeEdit()">
-          <span class="qv-age-unit">เดือน</span>
-          <input class="qv-fi" id="qv-age-d" type="number" min="0" max="30" value="${a.d||''}" placeholder="0" autocomplete="off"
-            onkeydown="if(event.key==='Enter')saveQVAge();if(event.key==='Escape')cancelQVAgeEdit()">
-          <span class="qv-age-unit">วัน</span>
-        </div>
+        <input class="qv-fi" id="qv-age-y" type="number" min="0" max="150" value="${a.y||''}" placeholder="อายุ" autocomplete="off" style="flex:1;text-align:center;font-family:'IBM Plex Mono',monospace"
+          onkeydown="if(event.key==='Enter')saveQVAge();if(event.key==='Escape')cancelQVAgeEdit()">
+        <span class="qv-age-unit">ปี</span>
         <button class="qv-save-btn" onclick="saveQVAge()">Save</button>
         <button class="qv-cancel-btn" onclick="cancelQVAgeEdit()"><i class="fas fa-times"></i></button>
       </div>
@@ -2052,10 +2028,7 @@ function toggleQVAgeEdit(){
   if(open){
     const p=patients.find(x=>x.id===qvId);
     if(p){
-      const a=p.age||{y:0,m:0,d:0};
-      document.getElementById('qv-age-y').value=a.y||'';
-      document.getElementById('qv-age-m').value=a.m||'';
-      document.getElementById('qv-age-d').value=a.d||'';
+      document.getElementById('qv-age-y').value=p.age?.y||'';
     }
     document.getElementById('qv-age-y').focus();
   }
@@ -2069,15 +2042,14 @@ function cancelQVAgeEdit(){
 function saveQVAge(){
   const p=patients.find(x=>x.id===qvId);
   if(!p) return;
-  const y=parseInt(document.getElementById('qv-age-y').value)||0;
-  const m=parseInt(document.getElementById('qv-age-m').value)||0;
-  const d=parseInt(document.getElementById('qv-age-d').value)||0;
-  if(!y&&!m&&!d){ document.getElementById('qv-age-y').focus(); return; }
-  p.age={y,m,d};
-  document.getElementById('qv-age-display').textContent=fmtAge(p.age);
+  const y=Math.min(Math.max(parseInt(document.getElementById('qv-age-y').value)||0,0),150);
+  if(!y){ document.getElementById('qv-age-y').focus(); return; }
+  p.age={y,m:0,d:0};
+  document.getElementById('qv-age-display').textContent=y+' ปี';
   cancelQVAgeEdit();
   renderCards();
-  showToast('Age → '+fmtAge(p.age),'#0ea5e9','fa-calendar');
+  updatePatientInfo(p.patientId, { age_y: y, age_m: 0, age_d: 0 });
+  showToast('Age → '+y+' ปี','#0ea5e9','fa-calendar');
 }
 
 // ══════════════════════════════════════════
@@ -2306,7 +2278,7 @@ function closeReg(){
 }
 
 function resetRegForm(){
-  ['reg-hn','reg-fname','reg-lname','reg-cc','reg-age-y','reg-age-m','reg-age-d'].forEach(id=>{
+  ['reg-hn','reg-fname','reg-lname','reg-cc','reg-age'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   document.getElementById('reg-title').value='';
@@ -2314,7 +2286,6 @@ function resetRegForm(){
   document.getElementById('reg-title-other').style.display='none';
   document.getElementById('reg-sex').disabled=false;
   document.getElementById('reg-sex-clr').style.display='none';
-  regAgeClear();
   document.getElementById('reg-sex').value='';
   document.getElementById('reg-esi').value='';
   document.getElementById('reg-esi').className='qv-fi';
@@ -2464,63 +2435,10 @@ function regScanHN(){
   showToast('Barcode scanner — จะเชื่อมต่อเร็วๆ นี้','#0ea5e9','fa-barcode');
 }
 
-// Age — lock other boxes when one is filled
-function regAgeLock(which){
-  const y=document.getElementById('reg-age-y');
-  const m=document.getElementById('reg-age-m');
-  const d=document.getElementById('reg-age-d');
-  const clr=document.getElementById('reg-age-clr');
-
-  // Clamp values
-  if(which==='y' && y.value){ y.value=Math.min(Math.max(parseInt(y.value)||0,0),150); }
-  if(which==='m' && m.value){ m.value=Math.min(Math.max(parseInt(m.value)||1,1),11); }
-  if(which==='d' && d.value){ d.value=Math.min(Math.max(parseInt(d.value)||1,1),30); }
-
-  const hasValue = y.value || m.value || d.value;
-  const isInfant = m.value || d.value;
-
-  if(hasValue){
-    // Lock the other two
-    if(which==='y'||y.value){ m.disabled=true; d.disabled=true; y.disabled=false; }
-    if(which==='m'||m.value){ y.disabled=true; d.disabled=true; m.disabled=false; }
-    if(which==='d'||d.value){ y.disabled=true; m.disabled=true; d.disabled=false; }
-    clr.style.display='';
-  } else {
-    y.disabled=false; m.disabled=false; d.disabled=false;
-    clr.style.display='none';
-  }
-
-  // Lock ACS/Stroke for infants (month or day age)
-  document.querySelectorAll('.reg-ft-btn').forEach(btn=>{
-    const text=btn.textContent.trim();
-    if(text==='ACS'||text==='Stroke'){
-      btn.disabled=isInfant;
-      btn.style.opacity=isInfant?'0.3':'1';
-      btn.style.cursor=isInfant?'not-allowed':'pointer';
-      if(isInfant && btn.classList.contains('active')){
-        btn.classList.remove('active');
-        document.getElementById('reg-esi').disabled=false;
-        document.getElementById('reg-esi').value='';
-        regEsiChange();
-        _regFtActive=false;
-      }
-    }
-  });
-}
-
-function regAgeClear(){
-  const y=document.getElementById('reg-age-y');
-  const m=document.getElementById('reg-age-m');
-  const d=document.getElementById('reg-age-d');
-  y.value=''; m.value=''; d.value='';
-  y.disabled=false; m.disabled=false; d.disabled=false;
-  document.getElementById('reg-age-clr').style.display='none';
-  // Re-enable ACS/Stroke
-  document.querySelectorAll('.reg-ft-btn').forEach(btn=>{
-    btn.disabled=false;
-    btn.style.opacity='1';
-    btn.style.cursor='pointer';
-  });
+// Age — single box, clamp 0-150
+function regAgeClamp(){
+  const el=document.getElementById('reg-age');
+  if(el.value) el.value=Math.min(Math.max(parseInt(el.value)||0,0),150);
 }
 
 function regTitleChange(){
@@ -2591,9 +2509,9 @@ async function submitReg(){
   const fname=fp ? fp.firstName : document.getElementById('reg-fname').value.trim();
   const lname=fp ? fp.lastName : document.getElementById('reg-lname').value.trim();
   const sex=fp ? fp.sex : document.getElementById('reg-sex').value;
-  const ay=fp ? (fp.age.y||0) : (parseInt(document.getElementById('reg-age-y').value)||0);
-  const am=fp ? (fp.age.m||0) : (parseInt(document.getElementById('reg-age-m').value)||0);
-  const ad=fp ? (fp.age.d||0) : (parseInt(document.getElementById('reg-age-d').value)||0);
+  const ay=fp ? (fp.age.y||0) : (parseInt(document.getElementById('reg-age').value)||0);
+  const am=0;
+  const ad=0;
   const cc=document.getElementById('reg-cc').value.trim();
   const esi=parseInt(document.getElementById('reg-esi').value);
   const errEl=document.getElementById('reg-err');
@@ -2609,7 +2527,7 @@ async function submitReg(){
     if(!fname){ errEl.textContent='กรุณากรอกชื่อจริง'; return; }
     if(!lname){ errEl.textContent='กรุณากรอกนามสกุล'; return; }
     if(!sex){ errEl.textContent='กรุณาเลือกเพศ'; return; }
-    if(!ay&&!am&&!ad){ errEl.textContent='กรุณากรอกอายุอย่างน้อย 1 ช่อง'; return; }
+    if(!ay){ errEl.textContent='กรุณากรอกอายุ'; return; }
   }
   if(!cc){ errEl.textContent='กรุณากรอก Chief Complaint'; return; }
   if(!esi){ errEl.textContent='กรุณาเลือก ESI Level'; return; }
