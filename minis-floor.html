@@ -2526,6 +2526,8 @@ function regAgeLock(which){
     y.disabled=false; m.disabled=false; d.disabled=false;
     clr.style.display='none';
   }
+  // Lock ACS/Stroke for patients ≤15 years (or age in months/days)
+  regEnforceFtAge();
 }
 function regAgeClear(){
   const y=document.getElementById('reg-age-y');
@@ -2534,6 +2536,29 @@ function regAgeClear(){
   y.value=''; m.value=''; d.value='';
   y.disabled=false; m.disabled=false; d.disabled=false;
   document.getElementById('reg-age-clr').style.display='none';
+  regEnforceFtAge();
+}
+// Disable ACS/Stroke if age ≤15 or age is in months/days
+function regEnforceFtAge(){
+  const yVal=parseInt(document.getElementById('reg-age-y').value)||0;
+  const mVal=document.getElementById('reg-age-m').value;
+  const dVal=document.getElementById('reg-age-d').value;
+  const isChild = mVal || dVal || (yVal > 0 && yVal <= 15);
+  document.querySelectorAll('.reg-ft-btn').forEach(btn=>{
+    const text=btn.textContent.trim().replace(/\s+/g,' ');
+    if(text.includes('ACS')||text.includes('STROKE')||text.includes('Stroke')){
+      btn.disabled=isChild;
+      btn.style.opacity=isChild?'0.3':'1';
+      btn.style.cursor=isChild?'not-allowed':'pointer';
+      if(isChild && btn.classList.contains('active')){
+        btn.classList.remove('active');
+        _regFtActive=false;
+        document.getElementById('reg-esi').disabled=false;
+        document.getElementById('reg-esi').value='';
+        regEsiChange();
+      }
+    }
+  });
 }
 
 function regTitleChange(){
@@ -2578,7 +2603,7 @@ function regEsiChange(){
 // Fast track buttons
 document.getElementById('reg-ft').addEventListener('click',(e)=>{
   const btn=e.target.closest('.reg-ft-btn');
-  if(!btn) return;
+  if(!btn || btn.disabled) return;
   _regFtActive=true;
   document.querySelectorAll('.reg-ft-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
