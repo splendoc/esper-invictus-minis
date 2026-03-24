@@ -809,7 +809,7 @@ function openQV(id,evt){
       const itemStyle = isResus ? 'border-left:2px solid rgba(239,68,68,0.3)' : '';
       html+=`<div class="qv-item${isSel?' sel':''}" data-s="${s}" data-g="${grp.g}" onclick="selStatus('${s}','${grp.g}')" style="${itemStyle}">
         <span class="qv-dot" style="background:${sg.dot}"></span>
-        <span style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:${isSel?600:400};color:${isResus?'#fca5a5':isSel?'var(--text-primary)':'var(--text-sub)'}">${sg.label}</span>
+        <span style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:${isSel?600:400};color:${isResus?'#ef4444':isSel?'var(--text-primary)':'var(--text-sub)'}">${sg.label}</span>
         ${isSel?'<i class="fas fa-check ml-auto" style="font-size:14px;color:var(--accent)"></i>':''}
       </div>`;
     });
