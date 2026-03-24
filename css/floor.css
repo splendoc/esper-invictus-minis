@@ -83,21 +83,21 @@
   --bg-sit:        #f0f0f3;     /* Slate 3 — sit bar */
   --bg-hn-pfx:     #f0f0f3;     /* Slate 3 */
 
-  --border:        #e0e0e5;     /* Slate 5 */
-  --border-subtle: #e8e8ec;     /* Slate 4 */
-  --border-sit:    #e0e0e5;     /* Slate 5 */
-  --border-card:   #e8e8ec;     /* Slate 4 */
+  --border:        #d1d5db;     /* stronger dividers */
+  --border-subtle: #d9d9de;     /* Slate 6 — edit row dividers */
+  --border-sit:    #d1d5db;
+  --border-card:   #d9d9de;     /* Slate 6 */
 
   --text-primary:  #1c2024;     /* Slate 12 — headings, names */
   --text-sub:      #60646c;     /* Slate 11 — body text */
-  --text-muted:    #8b8d98;     /* Slate 9 — secondary */
-  --text-dim:      #80838d;     /* Slate 10 — labels */
+  --text-muted:    #80838d;     /* Slate 10 — secondary */
+  --text-dim:      #60646c;     /* Slate 11 — labels, date */
   --text-detail:   #8b8d98;     /* Slate 9 */
   --text-faint:    #b9bbc6;     /* Slate 8 — placeholders */
   --text-clock:    #1c2024;     /* Slate 12 */
 
   --accent:        #0284c7;     /* keep our blue */
-  --accent-hover:  #0369a1;
+  --accent-hover:  #1c2024;     /* edit values — dark text, not bright blue */
   --accent-bg:     #dbeafe;
 
   --scrollbar:     #d9d9de;     /* Slate 6 */
@@ -115,13 +115,13 @@
   --hosp-bg-end:   #e8e8ec;    /* Slate 4 */
   --hosp-border:   #d9d9de;    /* Slate 6 */
   --hosp-name:     #1c2024;    /* Slate 12 */
-  --hosp-dept:     #8b8d98;    /* Slate 9 */
+  --hosp-dept:     #60646c;    /* Slate 11 — darker EMERGENCY */
 
   --confirm-disabled-bg: #e8e8ec;    /* Slate 4 */
   --confirm-disabled-text: #8b8d98;  /* Slate 9 */
   --confirm-disabled-border: #d9d9de;/* Slate 6 */
 
-  --brand-sub:     #8b8d98;    /* Slate 9 */
+  --brand-sub:     #60646c;    /* Slate 11 — darker subtitle */
 
   --backdrop:      rgba(0,0,0,.2);
 
@@ -209,7 +209,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 /* Cards */
 .pcard{background:var(--bg-card);border-radius:7px;overflow:visible;transition:box-shadow .15s,background .15s;flex-shrink:0}
 .pcard:hover{background:var(--card-hover-bg);box-shadow:0 0 0 1px var(--card-hover-ring),0 8px 32px rgba(0,0,0,.6)}
-:root:not(.dark) .pcard{box-shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04)}
+:root:not(.dark) .pcard{box-shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);border:1px solid #d9d9de}
 :root:not(.dark) .pcard:hover{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 1px var(--card-hover-ring)}
 .pcard-sel{background:var(--card-sel-bg) !important;box-shadow:0 0 0 1px var(--accent),0 8px 32px rgba(14,165,233,.15) !important}
 .z1{cursor:pointer}
