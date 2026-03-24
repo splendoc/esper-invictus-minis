@@ -663,8 +663,7 @@ function goToPatient(id, tab){
       card.scrollIntoView({behavior:'smooth',block:'center'});
       card.classList.add('card-highlight');
       setTimeout(()=>card.classList.remove('card-highlight'),3500);
-      // Open QV for this patient
-      openQV(id);
+
     }
   }, 100);
 }
