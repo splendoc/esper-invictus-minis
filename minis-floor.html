@@ -264,6 +264,62 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 </head>
 <body>
 
+<!-- ══════════════ LOCK SCREEN ══════════════ -->
+<div id="lockscreen" style="position:fixed;inset:0;z-index:9999;background:#080e17;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .4s">
+
+  <!-- Logo -->
+  <div style="margin-bottom:28px">
+    <svg width="64" height="64" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="38" stroke="url(#lk1)" stroke-width="2" fill="none" opacity="0.7"/>
+      <circle cx="40" cy="40" r="28" fill="url(#lk2)" opacity="0.92"/>
+      <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+      <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+      <circle cx="40" cy="18" r="3" fill="url(#lk3)" opacity="0.85"/>
+      <circle cx="62" cy="40" r="2.5" fill="url(#lk3)" opacity="0.65"/>
+      <circle cx="40" cy="62" r="2" fill="url(#lk3)" opacity="0.45"/>
+      <circle cx="18" cy="40" r="2.5" fill="url(#lk3)" opacity="0.65"/>
+      <defs>
+        <linearGradient id="lk1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/>
+        </linearGradient>
+        <linearGradient id="lk2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#B45309"/>
+        </linearGradient>
+        <linearGradient id="lk3" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FDE68A"/><stop offset="100%" stop-color="#F59E0B"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- Brand -->
+  <div style="text-align:center;margin-bottom:32px">
+    <div class="brand-title" style="font-size:28px">ESPER INVICTUS</div>
+    <div class="brand-sub">Minis · BBT ER</div>
+  </div>
+
+  <!-- PIN box -->
+  <div style="width:280px">
+    <div style="position:relative">
+      <i class="fas fa-lock" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#4a6a88;font-size:14px"></i>
+      <input id="lock-pin" type="password" maxlength="30" placeholder="Enter staff PIN"
+        style="width:100%;padding:12px 14px 12px 38px;background:#0f1a27;border:1px solid #1a2840;border-radius:8px;color:#dde6f0;font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:.1em;outline:none;text-align:center"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#1a2840'"
+        autocomplete="off">
+    </div>
+    <div id="lock-err" style="color:#ef4444;font-size:12px;font-family:'Sarabun',sans-serif;text-align:center;margin-top:8px;min-height:18px"></div>
+    <button id="lock-btn" onclick="unlockApp()"
+      style="width:100%;margin-top:4px;padding:10px;background:linear-gradient(135deg,#0369a1,#0ea5e9);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+      <i class="fas fa-sign-in-alt"></i> UNLOCK
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <div style="position:absolute;bottom:20px;font-family:'Rajdhani',sans-serif;font-size:12px;color:#3a5a6a;letter-spacing:.04em">
+    All rights reserved · DocD 2026
+  </div>
+</div>
+
 <!-- ══════════════ HEADER ══════════════ -->
 <header id="hdr" class="flex items-center px-5 gap-4">
 
@@ -660,6 +716,51 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 const SUPABASE_URL = 'https://djsganssutgaoztvcrbg.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqc2dhbnNzdXRnYW96dHZjcmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTgzNzQsImV4cCI6MjA4OTgzNDM3NH0.sb6Z6KQIvnrIFOzttE8d-IP-vF7dg19BcFwBtQxQweo';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ══════════════════════════════════════════
+// LOCK SCREEN
+// ══════════════════════════════════════════
+const lockEl = document.getElementById('lockscreen');
+const lockPin = document.getElementById('lock-pin');
+const lockErr = document.getElementById('lock-err');
+const lockBtn = document.getElementById('lock-btn');
+
+// Check if already unlocked this session
+if (sessionStorage.getItem('minis_unlocked') === '1') {
+  lockEl.style.display = 'none';
+}
+
+// Enter key submits
+lockPin.addEventListener('keydown', e => { if (e.key === 'Enter') unlockApp(); });
+
+async function unlockApp() {
+  const pin = lockPin.value.trim();
+  if (!pin) { lockErr.textContent = 'กรุณาใส่รหัส'; return; }
+
+  lockBtn.disabled = true;
+  lockBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CHECKING...';
+  lockErr.textContent = '';
+
+  try {
+    const { data, error } = await sb.rpc('check_staff_pin', { input_pin: pin });
+    if (error) throw error;
+    if (data === true) {
+      sessionStorage.setItem('minis_unlocked', '1');
+      lockEl.style.opacity = '0';
+      setTimeout(() => { lockEl.style.display = 'none'; }, 400);
+    } else {
+      lockErr.textContent = 'รหัสไม่ถูกต้อง';
+      lockPin.value = '';
+      lockPin.focus();
+    }
+  } catch (err) {
+    lockErr.textContent = 'Connection error — try again';
+    console.error('Lock check failed:', err);
+  }
+
+  lockBtn.disabled = false;
+  lockBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> UNLOCK';
+}
 
 // ══════════════════════════════════════════
 // SUPABASE HELPERS
