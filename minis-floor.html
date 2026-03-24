@@ -725,9 +725,19 @@ const lockPin = document.getElementById('lock-pin');
 const lockErr = document.getElementById('lock-err');
 const lockBtn = document.getElementById('lock-btn');
 
+let APP_PIN = null;       // stored in memory after unlock — sent with every write
+let APP_ROLE = null;      // 'staff' or 'master'
+let idleTimer = null;
+const IDLE_MS = 10 * 60 * 1000; // 10 minutes
+
 // Check if already unlocked this session
-if (sessionStorage.getItem('minis_unlocked') === '1') {
+const savedPin = sessionStorage.getItem('minis_pin');
+const savedRole = sessionStorage.getItem('minis_role');
+if (savedPin && savedRole) {
+  APP_PIN = savedPin;
+  APP_ROLE = savedRole;
   lockEl.style.display = 'none';
+  startIdleWatch();
 }
 
 // Enter key submits
@@ -744,10 +754,14 @@ async function unlockApp() {
   try {
     const { data, error } = await sb.rpc('check_staff_pin', { input_pin: pin });
     if (error) throw error;
-    if (data === true) {
-      sessionStorage.setItem('minis_unlocked', '1');
+    if (data === 'staff' || data === 'master') {
+      APP_PIN = pin;
+      APP_ROLE = data;
+      sessionStorage.setItem('minis_pin', pin);
+      sessionStorage.setItem('minis_role', data);
       lockEl.style.opacity = '0';
       setTimeout(() => { lockEl.style.display = 'none'; }, 400);
+      startIdleWatch();
     } else {
       lockErr.textContent = 'รหัสไม่ถูกต้อง';
       lockPin.value = '';
@@ -760,6 +774,33 @@ async function unlockApp() {
 
   lockBtn.disabled = false;
   lockBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> UNLOCK';
+}
+
+// ── Inactivity auto-lock (staff only) ──
+function startIdleWatch() {
+  if (APP_ROLE === 'master') return; // master never auto-locks
+  resetIdle();
+  ['mousemove','mousedown','keydown','touchstart','scroll'].forEach(evt =>
+    document.addEventListener(evt, resetIdle, { passive: true })
+  );
+}
+
+function resetIdle() {
+  if (APP_ROLE === 'master') return;
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(lockApp, IDLE_MS);
+}
+
+function lockApp() {
+  APP_PIN = null;
+  APP_ROLE = null;
+  sessionStorage.removeItem('minis_pin');
+  sessionStorage.removeItem('minis_role');
+  clearTimeout(idleTimer);
+  lockPin.value = '';
+  lockErr.textContent = 'หมดเวลา — กรุณาใส่รหัสอีกครั้ง';
+  lockEl.style.display = 'flex';
+  lockEl.style.opacity = '1';
 }
 
 // ══════════════════════════════════════════
@@ -854,83 +895,67 @@ async function loadPatients() {
 
 // Register new patient to Supabase
 async function registerPatient(patientData, visitData) {
-  // 1. Insert or find patient
-  let patientId;
-  const { data: existing } = await sb
-    .from('patients')
-    .select('id')
-    .eq('hn', patientData.hn)
-    .maybeSingle();
+  if (!APP_PIN) { lockApp(); return null; }
 
-  if (existing) {
-    patientId = existing.id;
-    // Update patient info
-    await sb.from('patients').update({
-      title: patientData.title,
-      first_name: patientData.firstName,
-      last_name: patientData.lastName,
-      sex: patientData.sex,
-      age_y: patientData.age.y,
-      age_m: patientData.age.m,
-      age_d: patientData.age.d
-    }).eq('id', patientId);
-  } else {
-    const { data: newPt, error } = await sb
-      .from('patients')
-      .insert({
-        hn: patientData.hn,
-        title: patientData.title,
-        first_name: patientData.firstName,
-        last_name: patientData.lastName,
-        sex: patientData.sex,
-        age_y: patientData.age.y,
-        age_m: patientData.age.m,
-        age_d: patientData.age.d
-      })
-      .select('id')
-      .single();
-    if (error) { console.error('Insert patient error:', error); return null; }
-    patientId = newPt.id;
-  }
+  const { data, error } = await sb.rpc('rpc_register_patient', {
+    pin: APP_PIN,
+    p_hn: patientData.hn,
+    p_title: patientData.title || '',
+    p_first_name: patientData.firstName,
+    p_last_name: patientData.lastName,
+    p_sex: patientData.sex,
+    p_age_y: patientData.age.y || 0,
+    p_age_m: patientData.age.m || 0,
+    p_age_d: patientData.age.d || 0,
+    v_esi: visitData.esi,
+    v_cc: visitData.cc || '',
+    v_status: visitData.status,
+    v_tab: visitData.tab,
+    v_fast_track: visitData.fastTrack || null
+  });
 
-  // 2. Create visit
-  const { data: visit, error: vErr } = await sb
-    .from('visits')
-    .insert({
-      patient_id: patientId,
-      esi: visitData.esi,
-      chief_complaint: visitData.cc,
-      status: visitData.status,
-      tab: visitData.tab,
-      fast_track: visitData.fastTrack || null,
-      activated_at: visitData.tab === 'active' ? new Date().toISOString() : null
-    })
-    .select('id')
-    .single();
-  if (vErr) { console.error('Insert visit error:', vErr); return null; }
-  return { patientId, visitId: visit.id };
+  if (error) { console.error('Register error:', error); return null; }
+  if (data?.error === 'invalid_pin') { lockApp(); return null; }
+  return { patientId: data.patient_id, visitId: data.visit_id };
 }
 
 // Update visit status
 async function updateVisitStatus(visitId, newStatus, newTab, activatedAt) {
-  const updates = { status: newStatus, tab: newTab };
-  if (newTab === 'active' && !activatedAt) updates.activated_at = new Date().toISOString();
-  if (newTab === 'finalized') updates.finalized_at = new Date().toISOString();
+  if (!APP_PIN) { lockApp(); return; }
 
-  const { error } = await sb
-    .from('visits')
-    .update(updates)
-    .eq('id', visitId);
+  const { data, error } = await sb.rpc('rpc_update_visit', {
+    pin: APP_PIN,
+    visit_id: visitId,
+    new_status: newStatus,
+    new_tab: newTab
+  });
+
   if (error) console.error('Update status error:', error);
+  if (data?.error === 'invalid_pin') lockApp();
 }
 
 // Update patient info (name, age, title, HN, phones)
 async function updatePatientInfo(patientId, fields) {
-  const { error } = await sb
-    .from('patients')
-    .update(fields)
-    .eq('id', patientId);
+  if (!APP_PIN) { lockApp(); return; }
+
+  const { data, error } = await sb.rpc('rpc_update_patient', {
+    pin: APP_PIN,
+    patient_id: patientId,
+    p_title: fields.title ?? null,
+    p_first_name: fields.first_name ?? null,
+    p_last_name: fields.last_name ?? null,
+    p_sex: fields.sex ?? null,
+    p_age_y: fields.age_y ?? null,
+    p_age_m: fields.age_m ?? null,
+    p_age_d: fields.age_d ?? null,
+    p_phone_1: fields.phone_1 ?? null,
+    p_phone_1_label: fields.phone_1_label ?? null,
+    p_phone_2: fields.phone_2 ?? null,
+    p_phone_2_label: fields.phone_2_label ?? null
+  });
+
   if (error) console.error('Update patient error:', error);
+  if (data?.error === 'invalid_pin') lockApp();
 }
 
 // ══════════════════════════════════════════
