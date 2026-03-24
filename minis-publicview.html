@@ -387,8 +387,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Mask name for public display (PDPA)
-    function maskStr(s, show) { return s.length<=show ? s : s.substring(0,show)+'***'; }
-    function maskedName(p) { return `${maskStr(p.firstName,3)}  ${maskStr(p.lastName,3)}`; }
+    function maskStr(s, show) { return s.length<=show ? s : s.substring(0,show)+'*'.repeat(s.length-show); }
+    function maskedName(p) { return `${maskStr(p.firstName,3)} · ${maskStr(p.lastName,3)}`; }
 
     // Format age — show ONE unit in Thai
     function fmtAgePub(a) {
