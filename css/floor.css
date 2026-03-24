@@ -358,6 +358,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .reg-hn-item:last-child{border-bottom:none}
 .reg-badge-return{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;background:#0c1e3a;border:1px solid #1e3a5f;color:#93c5fd;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:700}
 .reg-badge-new{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;background:#052e16;border:1px solid #14532d;color:#86efac;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:700}
+:root:not(.dark) .reg-badge-return{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+:root:not(.dark) .reg-badge-new{background:#f0fdf4;border-color:#86efac;color:#15803d}
 
 .reg-ft-btn{flex:1;height:32px;font-weight:700;font-size:11px;font-family:'Rajdhani',sans-serif;letter-spacing:.06em;border-radius:5px;border:none;cursor:pointer;color:#fff;transition:filter .15s,transform .15s}
 .reg-ft-btn:hover{filter:brightness(1.12);transform:translateY(-1px)}

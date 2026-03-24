@@ -1734,7 +1734,7 @@ function regSelectPatient(id){
   const hnEl=document.getElementById('reg-hn');
   hnEl.value=fmtHN(p.hn).replace(/^HN\s*/,'');
   hnEl.readOnly=true;
-  hnEl.style.color='#93c5fd';
+  hnEl.style.color=document.documentElement.classList.contains('dark')?'#93c5fd':'#1d4ed8';
 
   // Show found card
   const found=document.getElementById('reg-found');
@@ -1764,7 +1764,7 @@ function regGenHN(){
   const hnEl=document.getElementById('reg-hn');
   hnEl.value='GEN'+String(_regHnCounter).padStart(6,'0');
   hnEl.readOnly=true;
-  hnEl.style.color='#86efac';
+  hnEl.style.color=document.documentElement.classList.contains('dark')?'#86efac':'#15803d';
   document.getElementById('reg-hn-results').style.display='none';
   document.getElementById('reg-gen-btn').style.display='none';
   document.getElementById('reg-hn-clr').style.display='';
