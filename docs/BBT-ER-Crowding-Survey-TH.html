@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบสำรวจ ESPER Crowding Index — BBT ER</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family:'Sarabun',sans-serif; max-width:900px; margin:0 auto; padding:20px 30px; color:#1c2024; line-height:1.7; font-size:15px; }
+  h1 { font-family:'Rajdhani',sans-serif; font-size:28px; color:#0284c7; letter-spacing:.04em; border-bottom:3px solid #0284c7; padding-bottom:8px; }
+  h2 { font-family:'Rajdhani',sans-serif; font-size:20px; color:#1c2024; margin-top:36px; border-left:4px solid #0284c7; padding-left:12px; }
+  h3 { font-size:16px; font-weight:700; margin-top:24px; color:#334155; }
+  .subtitle { font-family:'IBM Plex Mono',monospace; font-size:12px; color:#64748b; letter-spacing:.1em; }
+  table { width:100%; border-collapse:collapse; margin:12px 0 20px; font-size:14px; }
+  th { background:#f1f5f9; font-weight:700; text-align:left; padding:8px 12px; border:1px solid #d1d5db; font-size:13px; }
+  td { padding:8px 12px; border:1px solid #d1d5db; vertical-align:top; }
+  .fill { background:#fffbeb; min-height:28px; }
+  .fill-lg { background:#fffbeb; min-height:50px; }
+  .note { background:#f0f9ff; border-left:3px solid #0284c7; padding:8px 14px; margin:10px 0; font-size:13px; color:#334155; border-radius:0 6px 6px 0; }
+  .esi-1 { color:#ef4444; font-weight:700; }
+  .esi-2 { color:#ec4899; font-weight:700; }
+  .esi-3 { color:#eab308; font-weight:700; }
+  .esi-4 { color:#22c55e; font-weight:700; }
+  .esi-5 { color:#3b82f6; font-weight:700; }
+  .level { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:700; margin:0 2px; }
+  .l-n { background:#dcfce7; color:#166534; }
+  .l-m { background:#fef3c7; color:#92400e; }
+  .l-c { background:#ffedd5; color:#c2410c; }
+  .l-v { background:#fee2e2; color:#991b1b; }
+  .l-x { background:#fecaca; color:#991b1b; }
+  .section-num { font-family:'IBM Plex Mono',monospace; color:#0284c7; font-weight:700; }
+  .print-break { page-break-before:always; }
+  @media print {
+    body { font-size:13px; padding:10px; }
+    .no-print { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<h1>แบบสำรวจ ESPER Crowding Index</h1>
+<p class="subtitle">BBT EMERGENCY DEPARTMENT · STAFF WORKLOAD CALIBRATION</p>
+<p>แบบสำรวจนี้ใช้สำหรับปรับแต่งสูตรคำนวณดัชนีความแออัดห้องฉุกเฉิน (ESPER Crowding Index) ให้ตรงกับสถานการณ์จริงของ ER บางบัวทอง กรุณาตอบตามประสบการณ์จริง</p>
+
+<div class="note">
+  <strong>ระดับความแออัด:</strong>
+  <span class="level l-n">ปกติ Normal</span>
+  <span class="level l-m">ปานกลาง Medium</span>
+  <span class="level l-c">หนาแน่น Crowded</span>
+  <span class="level l-v">หนาแน่นมาก V.Crowded</span>
+  <span class="level l-x">วิกฤต Critical</span>
+</div>
+
+<!-- ══════════════ PART 1 ══════════════ -->
+<h2><span class="section-num">01</span> จำนวนเจ้าหน้าที่ที่ต้องใช้ต่อผู้ป่วย 1 ราย</h2>
+<p>ผู้ป่วย 1 รายในแต่ละระดับ ESI ต้องใช้เจ้าหน้าที่กี่คนดูแล (โดยเฉลี่ย)?<br>
+<em>ตอบเป็นทศนิยมได้ เช่น 0.5 = ดูแลร่วมกับคนไข้อื่น, 3 = ต้องใช้ 3 คนเต็มที่</em></p>
+
+<table>
+  <tr>
+    <th style="width:80px">ESI</th>
+    <th style="width:180px">ระดับ</th>
+    <th>ตัวอย่างผู้ป่วย</th>
+    <th style="width:120px">จำนวนเจ้าหน้าที่<br>(คน)</th>
+  </tr>
+  <tr>
+    <td class="esi-1">ESI 1</td>
+    <td>กู้ชีพ (Resuscitation)</td>
+    <td>หัวใจหยุดเต้น, อุบัติเหตุรุนแรง, ช็อก, ใส่ท่อช่วยหายใจ</td>
+    <td class="fill"></td>
+  </tr>
+  <tr>
+    <td class="esi-2">ESI 2</td>
+    <td>ฉุกเฉิน (Emergent)</td>
+    <td>เจ็บหน้าอก ACS, Stroke, แพ้ยารุนแรง, หายใจลำบาก</td>
+    <td class="fill"></td>
+  </tr>
+  <tr>
+    <td class="esi-3">ESI 3</td>
+    <td>กึ่งฉุกเฉิน (Urgent)</td>
+    <td>ปวดท้องรุนแรง, กระดูกหัก, ไข้สูง+หอบ</td>
+    <td class="fill"></td>
+  </tr>
+  <tr>
+    <td class="esi-4">ESI 4</td>
+    <td>เร่งด่วน (Less Urgent)</td>
+    <td>แผลเย็บ, ไข้ไม่สูง, ปวดหลัง</td>
+    <td class="fill"></td>
+  </tr>
+  <tr>
+    <td class="esi-5">ESI 5</td>
+    <td>ไม่ฉุกเฉิน (Non-Urgent)</td>
+    <td>ต่อใบยา, แผลเล็กน้อย, ขอใบรับรองแพทย์</td>
+    <td class="fill"></td>
+  </tr>
+</table>
+
+<h3>เจ้าหน้าที่ถูกล็อคนานแค่ไหน?</h3>
+<p>ผู้ป่วย 1 รายในแต่ละ ESI เจ้าหน้าที่ต้องดูแลอย่างต่อเนื่อง (ไม่สามารถไปทำอย่างอื่นได้) นานเท่าไหร่?</p>
+<table>
+  <tr>
+    <th style="width:80px">ESI</th>
+    <th>ระยะเวลาที่เจ้าหน้าที่ถูกล็อค (โดยเฉลี่ย)</th>
+  </tr>
+  <tr><td class="esi-1">ESI 1</td><td class="fill"></td></tr>
+  <tr><td class="esi-2">ESI 2</td><td class="fill"></td></tr>
+  <tr><td class="esi-3">ESI 3</td><td class="fill"></td></tr>
+  <tr><td class="esi-4">ESI 4</td><td class="fill"></td></tr>
+  <tr><td class="esi-5">ESI 5</td><td class="fill"></td></tr>
+</table>
+
+<!-- ══════════════ PART 2 ══════════════ -->
+<h2 class="print-break"><span class="section-num">02</span> สถานการณ์จำลอง — ระดับความแออัด</h2>
+<p>แต่ละสถานการณ์ ให้ประเมินว่ารู้สึกเหมือนระดับไหน (ตอบ 1 ระดับ)<br>
+<strong>สมมติ: เวรเช้า (หมอ 1 + พยาบาล 4 + EMT 1 = 6 คน), เตียงว่าง 8 เตียง</strong></p>
+
+<h3>2A — สถานการณ์ ESI เดี่ยว</h3>
+<table>
+  <tr>
+    <th style="width:40px">#</th>
+    <th>สถานการณ์</th>
+    <th style="width:180px">ระดับความแออัด</th>
+  </tr>
+  <tr><td>1</td><td><span class="esi-1">ESI 1</span> × 1 ราย (เช่น หัวใจหยุดเต้น 1 ราย)</td><td class="fill"></td></tr>
+  <tr><td>2</td><td><span class="esi-1">ESI 1</span> × 2 ราย</td><td class="fill"></td></tr>
+  <tr><td>3</td><td><span class="esi-1">ESI 1</span> × 3 ราย</td><td class="fill"></td></tr>
+  <tr><td>4</td><td><span class="esi-2">ESI 2</span> × 1 ราย</td><td class="fill"></td></tr>
+  <tr><td>5</td><td><span class="esi-2">ESI 2</span> × 2 ราย</td><td class="fill"></td></tr>
+  <tr><td>6</td><td><span class="esi-2">ESI 2</span> × 3 ราย</td><td class="fill"></td></tr>
+  <tr><td>7</td><td><span class="esi-2">ESI 2</span> × 4 ราย</td><td class="fill"></td></tr>
+  <tr><td>8</td><td><span class="esi-3">ESI 3</span> × 2 ราย</td><td class="fill"></td></tr>
+  <tr><td>9</td><td><span class="esi-3">ESI 3</span> × 4 ราย</td><td class="fill"></td></tr>
+  <tr><td>10</td><td><span class="esi-3">ESI 3</span> × 6 ราย</td><td class="fill"></td></tr>
+  <tr><td>11</td><td><span class="esi-3">ESI 3</span> × 8 ราย (เต็ม)</td><td class="fill"></td></tr>
+  <tr><td>12</td><td><span class="esi-4">ESI 4</span> × 4 ราย</td><td class="fill"></td></tr>
+  <tr><td>13</td><td><span class="esi-4">ESI 4</span> × 8 ราย (เต็ม)</td><td class="fill"></td></tr>
+  <tr><td>14</td><td><span class="esi-5">ESI 5</span> × 4 ราย</td><td class="fill"></td></tr>
+  <tr><td>15</td><td><span class="esi-5">ESI 5</span> × 8 ราย (เต็ม)</td><td class="fill"></td></tr>
+</table>
+
+<h3>2B — สถานการณ์ผสม (Mixed ESI)</h3>
+<table>
+  <tr>
+    <th style="width:40px">#</th>
+    <th>สถานการณ์</th>
+    <th style="width:180px">ระดับความแออัด</th>
+  </tr>
+  <tr><td>16</td><td><span class="esi-1">ESI 1</span> × 1 + <span class="esi-2">ESI 2</span> × 1 (2 ราย)</td><td class="fill"></td></tr>
+  <tr><td>17</td><td><span class="esi-1">ESI 1</span> × 1 + <span class="esi-3">ESI 3</span> × 2 (3 ราย)</td><td class="fill"></td></tr>
+  <tr><td>18</td><td><span class="esi-1">ESI 1</span> × 1 + <span class="esi-2">ESI 2</span> × 1 + <span class="esi-3">ESI 3</span> × 2 (4 ราย)</td><td class="fill"></td></tr>
+  <tr><td>19</td><td><span class="esi-1">ESI 1</span> × 2 + <span class="esi-2">ESI 2</span> × 1 (3 ราย)</td><td class="fill"></td></tr>
+  <tr><td>20</td><td><span class="esi-1">ESI 1</span> × 2 + <span class="esi-2">ESI 2</span> × 2 (4 ราย)</td><td class="fill"></td></tr>
+  <tr><td>21</td><td><span class="esi-1">ESI 1</span> × 1 + <span class="esi-3">ESI 3</span> × 3 + <span class="esi-4">ESI 4</span> × 2 (6 ราย)</td><td class="fill"></td></tr>
+  <tr><td>22</td><td><span class="esi-2">ESI 2</span> × 2 + <span class="esi-3">ESI 3</span> × 3 (5 ราย)</td><td class="fill"></td></tr>
+  <tr><td>23</td><td><span class="esi-2">ESI 2</span> × 2 + <span class="esi-3">ESI 3</span> × 3 + <span class="esi-4">ESI 4</span> × 3 (8 ราย, เต็ม)</td><td class="fill"></td></tr>
+  <tr><td>24</td><td><span class="esi-2">ESI 2</span> × 1 + <span class="esi-3">ESI 3</span> × 2 + <span class="esi-4">ESI 4</span> × 3 + <span class="esi-5">ESI 5</span> × 2 (8 ราย, เต็ม)</td><td class="fill"></td></tr>
+  <tr><td>25</td><td><span class="esi-1">ESI 1</span> × 1 + <span class="esi-2">ESI 2</span> × 2 + <span class="esi-3">ESI 3</span> × 2 + <span class="esi-4">ESI 4</span> × 2 + <span class="esi-5">ESI 5</span> × 1 (8 ราย, เต็ม)</td><td class="fill"></td></tr>
+  <tr><td>26</td><td><span class="esi-3">ESI 3</span> × 4 + <span class="esi-4">ESI 4</span> × 4 (8 ราย, เต็ม)</td><td class="fill"></td></tr>
+  <tr><td>27</td><td><span class="esi-1">ESI 1</span> × 2 + <span class="esi-2">ESI 2</span> × 2 + <span class="esi-3">ESI 3</span> × 2 + <span class="esi-4">ESI 4</span> × 2 (8 ราย, เต็ม)</td><td class="fill"></td></tr>
+</table>
+
+<!-- ══════════════ PART 3 ══════════════ -->
+<h2 class="print-break"><span class="section-num">03</span> ผลกระทบของเวลา & สถานะผู้ป่วย</h2>
+
+<h3>3A — เวลารอ (Waiting Time) มีผลต่อภาระงานไหม?</h3>
+<p>ผู้ป่วยที่รอนาน (เช่น 2 ชม.+) สร้างภาระเพิ่มขึ้นไหม? เช่น ต้องไปเช็คอาการ, ญาติถามบ่อย, reassess</p>
+<table>
+  <tr><th style="width:200px">ระยะเวลารอ</th><th>ภาระงานเพิ่มขึ้นจากปกติ?</th></tr>
+  <tr><td>รอ < 30 นาที</td><td class="fill"></td></tr>
+  <tr><td>รอ 30-60 นาที</td><td class="fill"></td></tr>
+  <tr><td>รอ 1-2 ชั่วโมง</td><td class="fill"></td></tr>
+  <tr><td>รอ 2-4 ชั่วโมง</td><td class="fill"></td></tr>
+  <tr><td>รอ > 4 ชั่วโมง</td><td class="fill"></td></tr>
+</table>
+
+<h3>3B — สถานะผู้ป่วยมีผลต่อภาระงานต่างกันไหม?</h3>
+<p>ผู้ป่วย ESI 3 ที่อยู่ในสถานะต่างกัน ภาระงานเท่ากันไหม?</p>
+<table>
+  <tr><th style="width:220px">สถานะ</th><th>ภาระงาน (สูง / กลาง / ต่ำ)</th><th>หมายเหตุ</th></tr>
+  <tr><td>รอตรวจ (Waiting)</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>เข้าห้องตรวจ</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>ส่งเอ็กซ์เรย์ / CT</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>รอผลตรวจ</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>สังเกตอาการ</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>ทำหัตถการ</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>ปรึกษาแพทย์เฉพาะทาง</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>รอขึ้นหอผู้ป่วย (Boarding)</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>รอ Discharge / รอเอกสาร</td><td class="fill"></td><td class="fill"></td></tr>
+</table>
+
+<h3>3C — Boarding Patient (รอขึ้นหอผู้ป่วย)</h3>
+<p>ผู้ป่วยที่รอขึ้นหอผู้ป่วย (admit แล้วแต่ยังอยู่ ER) ทำให้แออัดมากขึ้นแค่ไหน?</p>
+<table>
+  <tr><td style="width:350px">Boarding patient เทียบเท่า ESI ระดับไหนในแง่ภาระงาน?</td><td class="fill"></td></tr>
+  <tr><td>Boarding patient กินเตียงไปเฉยๆ ไม่ค่อยต้องดูแลมาก?</td><td class="fill"></td></tr>
+  <tr><td>ถ้ามี boarding 2 ราย + ผู้ป่วยใหม่มา รู้สึกแออัดระดับไหน?</td><td class="fill"></td></tr>
+</table>
+
+<!-- ══════════════ PART 4 ══════════════ -->
+<h2 class="print-break"><span class="section-num">04</span> ความแตกต่างระหว่างเวร</h2>
+
+<h3>4A — ผู้ป่วยชุดเดิม แต่ต่างเวร</h3>
+<p><strong>สถานการณ์:</strong> <span class="esi-2">ESI 2</span> × 2 + <span class="esi-3">ESI 3</span> × 3 (5 ราย) — ให้ประเมินในแต่ละเวร</p>
+<table>
+  <tr>
+    <th>เวร</th>
+    <th>เจ้าหน้าที่</th>
+    <th style="width:180px">ระดับความแออัด</th>
+  </tr>
+  <tr><td>เช้า (08:00-16:00)</td><td>หมอ 1 + พยาบาล 4 + EMT 1 = 6 คน</td><td class="fill"></td></tr>
+  <tr><td>บ่าย (16:00-00:00)</td><td>หมอ 1 + พยาบาล 5 + EMT 1 = 7 คน</td><td class="fill"></td></tr>
+  <tr><td>ดึก (00:00-08:00)</td><td>หมอ 1 + พยาบาล 4 + EMT 1 = 6 คน</td><td class="fill"></td></tr>
+</table>
+
+<h3>4B — เวรดึกมีอะไรพิเศษ?</h3>
+<table>
+  <tr><td style="width:400px">เวรดึกรู้สึกหนักกว่าเวรเช้าถึงแม้คนเท่ากัน? (ถ้าใช่ เพราะอะไร?)</td><td class="fill-lg"></td></tr>
+  <tr><td>มีปัจจัยอื่นที่ทำให้เวรไหนหนักกว่า? (เช่น OPD ปิด, ญาติมาเยอะ)</td><td class="fill-lg"></td></tr>
+</table>
+
+<!-- ══════════════ PART 5 ══════════════ -->
+<h2><span class="section-num">05</span> จุดวิกฤต & ความปลอดภัย</h2>
+
+<table>
+  <tr><td style="width:400px">ผู้ป่วยกี่ราย (ESI อะไร) ที่เริ่มรู้สึกว่า <strong>"งานหนักมาก แทบไม่ไหว"</strong>?</td><td class="fill-lg"></td></tr>
+  <tr><td>ผู้ป่วยกี่ราย (ESI อะไร) ที่รู้สึกว่า <strong>"ไม่ปลอดภัย / กลัวจะมี error"</strong>?</td><td class="fill-lg"></td></tr>
+  <tr><td>ผู้ป่วยกี่ราย (ESI อะไร) ที่รู้สึกว่า <strong>"เดินผ่านนรก"</strong>? 🔥</td><td class="fill-lg"></td></tr>
+  <tr><td>จำนวนผู้ป่วยสูงสุดที่ ER เคยรับพร้อมกัน? (กี่ราย ESI อะไรบ้าง?)</td><td class="fill-lg"></td></tr>
+  <tr><td>ตอนนั้นเกิดอะไรขึ้น? มี adverse event ไหม? รู้สึกอย่างไร?</td><td class="fill-lg"></td></tr>
+</table>
+
+<!-- ══════════════ PART 6 ══════════════ -->
+<h2><span class="section-num">06</span> ปัจจัยอื่นที่ส่งผลต่อความแออัด</h2>
+
+<p>นอกจากจำนวนผู้ป่วยและ ESI แล้ว มีอะไรอีกที่ทำให้ ER รู้สึกแออัด?</p>
+<table>
+  <tr><th style="width:300px">ปัจจัย</th><th>ส่งผลมาก / น้อย / ไม่ส่งผล</th><th>หมายเหตุ</th></tr>
+  <tr><td>ผู้ป่วยรอนาน (breach เวลา)</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>ญาติผู้ป่วยจำนวนมาก</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>Boarding patients (รอ admit)</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>รถพยาบาลเข้ามาเพิ่ม</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>เครื่องมือไม่พอ / เสีย</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>เจ้าหน้าที่ลาป่วย / ขาด</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>ระบบ IT / เอกสาร ล่ม</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>ผู้ป่วยจิตเวช / ก้าวร้าว</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>ผู้ป่วยเด็กเล็ก (ต้องดูแลพิเศษ)</td><td class="fill"></td><td class="fill"></td></tr>
+  <tr><td>อื่นๆ (ระบุ)</td><td class="fill"></td><td class="fill"></td></tr>
+</table>
+
+<!-- ══════════════ PART 7 ══════════════ -->
+<h2><span class="section-num">07</span> ข้อมูลผู้ตอบ</h2>
+<table>
+  <tr><td style="width:200px">ตำแหน่ง</td><td class="fill"></td></tr>
+  <tr><td>ประสบการณ์ทำงาน ER</td><td class="fill"></td></tr>
+  <tr><td>เวรที่ทำบ่อยที่สุด</td><td class="fill"></td></tr>
+  <tr><td>วันที่ตอบแบบสำรวจ</td><td class="fill"></td></tr>
+</table>
+
+<div class="note" style="margin-top:30px">
+  <strong>ขอบคุณที่สละเวลาตอบแบบสำรวจ!</strong><br>
+  ข้อมูลนี้จะถูกนำไปปรับแต่ง ESPER Crowding Index ให้ตรงกับสถานการณ์จริงของ BBT ER<br>
+  หากมีข้อเสนอแนะเพิ่มเติม สามารถเขียนด้านหลังกระดาษได้เลย
+</div>
+
+</body>
+</html>

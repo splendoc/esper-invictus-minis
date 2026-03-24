@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESPER Crowding Survey — BBT ER</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#f9f9fb;color:#1c2024;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:16px 20px 100px}
+
+/* Header */
+.survey-hdr{background:#080e17;color:#dde6f0;padding:20px 24px;text-align:center;position:sticky;top:0;z-index:50}
+.survey-hdr h1{font-family:'Rajdhani',sans-serif;font-size:22px;letter-spacing:.06em;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.survey-hdr .sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;letter-spacing:.12em;margin-top:4px}
+
+/* Progress */
+.progress-bar{height:4px;background:#e0e0e5;position:sticky;top:72px;z-index:49}
+.progress-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#0d9488);transition:width .3s}
+
+/* Section */
+.section{background:#fff;border:1px solid #e0e0e5;border-radius:12px;margin:16px 0;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#0284c7;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.section-num{font-family:'IBM Plex Mono',monospace;font-size:13px;background:#e0f2fe;color:#0284c7;padding:2px 8px;border-radius:4px}
+.section-desc{font-size:13px;color:#60646c;margin-bottom:16px}
+
+/* Question */
+.question{border-top:1px solid #f0f0f3;padding:14px 0}
+.question:first-of-type{border-top:none;padding-top:0}
+.q-label{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:flex-start;gap:6px}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#80838d;min-width:28px}
+.q-scenario{flex:1}
+
+/* ESI colors in labels */
+.e1{color:#ef4444;font-weight:700}.e2{color:#ec4899;font-weight:700}.e3{color:#eab308;font-weight:700}.e4{color:#22c55e;font-weight:700}.e5{color:#3b82f6;font-weight:700}
+
+/* Choice buttons */
+.choices{display:flex;flex-wrap:wrap;gap:6px;margin-left:34px}
+.choice-btn{padding:6px 14px;border-radius:20px;border:1.5px solid #d9d9de;background:#fff;color:#60646c;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.choice-btn:hover{border-color:#0284c7;color:#0284c7;background:#e0f2fe}
+.choice-btn.selected{border-color:#0284c7;background:#0284c7;color:#fff}
+
+/* Level choices (colored) */
+.choice-btn.lvl-n.selected{background:#16a34a;border-color:#16a34a;color:#fff}
+.choice-btn.lvl-m.selected{background:#d97706;border-color:#d97706;color:#fff}
+.choice-btn.lvl-c.selected{background:#ea580c;border-color:#ea580c;color:#fff}
+.choice-btn.lvl-v.selected{background:#dc2626;border-color:#dc2626;color:#fff}
+.choice-btn.lvl-x.selected{background:#991b1b;border-color:#991b1b;color:#fff}
+
+/* Number input */
+.num-input{width:80px;padding:6px 10px;border:1.5px solid #d9d9de;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:14px;text-align:center;outline:none;margin-left:34px}
+.num-input:focus{border-color:#0284c7}
+
+/* Text input */
+.text-input{width:100%;padding:8px 12px;border:1.5px solid #d9d9de;border-radius:8px;font-family:'Sarabun',sans-serif;font-size:13px;outline:none;margin-left:34px;max-width:calc(100% - 34px);resize:vertical}
+.text-input:focus{border-color:#0284c7}
+
+/* Workload choices */
+.choice-btn.wl-h.selected{background:#dc2626;border-color:#dc2626;color:#fff}
+.choice-btn.wl-m.selected{background:#d97706;border-color:#d97706;color:#fff}
+.choice-btn.wl-l.selected{background:#16a34a;border-color:#16a34a;color:#fff}
+
+/* Impact choices */
+.choice-btn.imp-h.selected{background:#dc2626;border-color:#dc2626;color:#fff}
+.choice-btn.imp-m.selected{background:#d97706;border-color:#d97706;color:#fff}
+.choice-btn.imp-n.selected{background:#60646c;border-color:#60646c;color:#fff}
+
+/* Footer nav */
+.footer-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e0e0e5;padding:12px 20px;display:flex;justify-content:center;gap:12px;z-index:50}
+.nav-btn{padding:10px 28px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer;border:none;display:flex;align-items:center;gap:8px}
+.nav-prev{background:#f0f0f3;color:#60646c}
+.nav-prev:hover{background:#e0e0e5}
+.nav-next{background:#0284c7;color:#fff}
+.nav-next:hover{background:#0369a1}
+.nav-submit{background:#16a34a;color:#fff}
+.nav-submit:hover{background:#15803d}
+
+/* Section tabs */
+.section-tabs{display:flex;gap:4px;overflow-x:auto;padding:8px 20px;background:#fff;border-bottom:1px solid #e0e0e5;position:sticky;top:72px;z-index:48}
+.section-tab{padding:4px 12px;border-radius:16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;cursor:pointer;border:1px solid #e0e0e5;background:#fff;color:#80838d;white-space:nowrap;transition:all .15s}
+.section-tab.active{background:#0284c7;color:#fff;border-color:#0284c7}
+.section-tab.done{background:#dcfce7;color:#16a34a;border-color:#86efac}
+
+/* Count badge */
+.count-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;margin-left:2px}
+
+/* Note box */
+.note-box{background:#f0f9ff;border-left:3px solid #0284c7;padding:10px 14px;margin:8px 0 16px;font-size:13px;color:#334155;border-radius:0 6px 6px 0}
+
+/* Hide sections */
+.section-page{display:none}
+.section-page.active{display:block}
+
+@media(max-width:600px){
+  .choices{gap:4px}
+  .choice-btn{padding:5px 10px;font-size:12px}
+  .container{padding:12px 12px 100px}
+  .section{padding:14px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="survey-hdr">
+  <h1>ESPER CROWDING INDEX SURVEY</h1>
+  <div class="sub">BBT EMERGENCY DEPARTMENT · STAFF WORKLOAD CALIBRATION</div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+<div class="section-tabs" id="tabs"></div>
+
+<div class="container" id="content"></div>
+
+<div class="footer-nav">
+  <button class="nav-btn nav-prev" id="btn-prev" onclick="prevSection()"><i class="fas fa-chevron-left"></i> ย้อนกลับ</button>
+  <button class="nav-btn nav-next" id="btn-next" onclick="nextSection()">ถัดไป <i class="fas fa-chevron-right"></i></button>
+  <button class="nav-btn nav-submit" id="btn-submit" onclick="submitSurvey()" style="display:none"><i class="fas fa-check"></i> ส่งคำตอบ</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// SURVEY DATA
+// ══════════════════════════════════════════
+const LEVELS = ['ปกติ Normal','ปานกลาง Medium','หนาแน่น Crowded','หนาแน่นมาก V.Crowded','วิกฤต Critical'];
+const LVL_CLS = ['lvl-n','lvl-m','lvl-c','lvl-v','lvl-x'];
+const WORKLOAD = ['สูง','กลาง','ต่ำ'];
+const WL_CLS = ['wl-h','wl-m','wl-l'];
+const IMPACT = ['ส่งผลมาก','ส่งผลน้อย','ไม่ส่งผล'];
+const IMP_CLS = ['imp-h','imp-m','imp-n'];
+
+const sections = [
+  // ── Section 0: Name ──
+  {
+    id:'info', title:'ข้อมูลผู้ตอบ', icon:'fa-user',
+    questions:[
+      {id:'name', label:'ชื่อ-นามสกุล', type:'text', placeholder:'กรอกชื่อจริง นามสกุล'},
+      {id:'role', label:'ตำแหน่ง', type:'choice', options:['แพทย์','พยาบาล','EMT','อื่นๆ']},
+      {id:'exp', label:'ประสบการณ์ทำงาน ER', type:'choice', options:['< 1 ปี','1-3 ปี','3-5 ปี','5-10 ปี','> 10 ปี']},
+      {id:'shift', label:'เวรที่ทำบ่อยที่สุด', type:'choice', options:['เช้า','บ่าย','ดึก','หมุนเวียนเท่ากัน']},
+    ]
+  },
+  // ── Section 1: Staff demand ──
+  {
+    id:'demand', title:'จำนวนเจ้าหน้าที่ต่อผู้ป่วย 1 ราย', icon:'fa-users',
+    desc:'ผู้ป่วย 1 รายในแต่ละ ESI ต้องใช้เจ้าหน้าที่กี่คนดูแล? (ตอบเป็นทศนิยมได้ เช่น 0.5 = ดูแลร่วมกับคนไข้อื่น)',
+    questions:[
+      {id:'demand_esi1', label:'<span class="e1">ESI 1 กู้ชีพ</span> — หัวใจหยุดเต้น, อุบัติเหตุรุนแรง, ช็อก', type:'number', unit:'คน', placeholder:'เช่น 3'},
+      {id:'demand_esi2', label:'<span class="e2">ESI 2 ฉุกเฉิน</span> — เจ็บหน้าอก ACS, Stroke, แพ้ยารุนแรง', type:'number', unit:'คน', placeholder:'เช่น 1.5'},
+      {id:'demand_esi3', label:'<span class="e3">ESI 3 กึ่งฉุกเฉิน</span> — ปวดท้องรุนแรง, กระดูกหัก', type:'number', unit:'คน', placeholder:'เช่น 0.7'},
+      {id:'demand_esi4', label:'<span class="e4">ESI 4 เร่งด่วน</span> — แผลเย็บ, ไข้ไม่สูง', type:'number', unit:'คน', placeholder:'เช่น 0.3'},
+      {id:'demand_esi5', label:'<span class="e5">ESI 5 ไม่ฉุกเฉิน</span> — ต่อใบยา, แผลเล็กน้อย', type:'number', unit:'คน', placeholder:'เช่น 0.15'},
+    ]
+  },
+  // ── Section 2: Lock time ──
+  {
+    id:'locktime', title:'ระยะเวลาที่เจ้าหน้าที่ถูกล็อค', icon:'fa-lock',
+    desc:'ผู้ป่วย 1 ราย เจ้าหน้าที่ต้องดูแลอย่างต่อเนื่อง (ไม่สามารถไปทำอย่างอื่นได้) นานเท่าไหร่?',
+    questions:[
+      {id:'lock_esi1', label:'<span class="e1">ESI 1</span> ถูกล็อคนาน', type:'choice', options:['ตลอดเวลา','> 1 ชม.','30-60 นาที','15-30 นาที','< 15 นาที']},
+      {id:'lock_esi2', label:'<span class="e2">ESI 2</span> ถูกล็อคนาน', type:'choice', options:['ตลอดเวลา','> 1 ชม.','30-60 นาที','15-30 นาที','< 15 นาที']},
+      {id:'lock_esi3', label:'<span class="e3">ESI 3</span> ถูกล็อคนาน', type:'choice', options:['ตลอดเวลา','> 1 ชม.','30-60 นาที','15-30 นาที','< 15 นาที']},
+      {id:'lock_esi4', label:'<span class="e4">ESI 4</span> ถูกล็อคนาน', type:'choice', options:['ตลอดเวลา','> 1 ชม.','30-60 นาที','15-30 นาที','< 15 นาที']},
+      {id:'lock_esi5', label:'<span class="e5">ESI 5</span> ถูกล็อคนาน', type:'choice', options:['ตลอดเวลา','> 1 ชม.','30-60 นาที','15-30 นาที','< 15 นาที']},
+    ]
+  },
+  // ── Section 3: Single ESI scenarios ──
+  {
+    id:'single', title:'สถานการณ์ ESI เดี่ยว', icon:'fa-clipboard-list',
+    desc:'สมมติ: เวรเช้า (หมอ 1 + พยาบาล 4 + EMT 1 = 6 คน), เตียง 8 เตียง — ประเมินระดับความแออัด',
+    questions:[
+      {id:'s_1x1', label:'<span class="e1">ESI 1</span> × 1 ราย', type:'level'},
+      {id:'s_1x2', label:'<span class="e1">ESI 1</span> × 2 ราย', type:'level'},
+      {id:'s_1x3', label:'<span class="e1">ESI 1</span> × 3 ราย', type:'level'},
+      {id:'s_2x1', label:'<span class="e2">ESI 2</span> × 1 ราย', type:'level'},
+      {id:'s_2x2', label:'<span class="e2">ESI 2</span> × 2 ราย', type:'level'},
+      {id:'s_2x3', label:'<span class="e2">ESI 2</span> × 3 ราย', type:'level'},
+      {id:'s_2x4', label:'<span class="e2">ESI 2</span> × 4 ราย', type:'level'},
+      {id:'s_3x2', label:'<span class="e3">ESI 3</span> × 2 ราย', type:'level'},
+      {id:'s_3x4', label:'<span class="e3">ESI 3</span> × 4 ราย', type:'level'},
+      {id:'s_3x6', label:'<span class="e3">ESI 3</span> × 6 ราย', type:'level'},
+      {id:'s_3x8', label:'<span class="e3">ESI 3</span> × 8 ราย (เต็ม)', type:'level'},
+      {id:'s_4x4', label:'<span class="e4">ESI 4</span> × 4 ราย', type:'level'},
+      {id:'s_4x8', label:'<span class="e4">ESI 4</span> × 8 ราย (เต็ม)', type:'level'},
+      {id:'s_5x4', label:'<span class="e5">ESI 5</span> × 4 ราย', type:'level'},
+      {id:'s_5x8', label:'<span class="e5">ESI 5</span> × 8 ราย (เต็ม)', type:'level'},
+    ]
+  },
+  // ── Section 4: Mixed scenarios ──
+  {
+    id:'mixed', title:'สถานการณ์ผสม (Mixed ESI)', icon:'fa-layer-group',
+    desc:'เวรเช้า (6 คน), เตียง 8 — ประเมินระดับความแออัด',
+    questions:[
+      {id:'m_1', label:'<span class="e1">ESI 1</span> ×1 + <span class="e2">ESI 2</span> ×1 (2 ราย)', type:'level'},
+      {id:'m_2', label:'<span class="e1">ESI 1</span> ×1 + <span class="e3">ESI 3</span> ×2 (3 ราย)', type:'level'},
+      {id:'m_3', label:'<span class="e1">ESI 1</span> ×1 + <span class="e2">ESI 2</span> ×1 + <span class="e3">ESI 3</span> ×2 (4 ราย)', type:'level'},
+      {id:'m_4', label:'<span class="e1">ESI 1</span> ×2 + <span class="e2">ESI 2</span> ×1 (3 ราย)', type:'level'},
+      {id:'m_5', label:'<span class="e1">ESI 1</span> ×2 + <span class="e2">ESI 2</span> ×2 (4 ราย)', type:'level'},
+      {id:'m_6', label:'<span class="e1">ESI 1</span> ×1 + <span class="e3">ESI 3</span> ×3 + <span class="e4">ESI 4</span> ×2 (6 ราย)', type:'level'},
+      {id:'m_7', label:'<span class="e2">ESI 2</span> ×2 + <span class="e3">ESI 3</span> ×3 (5 ราย)', type:'level'},
+      {id:'m_8', label:'<span class="e2">ESI 2</span> ×2 + <span class="e3">ESI 3</span> ×3 + <span class="e4">ESI 4</span> ×3 (8 ราย เต็ม)', type:'level'},
+      {id:'m_9', label:'<span class="e2">ESI 2</span> ×1 + <span class="e3">ESI 3</span> ×2 + <span class="e4">ESI 4</span> ×3 + <span class="e5">ESI 5</span> ×2 (8 ราย เต็ม)', type:'level'},
+      {id:'m_10', label:'<span class="e1">ESI 1</span> ×1 + <span class="e2">ESI 2</span> ×2 + <span class="e3">ESI 3</span> ×2 + <span class="e4">ESI 4</span> ×2 + <span class="e5">ESI 5</span> ×1 (8 ราย เต็ม)', type:'level'},
+      {id:'m_11', label:'<span class="e3">ESI 3</span> ×4 + <span class="e4">ESI 4</span> ×4 (8 ราย เต็ม)', type:'level'},
+      {id:'m_12', label:'<span class="e1">ESI 1</span> ×2 + <span class="e2">ESI 2</span> ×2 + <span class="e3">ESI 3</span> ×2 + <span class="e4">ESI 4</span> ×2 (8 ราย เต็ม)', type:'level'},
+    ]
+  },
+  // ── Section 5: Wait time & status ──
+  {
+    id:'waitstatus', title:'ผลกระทบของเวลารอ & สถานะผู้ป่วย', icon:'fa-clock',
+    questions:[
+      {id:'wait_30', label:'ผู้ป่วยรอ < 30 นาที — ภาระงานเพิ่มจากปกติ?', type:'choice', options:['ไม่เพิ่ม','เพิ่มเล็กน้อย','เพิ่มปานกลาง','เพิ่มมาก']},
+      {id:'wait_60', label:'ผู้ป่วยรอ 30-60 นาที', type:'choice', options:['ไม่เพิ่ม','เพิ่มเล็กน้อย','เพิ่มปานกลาง','เพิ่มมาก']},
+      {id:'wait_120', label:'ผู้ป่วยรอ 1-2 ชั่วโมง', type:'choice', options:['ไม่เพิ่ม','เพิ่มเล็กน้อย','เพิ่มปานกลาง','เพิ่มมาก']},
+      {id:'wait_240', label:'ผู้ป่วยรอ 2-4 ชั่วโมง', type:'choice', options:['ไม่เพิ่ม','เพิ่มเล็กน้อย','เพิ่มปานกลาง','เพิ่มมาก']},
+      {id:'wait_240p', label:'ผู้ป่วยรอ > 4 ชั่วโมง', type:'choice', options:['ไม่เพิ่ม','เพิ่มเล็กน้อย','เพิ่มปานกลาง','เพิ่มมาก']},
+      {id:'st_waiting', label:'สถานะ "รอตรวจ" — ภาระงาน', type:'workload'},
+      {id:'st_exam', label:'สถานะ "เข้าห้องตรวจ" — ภาระงาน', type:'workload'},
+      {id:'st_xray', label:'สถานะ "ส่งเอ็กซ์เรย์ / CT" — ภาระงาน', type:'workload'},
+      {id:'st_result', label:'สถานะ "รอผลตรวจ" — ภาระงาน', type:'workload'},
+      {id:'st_observe', label:'สถานะ "สังเกตอาการ" — ภาระงาน', type:'workload'},
+      {id:'st_procedure', label:'สถานะ "ทำหัตถการ" — ภาระงาน', type:'workload'},
+      {id:'st_consult', label:'สถานะ "ปรึกษาแพทย์เฉพาะทาง" — ภาระงาน', type:'workload'},
+      {id:'st_boarding', label:'สถานะ "รอขึ้นหอผู้ป่วย (Boarding)" — ภาระงาน', type:'workload'},
+      {id:'st_discharge', label:'สถานะ "รอ Discharge / รอเอกสาร" — ภาระงาน', type:'workload'},
+    ]
+  },
+  // ── Section 6: Shift ──
+  {
+    id:'shift_diff', title:'ความแตกต่างระหว่างเวร', icon:'fa-moon',
+    desc:'สถานการณ์เดียวกัน: ESI 2 ×2 + ESI 3 ×3 (5 ราย) — ประเมินในแต่ละเวร',
+    questions:[
+      {id:'shift_am', label:'เวรเช้า (หมอ 1 + พยาบาล 4 + EMT 1 = 6 คน)', type:'level'},
+      {id:'shift_pm', label:'เวรบ่าย (หมอ 1 + พยาบาล 5 + EMT 1 = 7 คน)', type:'level'},
+      {id:'shift_night', label:'เวรดึก (หมอ 1 + พยาบาล 4 + EMT 1 = 6 คน)', type:'level'},
+      {id:'night_harder', label:'เวรดึกรู้สึกหนักกว่าเวรเช้า ถึงแม้คนเท่ากัน?', type:'choice', options:['ใช่ หนักกว่ามาก','ใช่ หนักกว่าเล็กน้อย','เท่ากัน','เบากว่า']},
+    ]
+  },
+  // ── Section 7: Other factors ──
+  {
+    id:'factors', title:'ปัจจัยอื่นที่ส่งผลต่อความแออัด', icon:'fa-exclamation-triangle',
+    questions:[
+      {id:'f_breach', label:'ผู้ป่วยรอนาน (breach เวลา)', type:'impact'},
+      {id:'f_family', label:'ญาติผู้ป่วยจำนวนมาก', type:'impact'},
+      {id:'f_boarding', label:'Boarding patients (รอ admit)', type:'impact'},
+      {id:'f_ambulance', label:'รถพยาบาลเข้ามาเพิ่ม', type:'impact'},
+      {id:'f_equipment', label:'เครื่องมือไม่พอ / เสีย', type:'impact'},
+      {id:'f_absence', label:'เจ้าหน้าที่ลาป่วย / ขาด', type:'impact'},
+      {id:'f_it', label:'ระบบ IT / เอกสาร ล่ม', type:'impact'},
+      {id:'f_psych', label:'ผู้ป่วยจิตเวช / ก้าวร้าว', type:'impact'},
+      {id:'f_peds', label:'ผู้ป่วยเด็กเล็ก (ต้องดูแลพิเศษ)', type:'impact'},
+    ]
+  },
+  // ── Section 8: Breaking points ──
+  {
+    id:'breaking', title:'จุดวิกฤต & ความปลอดภัย', icon:'fa-fire',
+    questions:[
+      {id:'bp_heavy', label:'ผู้ป่วยกี่ราย (ESI อะไร) ที่เริ่มรู้สึกว่า "งานหนักมาก แทบไม่ไหว"?', type:'textarea', placeholder:'เช่น ESI 2 จำนวน 3 ราย + ESI 3 จำนวน 2 ราย'},
+      {id:'bp_unsafe', label:'ผู้ป่วยกี่ราย (ESI อะไร) ที่รู้สึกว่า "ไม่ปลอดภัย / กลัวจะมี error"?', type:'textarea', placeholder:'เช่น ESI 1 จำนวน 2 ราย'},
+      {id:'bp_hell', label:'ผู้ป่วยกี่ราย (ESI อะไร) ที่รู้สึกว่า "เดินผ่านนรก" 🔥?', type:'textarea', placeholder:'เช่น ESI 1 จำนวน 2 ราย + ESI 2 จำนวน 2 ราย + เตียงเต็ม'},
+      {id:'bp_max', label:'จำนวนผู้ป่วยสูงสุดที่ ER เคยรับพร้อมกัน?', type:'textarea', placeholder:'กี่ราย ESI อะไรบ้าง?'},
+      {id:'bp_event', label:'ตอนนั้นเกิดอะไรขึ้น? มี adverse event ไหม?', type:'textarea', placeholder:'อธิบายสถานการณ์'},
+    ]
+  },
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let answers = JSON.parse(localStorage.getItem('esper_survey')||'{}');
+let currentSection = parseInt(localStorage.getItem('esper_survey_section')||'0');
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function renderTabs(){
+  const el=document.getElementById('tabs');
+  el.innerHTML=sections.map((s,i)=>{
+    const answered=countAnswered(i);
+    const total=s.questions.length;
+    const done=answered===total;
+    const cls=i===currentSection?'active':done?'done':'';
+    return `<div class="section-tab ${cls}" onclick="goSection(${i})">
+      <i class="fas ${s.icon}" style="margin-right:4px;font-size:10px"></i>${s.title}
+      <span class="count-badge">${answered}/${total}</span>
+    </div>`;
+  }).join('');
+}
+
+function countAnswered(sIdx){
+  return sections[sIdx].questions.filter(q=>answers[q.id]!==undefined&&answers[q.id]!=='').length;
+}
+
+function renderSection(){
+  const s=sections[currentSection];
+  let html=`<div class="section-page active">
+    <div class="section">
+      <div class="section-title"><span class="section-num">0${currentSection+1}</span> ${s.title}</div>
+      ${s.desc?`<div class="section-desc">${s.desc}</div>`:''}
+      ${s.id==='single'||s.id==='mixed'?'<div class="note-box">ระดับ: <span style="color:#16a34a;font-weight:700">ปกติ</span> · <span style="color:#d97706;font-weight:700">ปานกลาง</span> · <span style="color:#ea580c;font-weight:700">หนาแน่น</span> · <span style="color:#dc2626;font-weight:700">หนาแน่นมาก</span> · <span style="color:#991b1b;font-weight:700">วิกฤต</span></div>':''}`;
+
+  s.questions.forEach((q,i)=>{
+    const val=answers[q.id]||'';
+    html+=`<div class="question">
+      <div class="q-label"><span class="q-num">${i+1}.</span><span class="q-scenario">${q.label}</span></div>`;
+
+    if(q.type==='level'){
+      html+=`<div class="choices">${LEVELS.map((l,j)=>
+        `<button class="choice-btn ${LVL_CLS[j]}${val===l?' selected':''}" onclick="pick('${q.id}','${l}',this)">${l}</button>`
+      ).join('')}</div>`;
+    } else if(q.type==='workload'){
+      html+=`<div class="choices">${WORKLOAD.map((w,j)=>
+        `<button class="choice-btn ${WL_CLS[j]}${val===w?' selected':''}" onclick="pick('${q.id}','${w}',this)">${w}</button>`
+      ).join('')}</div>`;
+    } else if(q.type==='impact'){
+      html+=`<div class="choices">${IMPACT.map((im,j)=>
+        `<button class="choice-btn ${IMP_CLS[j]}${val===im?' selected':''}" onclick="pick('${q.id}','${im}',this)">${im}</button>`
+      ).join('')}</div>`;
+    } else if(q.type==='choice'){
+      html+=`<div class="choices">${q.options.map(o=>
+        `<button class="choice-btn${val===o?' selected':''}" onclick="pick('${q.id}','${o}',this)">${o}</button>`
+      ).join('')}</div>`;
+    } else if(q.type==='number'){
+      html+=`<div style="display:flex;align-items:center;gap:8px;margin-left:34px">
+        <input type="number" class="num-input" value="${val}" placeholder="${q.placeholder||''}" step="0.1" min="0" max="10"
+          onchange="pickVal('${q.id}',this.value)" oninput="pickVal('${q.id}',this.value)">
+        ${q.unit?`<span style="font-size:13px;color:#60646c">${q.unit}</span>`:''}
+      </div>`;
+    } else if(q.type==='text'){
+      html+=`<input type="text" class="text-input" value="${val}" placeholder="${q.placeholder||''}"
+        onchange="pickVal('${q.id}',this.value)" oninput="pickVal('${q.id}',this.value)">`;
+    } else if(q.type==='textarea'){
+      html+=`<textarea class="text-input" rows="2" placeholder="${q.placeholder||''}"
+        onchange="pickVal('${q.id}',this.value)" oninput="pickVal('${q.id}',this.value)">${val}</textarea>`;
+    }
+
+    html+=`</div>`;
+  });
+
+  html+=`</div></div>`;
+  document.getElementById('content').innerHTML=html;
+
+  // Nav buttons
+  document.getElementById('btn-prev').style.display=currentSection>0?'flex':'none';
+  const isLast=currentSection===sections.length-1;
+  document.getElementById('btn-next').style.display=isLast?'none':'flex';
+  document.getElementById('btn-submit').style.display=isLast?'flex':'none';
+
+  updateProgress();
+  renderTabs();
+  localStorage.setItem('esper_survey_section',currentSection);
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════
+function pick(id, val, btn){
+  answers[id]=val;
+  save();
+  // Update UI
+  btn.parentElement.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  renderTabs();
+  updateProgress();
+}
+
+function pickVal(id, val){
+  answers[id]=val;
+  save();
+  renderTabs();
+  updateProgress();
+}
+
+function save(){
+  localStorage.setItem('esper_survey',JSON.stringify(answers));
+}
+
+function nextSection(){
+  if(currentSection<sections.length-1){ currentSection++; renderSection(); }
+}
+function prevSection(){
+  if(currentSection>0){ currentSection--; renderSection(); }
+}
+function goSection(i){
+  currentSection=i;
+  renderSection();
+}
+
+function updateProgress(){
+  const total=sections.reduce((s,sec)=>s+sec.questions.length,0);
+  const answered=Object.keys(answers).filter(k=>answers[k]!==undefined&&answers[k]!=='').length;
+  document.getElementById('progress').style.width=(answered/total*100)+'%';
+}
+
+function submitSurvey(){
+  const total=sections.reduce((s,sec)=>s+sec.questions.length,0);
+  const answered=Object.keys(answers).filter(k=>answers[k]!==undefined&&answers[k]!=='').length;
+
+  if(answered<total){
+    const missing=total-answered;
+    if(!confirm(`ยังตอบไม่ครบ ${missing} ข้อ — ต้องการส่งคำตอบเลยไหม?`)) return;
+  }
+
+  // For now save to localStorage as "submitted"
+  answers._submitted=true;
+  answers._submitted_at=new Date().toISOString();
+  save();
+  alert('ส่งคำตอบเรียบร้อยแล้ว! ขอบคุณที่สละเวลา 🙏');
+  showSummary();
+}
+
+function showSummary(){
+  let html=`<div class="section">
+    <div class="section-title"><i class="fas fa-chart-bar" style="color:#0284c7"></i> สรุปคำตอบ</div>
+    <div class="section-desc">ส่งเมื่อ ${new Date(answers._submitted_at).toLocaleString('th-TH')}</div>`;
+
+  sections.forEach(s=>{
+    html+=`<h3 style="margin:16px 0 8px;font-size:14px;color:#0284c7">${s.title}</h3>`;
+    s.questions.forEach(q=>{
+      const val=answers[q.id]||'<em style="color:#b9bbc6">ไม่ได้ตอบ</em>';
+      html+=`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f0f0f3;font-size:13px">
+        <span style="color:#80838d;min-width:200px">${q.label.replace(/<[^>]*>/g,'')}</span>
+        <span style="font-weight:600">${val}</span>
+      </div>`;
+    });
+  });
+
+  html+=`</div>`;
+  document.getElementById('content').innerHTML=html;
+  document.querySelector('.footer-nav').style.display='none';
+  document.getElementById('tabs').style.display='none';
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+if(answers._submitted){
+  showSummary();
+} else {
+  renderSection();
+}
+</script>
+</body>
+</html>
