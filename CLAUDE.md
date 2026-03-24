@@ -10,11 +10,11 @@ ESPER Invictus is a three-view ER (Emergency Room) management system for the BBT
 
 ### Two Pages (planned)
 
-1. **Floor (MinisSoftLaunchFLOOR.html)** — The main staff page. Does everything: patient board, status updates (right slide-out panel), patient registration (right slide-out panel, same slot as status update), editing (name/age/title/HN/phone via Edit toggle). Will be split into separate CSS/JS files as it grows.
+1. **Floor (minis-floor.html)** — The main staff page. Does everything: patient board, status updates (right slide-out panel), patient registration (right slide-out panel, same slot as status update), editing (name/age/title/HN/phone via Edit toggle). Will be split into separate CSS/JS files as it grows.
 
-2. **Public View (MinisSoftLaunchPUBLICVIEW.html)** — TV display for waiting area. Shows waiting and active patients with auto-pagination, GEDWIN crowding score, estimated wait times. Light/dark toggle for different lighting conditions.
+2. **Public View (minis-publicview.html)** — TV display for waiting area. Shows waiting and active patients with auto-pagination, GEDWIN crowding score, estimated wait times. Light/dark toggle for different lighting conditions.
 
-3. **MinisSoftLaunchRegis.html** — Legacy standalone registration form. Being replaced by the registration panel inside Floor. Keep for reference but not the active workflow.
+3. **minis-regis.html** — Legacy standalone registration form. Being replaced by the registration panel inside Floor. Keep for reference but not the active workflow.
 
 ### Data Flow
 
