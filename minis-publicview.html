@@ -420,20 +420,34 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Load patients from Supabase
+    const PV_FINALIZED_TTL = 30 * 60 * 1000; // 30 min — show discharged patients briefly
+
     async function loadFromSupabase() {
         const { data, error } = await sb
             .from('visits')
             .select(`
-                id, esi, chief_complaint, status, tab, arrived_at, activated_at, updated_at,
+                id, esi, chief_complaint, status, tab, arrived_at, activated_at, finalized_at, updated_at,
                 patients ( id, hn, title, first_name, last_name, sex, age_y, age_m, age_d )
             `)
-            .in('tab', ['waiting','active'])
+            .in('tab', ['waiting','active','finalized'])
             .order('arrived_at', { ascending: true });
 
         if (error) { console.error('Public View load error:', error); return; }
 
+        const now = Date.now();
         waitingPatients = (data||[]).filter(r=>r.tab==='waiting').map(dbToPublicPatient);
-        activePatients  = (data||[]).filter(r=>r.tab==='active').map(dbToPublicPatient);
+        // Active + recently finalized (< 30 min)
+        const active = (data||[]).filter(r=>r.tab==='active').map(dbToPublicPatient);
+        const recentFinalized = (data||[]).filter(r=>{
+            if(r.tab!=='finalized') return false;
+            if(!r.finalized_at) return false;
+            return (now - new Date(r.finalized_at).getTime()) < PV_FINALIZED_TTL;
+        }).map(r=>{
+            const p = dbToPublicPatient(r);
+            p.dispositionAt = new Date(r.finalized_at).getTime();
+            return p;
+        });
+        activePatients = [...active, ...recentFinalized];
     }
 
     let activePatients  = [];

@@ -152,7 +152,16 @@ async function loadPatients() {
 
   if (error) { console.error('Load error:', error); return []; }
 
-  return data.map(row => {
+  // Filter out finalized patients older than 1 hour
+  const ONE_HOUR = 60 * 60 * 1000;
+  const now = Date.now();
+  const filtered = data.filter(row => {
+    if (row.tab !== 'finalized') return true;
+    if (!row.finalized_at) return true;
+    return (now - new Date(row.finalized_at).getTime()) < ONE_HOUR;
+  });
+
+  return filtered.map(row => {
     const p = row.patients;
     return dbToPatient({
       visit_id: row.id,
