@@ -182,8 +182,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .raj {font-family:'Rajdhani',sans-serif}
 
 /* ESI — fixed colors */
-.esi-c-1{background:#ef4444}.esi-c-2{background:#ec4899}.esi-c-3{background:#ca8a04}.esi-c-4{background:#22c55e}.esi-c-5{background:#3b82f6}
-.esi-b-1{border-left:3px solid #ef4444}.esi-b-2{border-left:3px solid #ec4899}.esi-b-3{border-left:3px solid #ca8a04}.esi-b-4{border-left:3px solid #22c55e}.esi-b-5{border-left:3px solid #3b82f6}
+.esi-c-1{background:#ef4444}.esi-c-2{background:#ec4899}.esi-c-3{background:#eab308}.esi-c-4{background:#22c55e}.esi-c-5{background:#3b82f6}
+.esi-b-1{border-left:3px solid #ef4444}.esi-b-2{border-left:3px solid #ec4899}.esi-b-3{border-left:3px solid #eab308}.esi-b-4{border-left:3px solid #22c55e}.esi-b-5{border-left:3px solid #3b82f6}
 
 /* Breach colours — fixed */
 .bc-ok{color:#22c55e}.bc-am{color:#f59e0b}.bc-rd{color:#ef4444}
@@ -366,7 +366,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .reg-ft-btn.active{box-shadow:0 0 0 2px var(--accent),0 0 10px rgba(14,165,233,.3)}
 .reg-esi-1{background:#ef4444!important;color:#fff!important}
 .reg-esi-2{background:#ec4899!important;color:#fff!important}
-.reg-esi-3{background:#ca8a04!important;color:#fff!important}
+.reg-esi-3{background:#eab308!important;color:#fff!important}
 .reg-esi-4{background:#22c55e!important;color:#fff!important}
 .reg-esi-5{background:#3b82f6!important;color:#fff!important}
 

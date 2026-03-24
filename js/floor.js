@@ -249,7 +249,7 @@ async function updatePatientInfo(patientId, fields) {
 // ══════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════
-const ESI_CLR  = {1:'#ef4444',2:'#ec4899',3:'#ca8a04',4:'#22c55e',5:'#3b82f6'};
+const ESI_CLR  = {1:'#ef4444',2:'#ec4899',3:'#eab308',4:'#22c55e',5:'#3b82f6'};
 const ESI_AMB  = {1:0,  2:10,  3:120, 4:240, 5:240};  // amber (min): ESI3=2h, ESI4/5=4h
 const ESI_RED  = {1:0,  2:15,  3:180, 4:300, 5:300};  // red   (min): ESI3=3h, ESI4/5=5h
 
