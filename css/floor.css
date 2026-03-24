@@ -74,41 +74,41 @@
 
 /* ── Light Theme ── */
 :root:not(.dark) {
-  --bg-body:       #e9eff5;
-  --bg-card:       #f9fafb;
-  --bg-panel:      #f9fafb;
-  --bg-input:      #f9fafb;
+  --bg-body:       #f1f5f9;
+  --bg-card:       #ffffff;
+  --bg-panel:      #ffffff;
+  --bg-input:      #f8fafc;
   --bg-elevated:   #ffffff;
-  --bg-sit:        #edf1f7;
-  --bg-hn-pfx:     #edf1f7;
+  --bg-sit:        #f8fafc;
+  --bg-hn-pfx:     #f1f5f9;
 
-  --border:        #d1d5db;
-  --border-subtle: #e5e7eb;
-  --border-sit:    #d1d5db;
-  --border-card:   #e5e7eb;
+  --border:        #e2e8f0;
+  --border-subtle: #e2e8f0;
+  --border-sit:    #e2e8f0;
+  --border-card:   #e2e8f0;
 
-  --text-primary:  #1e3a5f;
-  --text-sub:      #3d5a80;
-  --text-muted:    #5a7a9a;
-  --text-dim:      #7a8fa5;
-  --text-detail:   #5a7a9a;
-  --text-faint:    #9aacbe;
-  --text-clock:    #1e3a5f;
+  --text-primary:  #1e293b;
+  --text-sub:      #334155;
+  --text-muted:    #64748b;
+  --text-dim:      #94a3b8;
+  --text-detail:   #64748b;
+  --text-faint:    #cbd5e1;
+  --text-clock:    #1e293b;
 
   --accent:        #0284c7;
   --accent-hover:  #0369a1;
   --accent-bg:     #e0f2fe;
 
-  --scrollbar:     #d0dbe8;
-  --scrollbar-hover:#b0c0d0;
+  --scrollbar:     #e2e8f0;
+  --scrollbar-hover:#cbd5e1;
 
-  --card-hover-bg: #f0f4f8;
-  --card-hover-ring:#c0d0e0;
+  --card-hover-bg: #f8fafc;
+  --card-hover-ring:#cbd5e1;
   --card-sel-bg:   #e0f2fe;
 
-  --item-hover-bg: #f0f4f8;
+  --item-hover-bg: #f1f5f9;
   --item-sel-bg:   #e0f2fe;
-  --pop-hover-bg:  #f0f4f8;
+  --pop-hover-bg:  #f1f5f9;
 
   --hosp-bg-start: #e0ecf8;
   --hosp-bg-end:   #d0e0f0;
@@ -208,6 +208,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 /* Cards */
 .pcard{background:var(--bg-card);border-radius:7px;overflow:visible;transition:box-shadow .15s,background .15s;flex-shrink:0}
 .pcard:hover{background:var(--card-hover-bg);box-shadow:0 0 0 1px var(--card-hover-ring),0 8px 32px rgba(0,0,0,.6)}
+:root:not(.dark) .pcard{box-shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04)}
+:root:not(.dark) .pcard:hover{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 1px var(--card-hover-ring)}
 .pcard-sel{background:var(--card-sel-bg) !important;box-shadow:0 0 0 1px var(--accent),0 8px 32px rgba(14,165,233,.15) !important}
 .z1{cursor:pointer}
 .pcard:hover .pt-name,.pcard-sel .pt-name{color:var(--accent-hover);transition:color .15s}
@@ -245,6 +247,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .qv-grp{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);padding:10px 16px 4px;font-family:'Rajdhani','Sarabun',sans-serif}
 .qv-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;transition:background .1s;border-left:2px solid transparent}
 .qv-item:hover{background:var(--item-hover-bg)}
+:root:not(.dark) .qv-item:hover{background:#e8f0fe;border-left-color:#93c5fd}
 .qv-item.sel{background:var(--item-sel-bg);border-left-color:var(--accent)}
 .qv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
