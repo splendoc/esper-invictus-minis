@@ -431,7 +431,7 @@ function renderSFilter(){
       const on=statusFilter===s;
       html+=`<button class="sf-chip${on?' on':''}" onclick="setSFilter('${s.replace(/'/g,"\\'")}')">
         <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};flex-shrink:0;display:inline-block"></span>
-        ${cfg.label} <span class="sf-cnt" style="color:${cfg.dot}">${counts[s]}</span>
+        ${cfg.label} <span class="sf-cnt" style="background:${cfg.dot};color:#fff">${counts[s]}</span>
       </button>`;
     });
 
@@ -455,7 +455,7 @@ function renderSFilter(){
     const on = statusFilter===s;
     html+=`<button class="sf-chip${on?' on':''}" onclick="setSFilter('${s.replace(/'/g,"\\'")}')">
       <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};flex-shrink:0;display:inline-block"></span>
-      ${cfg.label} <span class="sf-cnt" style="color:${cfg.dot}">${counts[s]}</span>
+      ${cfg.label} <span class="sf-cnt" style="background:${cfg.dot};color:#fff">${counts[s]}</span>
     </button>`;
   });
   bar.innerHTML=html;
