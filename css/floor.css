@@ -98,10 +98,10 @@
   --border-card:   #d9d9de;     /* Slate 6 */
 
   --text-primary:  #1c2024;     /* Slate 12 — headings, names */
-  --text-sub:      #60646c;     /* Slate 11 — body text */
-  --text-muted:    #80838d;     /* Slate 10 — secondary */
+  --text-sub:      #4a4d55;     /* darker body/cc text */
+  --text-muted:    #60646c;     /* Slate 11 — secondary */
   --text-dim:      #60646c;     /* Slate 11 — labels, date */
-  --text-detail:   #8b8d98;     /* Slate 9 */
+  --text-detail:   #6e727a;     /* HN, sex, age — darker */
   --text-faint:    #b9bbc6;     /* Slate 8 — placeholders */
   --text-clock:    #1c2024;     /* Slate 12 */
 
