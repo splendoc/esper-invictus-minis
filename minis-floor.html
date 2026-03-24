@@ -265,11 +265,11 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
 <body>
 
 <!-- ══════════════ LOCK SCREEN ══════════════ -->
-<div id="lockscreen" style="position:fixed;inset:0;z-index:9999;background:rgba(8,14,23,0.25);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .4s">
+<div id="lockscreen" style="position:fixed;inset:0;z-index:9999;background:rgba(8,14,23,0.15);backdrop-filter:blur(36px);-webkit-backdrop-filter:blur(36px);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .4s">
 
   <!-- Logo (uses lk- prefixed gradients to not clash with Floor header lg- gradients) -->
-  <div style="margin-bottom:28px">
-    <svg width="64" height="64" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <div style="margin-bottom:20px">
+    <svg width="100" height="100" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="40" cy="40" r="38" stroke="url(#lk1)" stroke-width="2" fill="none" opacity="0.7"/>
       <circle cx="40" cy="40" r="28" fill="url(#lk2)" opacity="0.92"/>
       <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
@@ -299,23 +299,23 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;display:f
   </div>
 
   <!-- Brand -->
-  <div style="text-align:center;margin-bottom:32px">
-    <div class="brand-name" style="font-size:28px">ESPER INVICTUS</div>
-    <div class="brand-sub">Minis · BBT ER</div>
+  <div style="text-align:center;margin-bottom:36px">
+    <div class="brand-name" style="font-size:38px">ESPER INVICTUS</div>
+    <div class="brand-sub" style="font-size:13px;margin-top:6px">Minis · BBT ER</div>
   </div>
 
   <!-- PIN box -->
-  <div style="width:280px">
+  <div style="width:320px">
+    <div style="text-align:center;margin-bottom:12px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.1em;color:#7a9ab8;text-transform:uppercase"><i class="fas fa-lock" style="margin-right:6px;font-size:11px"></i>Enter Staff PIN</div>
     <div style="position:relative">
-      <i class="fas fa-lock" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#4a6a88;font-size:14px"></i>
-      <input id="lock-pin" type="password" maxlength="30" placeholder="Enter staff PIN"
-        style="width:100%;padding:12px 14px 12px 38px;background:#0f1a27;border:1px solid #1a2840;border-radius:8px;color:#dde6f0;font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:.1em;outline:none;text-align:center"
+      <input id="lock-pin" type="password" maxlength="30" placeholder="••••"
+        style="width:100%;padding:14px 16px;background:rgba(15,26,39,0.7);border:1px solid #1a2840;border-radius:10px;color:#dde6f0;font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:.2em;outline:none;text-align:center"
         onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#1a2840'"
         autocomplete="off">
     </div>
     <div id="lock-err" style="color:#ef4444;font-size:12px;font-family:'Sarabun',sans-serif;text-align:center;margin-top:8px;min-height:18px"></div>
     <button id="lock-btn" onclick="unlockApp()"
-      style="width:100%;margin-top:4px;padding:10px;background:linear-gradient(135deg,#0369a1,#0ea5e9);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+      style="width:100%;margin-top:6px;padding:12px;background:linear-gradient(135deg,#0369a1,#0ea5e9);border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
       <i class="fas fa-sign-in-alt"></i> UNLOCK
     </button>
   </div>
