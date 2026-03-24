@@ -1097,13 +1097,13 @@ function _renderQVEditRows(p){
       <button class="qv-edit-btn" id="qv-age-edit-btn" onclick="toggleQVAgeEdit()" style="margin-left:auto"><i class="fas fa-pen-to-square"></i></button>
       <div class="qv-field-wrap" id="qv-age-field-wrap">
         <div class="qv-age-inputs">
-          <input class="qv-fi" id="qv-age-y" type="number" min="0" max="150" value="${a.y||''}" placeholder="ปี" autocomplete="off"
+          <input class="qv-fi" id="qv-age-y" type="number" min="0" max="150" value="${a.y||''}" placeholder="Y" autocomplete="off"
             oninput="qvAgeLock('y')" onkeydown="if(event.key==='Enter')saveQVAge();if(event.key==='Escape')cancelQVAgeEdit()">
           <span class="qv-age-unit">ปี</span>
-          <input class="qv-fi" id="qv-age-m" type="number" min="1" max="11" value="${a.m||''}" placeholder="ด." autocomplete="off"
+          <input class="qv-fi" id="qv-age-m" type="number" min="1" max="11" value="${a.m||''}" placeholder="M" autocomplete="off"
             oninput="qvAgeLock('m')" onkeydown="if(event.key==='Enter')saveQVAge();if(event.key==='Escape')cancelQVAgeEdit()">
           <span class="qv-age-unit">เดือน</span>
-          <input class="qv-fi" id="qv-age-d" type="number" min="1" max="30" value="${a.d||''}" placeholder="ว." autocomplete="off"
+          <input class="qv-fi" id="qv-age-d" type="number" min="1" max="30" value="${a.d||''}" placeholder="D" autocomplete="off"
             oninput="qvAgeLock('d')" onkeydown="if(event.key==='Enter')saveQVAge();if(event.key==='Escape')cancelQVAgeEdit()">
           <span class="qv-age-unit">วัน</span>
           <button type="button" class="qv-cancel-btn" onclick="qvAgeClear()" id="qv-age-clr" style="display:none;font-size:14px"><i class="fas fa-times"></i></button>
