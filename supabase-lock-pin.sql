@@ -11,12 +11,12 @@ CREATE TABLE IF NOT EXISTS app_config (
 
 -- Staff PIN (share with ER team — you can change anytime)
 INSERT INTO app_config (key, value)
-VALUES ('staff_pin', 'minis2026')
+VALUES ('staff_pin', '1669')
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
 -- Master PIN (only you — never auto-locks)
 INSERT INTO app_config (key, value)
-VALUES ('master_pin', 'docd9999')
+VALUES ('master_pin', '1553')
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
 -- ── 2. RLS — block direct reads of config ──
