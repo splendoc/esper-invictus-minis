@@ -423,7 +423,7 @@ function renderSFilter(){
       <button class="sf-chip${asc?' on':''}" onclick="setFinalizedSort('asc')" style="gap:4px">
         <i class="fas fa-arrow-up" style="font-size:9px"></i> Oldest
       </button>
-      <span style="width:1px;height:18px;background:#1a2840;flex-shrink:0;margin:0 2px"></span>
+      <span style="width:1px;height:18px;background:var(--border);flex-shrink:0;margin:0 2px"></span>
       <button class="sf-chip${statusFilter==='all'?' on':''}" onclick="setSFilter('all')">All <span class="sf-cnt">${list.length}</span></button>`;
 
     statuses.forEach(s=>{
@@ -485,8 +485,8 @@ document.addEventListener('click',e=>{
 function clearSearch(){
   const s=document.getElementById('srch');
   s.value='';
-  s.style.borderColor='#1a2840';
-  s.style.color='#6b8ba4';
+  s.style.borderColor='var(--border)';
+  s.style.color='var(--text-muted)';
   document.getElementById('srch-clr').style.display='none';
   renderCards();
 }
@@ -505,14 +505,14 @@ function setEsiFilter(val){
   const clr = document.getElementById('esi-clr');
   if(val==='all'){
     lbl.textContent='Filter';
-    btn.style.color='#6b8ba4';
-    btn.style.borderColor='#1a2840';
+    btn.style.color='var(--text-muted)';
+    btn.style.borderColor='var(--border)';
     btn.style.background='transparent';
     clr.style.display='none';
   } else {
     lbl.textContent='ESI '+val;
-    btn.style.color='#0ea5e9';
-    btn.style.borderColor='#0ea5e9';
+    btn.style.color='var(--accent)';
+    btn.style.borderColor='var(--accent)';
     btn.style.background='rgba(14,165,233,.08)';
     clr.style.display='inline';
   }
@@ -601,7 +601,7 @@ function renderSit(){
   // Active table
   const aEsis = [1,2,3,4,5].filter(e=>A.some(p=>p.esi===e));
   if(!aEsis.length){
-    document.getElementById('sit-active').innerHTML=`<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2a3f58">—</span>`;
+    document.getElementById('sit-active').innerHTML=`<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint)">—</span>`;
   } else {
     let ah=`<table class="sit-tbl"><thead><tr><th></th><th>Pts</th><th>Avg LOS</th><th>Max LOS</th></tr></thead><tbody>`;
     aEsis.forEach(e=>{
@@ -619,7 +619,7 @@ function renderSit(){
   // Waiting table
   const wEsis = [1,2,3,4,5].filter(e=>W.some(p=>p.esi===e));
   if(!wEsis.length){
-    document.getElementById('sit-waiting').innerHTML=`<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2a3f58">—</span>`;
+    document.getElementById('sit-waiting').innerHTML=`<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint)">—</span>`;
   } else {
     let wh=`<table class="sit-tbl"><thead><tr><th></th><th>Pts</th><th>Avg Wait</th><th>Max Wait</th></tr></thead><tbody>`;
     wEsis.forEach(e=>{
@@ -678,19 +678,19 @@ function buildCard(p){
     <!-- Identity -->
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-        <span class="pt-name" style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#dde6f0;line-height:1.3">${fullName(p)}</span>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#4e7a9a">${fmtHN(p.hn)}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#5a7a90"> · ${p.sex} · ${fmtAge(p.age)}</span>
+        <span class="pt-name" style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.3">${fullName(p)}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--text-detail)">${fmtHN(p.hn)}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-detail)"> · ${p.sex} · ${fmtAge(p.age)}</span>
       </div>
-      <div style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:400;color:#7a9ab8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.cc}</div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:400;color:var(--text-sub);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.cc}</div>
     </div>
 
     <!-- Time -->
     <div style="flex-shrink:0;display:flex;align-items:center;gap:8px">
       <div style="text-align:right;min-width:40px">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:#4a6a88;line-height:1">${p.arrivedAt ? new Date(p.arrivedAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'}) : p.upd||''}</div>
-        <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:#4a6a88;opacity:.8;margin-top:2px;letter-spacing:.12em">TRIAGE</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--text-dim);line-height:1">${p.arrivedAt ? new Date(p.arrivedAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'}) : p.upd||''}</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:var(--text-dim);opacity:.8;margin-top:2px;letter-spacing:.12em">TRIAGE</div>
       </div>
-      <div style="width:1px;height:24px;background:#1a2840;flex-shrink:0"></div>
+      <div style="width:1px;height:24px;background:var(--border);flex-shrink:0"></div>
       <div style="text-align:right;min-width:50px">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:${timeColor};line-height:1;${isWaiting && timeMin>=ESI_RED[p.esi]?'animation:blink 1.4s ease-in-out infinite':''}">${fm(timeMin)}</div>
         <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:${timeColor};opacity:.8;margin-top:2px;letter-spacing:.12em">${isWaiting?'WAIT':'STAY'}</div>
@@ -702,20 +702,20 @@ function buildCard(p){
   // Zone 2 — strip: status + action + Upd time
   let Z2;
   if(p.tab==='finalized'){
-    Z2 = `<div style="padding:4px 12px 7px;display:flex;align-items:center;gap:8px;border-top:1px solid #0a1420">
+    Z2 = `<div style="padding:4px 12px 7px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border-card)">
       <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};display:inline-block;flex-shrink:0"></span>
       <span class="${cfg.pill} sp" style="border:none;background:transparent;padding:0;font-size:12px">${cfg.label}</span>
-      <i class="fas fa-lock" style="font-size:9px;color:#2a4a62;margin-left:2px"></i>
-      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b8ba4">${p.upd||'—'}</span>
+      <i class="fas fa-lock" style="font-size:9px;color:var(--text-faint);margin-left:2px"></i>
+      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted)">${p.upd||'—'}</span>
     </div>`;
   } else {
-    Z2 = `<div style="padding:4px 12px 7px;display:flex;align-items:center;gap:8px;border-top:1px solid #0a1420">
+    Z2 = `<div style="padding:4px 12px 7px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border-card)">
       <button class="st-btn" style="height:26px;font-size:12px" onclick="openQV('${p.id}',event)">
         <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};display:inline-block;flex-shrink:0"></span>
         <span class="${cfg.pill} sp" style="border:none;background:transparent;padding:0;font-size:12px">${cfg.label}</span>
-        <i class="fas fa-chevron-down" style="font-size:8px;color:#6b8ba4;margin-left:2px"></i>
+        <i class="fas fa-chevron-down" style="font-size:8px;color:var(--text-muted);margin-left:2px"></i>
       </button>
-      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b8ba4">Upd ${p.upd||'—'}</span>
+      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted)">Upd ${p.upd||'—'}</span>
     </div>`;
   }
 
@@ -745,7 +745,7 @@ function renderCards(){
 
   document.getElementById('cards').innerHTML = list.length
     ? list.map(buildCard).join('')
-    : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:60px 0;color:#6b8ba4">
+    : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:60px 0;color:var(--text-muted)">
         <i class="fas fa-inbox" style="font-size:28px"></i>
         <span class="raj font-600" style="font-size:14px;letter-spacing:.06em">No patients</span>
        </div>`;
@@ -762,8 +762,8 @@ function switchTab(btn){
   statusFilter='all';
   const filterBtn=document.getElementById('esi-dd-btn');
   document.getElementById('esi-dd-label').textContent='Filter';
-  filterBtn.style.color='#6b8ba4';
-  filterBtn.style.borderColor='#1a2840';
+  filterBtn.style.color='var(--text-muted)';
+  filterBtn.style.borderColor='var(--border)';
   filterBtn.style.background='transparent';
   document.getElementById('esi-clr').style.display='none';
   renderSFilter();
@@ -786,13 +786,13 @@ function openQV(id,evt){
     <div style="display:flex;gap:12px;padding-bottom:10px">
       <div style="width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;margin-top:2px" class="esi-c-${p.esi}">${p.esi}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:600;color:#dde6f0;line-height:1.2">${fullName(p)}</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#4e7a9a;margin-top:4px">${fmtHN(p.hn)} <span style="color:#5a7a90">· ${p.sex} · ${fmtAge(p.age)}</span></div>
-        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:#7a9ab8;margin-top:4px">${p.cc}</div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:600;color:var(--text-primary);line-height:1.2">${fullName(p)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--text-detail);margin-top:4px">${fmtHN(p.hn)} <span style="color:var(--text-detail)">· ${p.sex} · ${fmtAge(p.age)}</span></div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:var(--text-sub);margin-top:4px">${p.cc}</div>
       </div>
       <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <span class="sp ${cfg.pill}">${cfg.label}</span>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b8ba4">${p.tab==='waiting'?'Wait '+fm(p.waitMin):'Stay '+fm(p.stayMin)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted)">${p.tab==='waiting'?'Wait '+fm(p.waitMin):'Stay '+fm(p.stayMin)}</div>
         <button class="qv-toggle-edit" onclick="toggleQVEditMode()"><i class="fas fa-pen" style="font-size:9px"></i> Edit</button>
       </div>
     </div>
@@ -810,7 +810,7 @@ function openQV(id,evt){
       html+=`<div class="qv-item${isSel?' sel':''}" data-s="${s}" data-g="${grp.g}" onclick="selStatus('${s}','${grp.g}')" style="${itemStyle}">
         <span class="qv-dot" style="background:${sg.dot}"></span>
         <span style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:${isSel?600:400};color:${isResus?'#fca5a5':isSel?'#dde6f0':'#7a9ab8'}">${sg.label}</span>
-        ${isSel?'<i class="fas fa-check ml-auto" style="font-size:14px;color:#0ea5e9"></i>':''}
+        ${isSel?'<i class="fas fa-check ml-auto" style="font-size:14px;color:var(--accent)"></i>':''}
       </div>`;
     });
   });
@@ -832,7 +832,7 @@ function selStatus(s,g){
     const lbl=el.querySelector('span:nth-child(2)');
     if(lbl){ lbl.style.color=isSel?'#dde6f0':'#7a9ab8'; lbl.style.fontWeight=isSel?600:400; }
     const chk=el.querySelector('.fa-check');
-    if(isSel&&!chk){ const i=document.createElement('i'); i.className='fas fa-check ml-auto'; i.style.cssText='font-size:14px;color:#0ea5e9'; el.appendChild(i); }
+    if(isSel&&!chk){ const i=document.createElement('i'); i.className='fas fa-check ml-auto'; i.style.cssText='font-size:14px;color:var(--accent)'; el.appendChild(i); }
     if(!isSel&&chk) chk.remove();
   });
   updatePrev();
@@ -845,13 +845,13 @@ function updatePrev(){
   const btn=document.getElementById('confirm-btn');
   const isClosing = qvGrp && qvGrp.includes('ปิดเคส');
   if(qvSel===p.status && !isClosing){
-    el.innerHTML='<span style="font-family:\'Rajdhani\',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:#2a4a62">NO CHANGE</span>';
+    el.innerHTML='<span style="font-family:\'Rajdhani\',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-faint)">NO CHANGE</span>';
     btn.className='no-change';
     return;
   }
   const sg=sc(qvSel);
   const changeLabel = isClosing && qvSel===p.status ? 'CLOSE CASE' : 'CHANGE TO';
-  el.innerHTML=`<span style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:#4a6a88">${changeLabel} <i class="fas fa-long-arrow-alt-right" style="margin:0 3px"></i></span><span class="sp ${sg.pill}">${sg.label}</span>`;
+  el.innerHTML=`<span style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-dim)">${changeLabel} <i class="fas fa-long-arrow-alt-right" style="margin:0 3px"></i></span><span class="sp ${sg.pill}">${sg.label}</span>`;
   btn.className='can-confirm';
 }
 
@@ -909,7 +909,7 @@ async function confirmStatus(){
     }
   });
 
-  showToast(`<div style="line-height:1.3"><div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:#dde6f0">${fullName(p)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;margin-top:2px">${fmtHN(p.hn)}</div><div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#22c55e;margin-top:3px">→ ${sc(qvSel).label}</div></div>`, '#22c55e', 'fa-check-circle');
+  showToast(`<div style="line-height:1.3"><div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:2px">${fmtHN(p.hn)}</div><div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#22c55e;margin-top:3px">→ ${sc(qvSel).label}</div></div>`, '#22c55e', 'fa-check-circle');
 }
 
 // ══════════════════════════════════════════
@@ -1063,7 +1063,7 @@ function _renderQVEditRows(p){
     <div class="qv-edit-row" id="qv-sex-row">
       <span class="qv-edit-lbl">SEX</span>
       <span class="qv-edit-val" id="qv-sex-display">${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':p.sex||'—'}</span>
-      <span id="qv-sex-lock" style="color:#0ea5e9;font-size:10px;display:${sexLocked?'':'none'}"><i class="fas fa-lock"></i></span>
+      <span id="qv-sex-lock" style="color:var(--accent);font-size:10px;display:${sexLocked?'':'none'}"><i class="fas fa-lock"></i></span>
       <button class="qv-edit-btn" id="qv-sex-edit-btn" onclick="toggleQVSexEdit()" style="margin-left:auto"><i class="fas fa-pen-to-square"></i></button>
       <div class="qv-field-wrap" id="qv-sex-field-wrap">
         <select class="qv-fi" id="qv-sex-select" style="flex:1;font-family:'Sarabun',sans-serif;cursor:pointer"
@@ -1474,9 +1474,9 @@ function openFinalizedQV(id){
     <div style="display:flex;gap:12px;padding-bottom:10px">
       <div style="width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;margin-top:2px" class="esi-c-${p.esi}">${p.esi}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:600;color:#dde6f0;line-height:1.2">${fullName(p)}</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#4e7a9a;margin-top:4px">${fmtHN(p.hn)} <span style="color:#5a7a90">· ${p.sex} · ${fmtAge(p.age)}</span></div>
-        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:#7a9ab8;margin-top:4px">${p.cc}</div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:600;color:var(--text-primary);line-height:1.2">${fullName(p)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--text-detail);margin-top:4px">${fmtHN(p.hn)} <span style="color:var(--text-detail)">· ${p.sex} · ${fmtAge(p.age)}</span></div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:400;color:var(--text-sub);margin-top:4px">${p.cc}</div>
       </div>
       <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <span class="sp ${cfg.pill}">${cfg.label}</span>
@@ -1492,7 +1492,7 @@ function openFinalizedQV(id){
 
   // Footer: hide confirm, show close only
   const prev=document.getElementById('qv-prev');
-  prev.innerHTML='<span style="font-family:\'Rajdhani\',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:#2a4a62">FINALIZED — STATUS LOCKED</span>';
+  prev.innerHTML='<span style="font-family:\'Rajdhani\',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-faint)">FINALIZED — STATUS LOCKED</span>';
   const btn=document.getElementById('confirm-btn');
   btn.className='no-change';
   btn.textContent='Close';
@@ -1680,7 +1680,7 @@ function regHNSearch(digits,dd){
   if(!matches.length){
     dd.innerHTML=`<div style="padding:12px;text-align:center;font-size:12px">
       <i class="fas fa-user-slash" style="font-size:14px;color:#f59e0b;display:block;margin-bottom:4px"></i>
-      <span style="color:#6b8ba4">ไม่พบ — กรอกข้อมูลผู้ป่วยใหม่ด้านล่าง</span>
+      <span style="color:var(--text-muted)">ไม่พบ — กรอกข้อมูลผู้ป่วยใหม่ด้านล่าง</span>
     </div>`;
     dd.style.display='block';
     setTimeout(()=>{ dd.style.display='none'; }, 2000);
@@ -1691,8 +1691,8 @@ function regHNSearch(digits,dd){
     <div class="reg-hn-item" onclick="regSelectPatient('${p.id}')">
       <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;flex-shrink:0" class="esi-c-${p.esi}">${p.esi}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#dde6f0">${fullName(p)}</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6b8ba4">${fmtHN(p.hn)} · ${p.sex} · ${fmtAge(p.age)}</div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-muted)">${fmtHN(p.hn)} · ${p.sex} · ${fmtAge(p.age)}</div>
       </div>
       <span class="reg-badge-return"><i class="fas fa-rotate" style="font-size:8px"></i> เลือก</span>
     </div>`).join('');
@@ -1975,7 +1975,7 @@ async function submitReg(){
         setTimeout(()=>card.classList.remove('card-highlight'),3500);
       }
     });
-    showToast(`<div style="line-height:1.3"><div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:#dde6f0">${fullName(newVisit)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;margin-top:2px">${fmtHN(newVisit.hn)}</div><div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#22c55e;margin-top:3px">Registered → ${sc(status).label}</div></div>`, '#22c55e', 'fa-user-plus');
+    showToast(`<div style="line-height:1.3"><div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--text-primary)">${fullName(newVisit)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:2px">${fmtHN(newVisit.hn)}</div><div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#22c55e;margin-top:3px">Registered → ${sc(status).label}</div></div>`, '#22c55e', 'fa-user-plus');
   }
 }
 

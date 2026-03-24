@@ -58,11 +58,11 @@
 
   <!-- PIN box -->
   <div style="width:320px">
-    <div style="text-align:center;margin-bottom:12px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.1em;color:#7a9ab8;text-transform:uppercase"><i class="fas fa-lock" style="margin-right:6px;font-size:11px"></i>Enter Staff PIN</div>
+    <div style="text-align:center;margin-bottom:12px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.1em;color:var(--text-sub);text-transform:uppercase"><i class="fas fa-lock" style="margin-right:6px;font-size:11px"></i>Enter Staff PIN</div>
     <div style="position:relative">
       <input id="lock-pin" type="password" maxlength="30" placeholder="••••"
-        style="width:100%;padding:14px 16px;background:rgba(15,26,39,0.7);border:1px solid #1a2840;border-radius:10px;color:#dde6f0;font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:.2em;outline:none;text-align:center"
-        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#1a2840'"
+        style="width:100%;padding:14px 16px;background:rgba(15,26,39,0.7);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:.2em;outline:none;text-align:center"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
         autocomplete="off">
     </div>
     <div id="lock-err" style="color:#ef4444;font-size:12px;font-family:'Sarabun',sans-serif;text-align:center;margin-top:8px;min-height:18px"></div>
@@ -129,20 +129,20 @@
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2.5" width="8" height="8" rx="1.5" stroke="#0ea5e9" stroke-width="1.2"/><path d="M8 6l4.5-4.5M9.5 1.5H12.5v3" stroke="#0ea5e9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div>
-          <div class="pop-lbl" style="color:#dde6f0">New window</div>
+          <div class="pop-lbl" style="color:var(--text-primary)">New window</div>
           <div class="pop-sub">Waiting board · public view</div>
         </div>
-        <span class="pop-badge" style="background:#0c1e3a;color:#0ea5e9">↗</span>
+        <span class="pop-badge" style="background:#0c1e3a;color:var(--accent)">↗</span>
       </div>
       <div class="pop-row" onclick="window.location.href='TOOeasyPUBLICVIEW.html'">
         <div class="pop-ico" style="background:#111c2a">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5" stroke="#6b8ba4" stroke-width="1.2"/><path d="M5 7h4" stroke="#6b8ba4" stroke-width="1.2" stroke-linecap="round"/></svg>
         </div>
         <div>
-          <div class="pop-lbl" style="color:#7a9ab8">This tab</div>
+          <div class="pop-lbl" style="color:var(--text-sub)">This tab</div>
           <div class="pop-sub">Leaves floor view</div>
         </div>
-        <span class="pop-badge" style="background:#111c2a;color:#6b8ba4">→</span>
+        <span class="pop-badge" style="background:#111c2a;color:var(--text-muted)">→</span>
       </div>
     </div>
   </div>
@@ -153,7 +153,7 @@
   <div class="flex items-center gap-3 flex-shrink-0">
     <div class="flex flex-col" style="line-height:1">
       <span id="clock" class="mono"></span>
-      <span id="dateD" style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:#4a6a88;letter-spacing:.02em;margin-top:4px"></span>
+      <span id="dateD" style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-dim);letter-spacing:.02em;margin-top:4px"></span>
     </div>
   </div>
 
@@ -185,11 +185,11 @@
 
 
 <!-- ══════════════ SITUATION BAR ══════════════ -->
-<section id="sit" class="flex items-center justify-center gap-4 px-4 py-3" style="border-bottom:1px solid #1a2840;background:#080e17">
+<section id="sit" class="flex items-center justify-center gap-4 px-4 py-3" style="border-bottom:1px solid var(--border);background:var(--bg-body)">
 
   <!-- Active panel -->
   <div class="sit-tbl-wrap" style="display:flex;align-items:stretch;gap:0">
-    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid #1a2840">
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid var(--border)">
       <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:#4a9070;text-transform:uppercase;margin-bottom:2px">Active</div>
       <div id="cnt-a" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:#86efac;line-height:1">0</div>
     </div>
@@ -198,7 +198,7 @@
 
   <!-- Waiting panel -->
   <div class="sit-tbl-wrap" style="display:flex;align-items:stretch;gap:0">
-    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid #1a2840">
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid var(--border)">
       <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:#5a8ab8;text-transform:uppercase;margin-bottom:2px">Waiting</div>
       <div id="cnt-w" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:#93c5fd;line-height:1">0</div>
     </div>
@@ -215,28 +215,28 @@
   <button class="tab-btn"    data-tab="finalized" onclick="switchTab(this)"><i class="fas fa-check-double" style="font-size:11px;margin-right:6px"></i>FINALIZED <span class="tcnt tc-f" id="tc-f">0</span></button>
   <div class="flex-1"></div>
   <div class="relative mr-1" style="display:flex;align-items:center">
-    <i class="fas fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2" style="font-size:12px;color:#6b8ba4;pointer-events:none"></i>
+    <i class="fas fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2" style="font-size:12px;color:var(--text-muted);pointer-events:none"></i>
     <input id="srch" type="text" placeholder="HN / Name…" oninput="renderCards();document.getElementById('srch-clr').style.display=this.value?'flex':'none'" autocomplete="off"
       class="h-8 pl-8 pr-6 rounded-lg outline-none border"
-      style="background:#080e17;border-color:#1a2840;color:#7a9ab8;width:180px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;transition:border-color .15s,color .15s"
-      onfocus="this.style.borderColor='#0ea5e9';this.style.color='#dde6f0'"
-      onblur="this.style.borderColor='#1a2840';this.style.color=this.value?'#dde6f0':'#6b8ba4'">
-    <button id="srch-clr" onclick="clearSearch()" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#4a6a88;padding:0;line-height:1;font-size:11px" onmouseover="this.style.color='#dde6f0'" onmouseout="this.style.color='#4a6a88'">
+      style="background:var(--bg-body);border-color:var(--border);color:var(--text-sub);width:180px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;transition:border-color .15s,color .15s"
+      onfocus="this.style.borderColor='var(--accent)';this.style.color='var(--text-primary)'"
+      onblur="this.style.borderColor='var(--border)';this.style.color=this.value?'#dde6f0':'#6b8ba4'">
+    <button id="srch-clr" onclick="clearSearch()" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);padding:0;line-height:1;font-size:11px" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-dim)'">
       <i class="fas fa-times"></i>
     </button>
   </div>
 
   <!-- Barcode scan button -->
   <button id="scan-btn" onclick="openScanner()" title="Scan barcode" class="h-8 px-3 rounded-lg border flex items-center justify-center flex-shrink-0 mr-1"
-    style="border-color:#1a2840;color:#7a9ab8;background:transparent;cursor:pointer;transition:border-color .15s,color .15s"
+    style="border-color:var(--border);color:var(--text-sub);background:transparent;cursor:pointer;transition:border-color .15s,color .15s"
     onmouseover="this.style.borderColor='#3a5a7a';this.style.color='#93c5fd'"
-    onmouseout="this.style.borderColor='#1a2840';this.style.color='#7a9ab8'">
+    onmouseout="this.style.borderColor='var(--border)';this.style.color='#7a9ab8'">
     <i class="fas fa-barcode" style="font-size:16px"></i>
   </button>
 
   <!-- Filter dropdown -->
   <div style="position:relative;flex-shrink:0;margin-right:8px;display:flex;align-items:center;gap:4px" id="esi-dd-wrap">
-    <button id="esi-dd-btn" onclick="toggleEsiDD()" class="h-8 px-3 rounded-lg border flex items-center gap-1.5 flex-shrink-0" style="border-color:#1a2840;color:#7a9ab8;background:transparent;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;transition:color .15s,border-color .15s">
+    <button id="esi-dd-btn" onclick="toggleEsiDD()" class="h-8 px-3 rounded-lg border flex items-center gap-1.5 flex-shrink-0" style="border-color:var(--border);color:var(--text-sub);background:transparent;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;transition:color .15s,border-color .15s">
       <i class="fas fa-sliders" style="font-size:12px"></i>
       <span id="esi-dd-label">Filter</span>
       <i class="fas fa-chevron-down" style="font-size:9px"></i>
@@ -244,37 +244,37 @@
     <button id="esi-clr" class="qv-cancel-btn" onclick="setEsiFilter('all')" style="display:none;font-size:12px" title="Clear filter">
       <i class="fas fa-times"></i>
     </button>
-    <div id="esi-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#0d1826;border:1px solid #1a2840;border-radius:10px;min-width:160px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:200;overflow:hidden">
-      <div style="padding:7px 14px 5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4a6a88;border-bottom:1px solid #1a2840">Filter by ESI</div>
+    <div id="esi-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#0d1826;border:1px solid var(--border);border-radius:10px;min-width:160px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:200;overflow:hidden">
+      <div style="padding:7px 14px 5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border)">Filter by ESI</div>
       <div onclick="setEsiFilter('all')" data-esi="all" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
         <span style="width:8px;height:8px;border-radius:50%;background:#dde6f0;display:inline-block;flex-shrink:0"></span>
-        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">All</span>
-        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9"></i>
+        <span style="font-size:13px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-weight:600">All</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:var(--accent)"></i>
       </div>
       <div onclick="setEsiFilter(1)" data-esi="1" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
         <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0"></span>
-        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 1</span>
-        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+        <span style="font-size:13px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-weight:600">ESI 1</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:var(--accent);display:none"></i>
       </div>
       <div onclick="setEsiFilter(2)" data-esi="2" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
         <span style="width:8px;height:8px;border-radius:50%;background:#ec4899;display:inline-block;flex-shrink:0"></span>
-        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 2</span>
-        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+        <span style="font-size:13px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-weight:600">ESI 2</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:var(--accent);display:none"></i>
       </div>
       <div onclick="setEsiFilter(3)" data-esi="3" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
         <span style="width:8px;height:8px;border-radius:50%;background:#eab308;display:inline-block;flex-shrink:0"></span>
-        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 3</span>
-        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+        <span style="font-size:13px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-weight:600">ESI 3</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:var(--accent);display:none"></i>
       </div>
       <div onclick="setEsiFilter(4)" data-esi="4" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
         <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0"></span>
-        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 4</span>
-        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+        <span style="font-size:13px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-weight:600">ESI 4</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:var(--accent);display:none"></i>
       </div>
       <div onclick="setEsiFilter(5)" data-esi="5" class="esi-filter-row" style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='#0f1e30'" onmouseout="this.style.background='transparent'">
         <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;display:inline-block;flex-shrink:0"></span>
-        <span style="font-size:13px;color:#dde6f0;font-family:'Rajdhani',sans-serif;font-weight:600">ESI 5</span>
-        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:#0ea5e9;display:none"></i>
+        <span style="font-size:13px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-weight:600">ESI 5</span>
+        <i class="fas fa-check ml-auto esi-chk" style="font-size:10px;color:var(--accent);display:none"></i>
       </div>
     </div>
   </div>
@@ -292,14 +292,14 @@
 <!-- ══════════════ QUICK VIEW ══════════════ -->
 <div id="bd" onclick="closeQV()"></div>
 <aside id="qv">
-  <div class="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840">
+  <div class="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style="border-color:var(--border)">
     <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff">Status Update</span>
     <button class="qv-cancel-btn" onclick="closeQV()" style="font-size:14px"><i class="fas fa-times"></i></button>
   </div>
-  <div id="qv-pt" class="px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840"></div>
+  <div id="qv-pt" class="px-4 py-3 border-b flex-shrink-0" style="border-color:var(--border)"></div>
   <div id="qv-opts" class="flex-1 overflow-y-auto"></div>
-  <div class="px-4 border-t flex-shrink-0" style="border-color:#1a2840;height:120px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding-bottom:16px">
-    <div id="qv-prev" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4a6a88;min-height:14px;letter-spacing:.04em"></div>
+  <div class="px-4 border-t flex-shrink-0" style="border-color:var(--border);height:120px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding-bottom:16px">
+    <div id="qv-prev" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);min-height:14px;letter-spacing:.04em"></div>
     <button id="confirm-btn" onclick="confirmStatus()" class="no-change">
       Confirm Update
     </button>
@@ -309,8 +309,8 @@
 
 <!-- ══════════════ REGISTRATION PANEL ══════════════ -->
 <aside id="reg">
-  <div class="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style="border-color:#1a2840">
-    <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff"><i class="fas fa-user-plus" style="color:#0ea5e9;margin-right:8px;font-size:12px"></i>Patient Register</span>
+  <div class="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style="border-color:var(--border)">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff"><i class="fas fa-user-plus" style="color:var(--accent);margin-right:8px;font-size:12px"></i>Patient Register</span>
     <button class="qv-cancel-btn" onclick="closeReg()" style="font-size:14px"><i class="fas fa-times"></i></button>
   </div>
   <div id="reg-body" class="flex-1 overflow-y-auto" style="padding:10px 16px">
@@ -324,11 +324,11 @@
       <div style="position:relative">
         <div style="display:flex;gap:0">
           <input id="reg-hn" type="text" class="qv-fi" placeholder="XXX-XXX-XXX" maxlength="11" inputmode="numeric" autocomplete="off" oninput="regHNInput(this)" style="flex:1;border-radius:5px 0 0 5px;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;padding:8px 10px">
-          <button onclick="regScanHN()" style="padding:0 10px;background:#1a2840;color:#6b8ba4;border:1px solid #1a2840;border-left:none;cursor:pointer;font-size:14px;transition:color .15s" onmouseover="this.style.color='#0ea5e9'" onmouseout="this.style.color='#6b8ba4'"><i class="fas fa-barcode"></i></button>
+          <button onclick="regScanHN()" style="padding:0 10px;background:#1a2840;color:var(--text-muted);border:1px solid var(--border);border-left:none;cursor:pointer;font-size:14px;transition:color .15s" onmouseover="this.style.color='#0ea5e9'" onmouseout="this.style.color='var(--text-muted)'"><i class="fas fa-barcode"></i></button>
           <button id="reg-gen-btn" onclick="regGenHN()" style="padding:0 10px;background:#0369a1;color:#fff;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;border-radius:0 5px 5px 0"><i class="fas fa-magic" style="margin-right:4px"></i>GEN</button>
           <button id="reg-hn-clr" class="qv-cancel-btn" onclick="regClearHN()" style="display:none;font-size:14px;padding:0 8px"><i class="fas fa-times"></i></button>
         </div>
-        <div id="reg-hn-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#0d1826;border:1px solid #1a2840;border-top:none;border-radius:0 0 8px 8px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:10;max-height:200px;overflow-y:auto"></div>
+        <div id="reg-hn-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#0d1826;border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;box-shadow:0 12px 32px rgba(0,0,0,.8);z-index:10;max-height:200px;overflow-y:auto"></div>
       </div>
     </div>
 
@@ -337,10 +337,10 @@
       <div style="display:flex;align-items:center;gap:10px">
         <div id="reg-found-esi" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;flex-shrink:0"></div>
         <div style="flex:1;min-width:0">
-          <div id="reg-found-name" style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:#dde6f0"></div>
-          <div id="reg-found-meta" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b8ba4;margin-top:2px"></div>
+          <div id="reg-found-name" style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:var(--text-primary)"></div>
+          <div id="reg-found-meta" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:2px"></div>
         </div>
-        <button onclick="regClearFound()" style="background:none;border:1px solid #1a2840;border-radius:5px;color:#f59e0b;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;padding:3px 8px"><i class="fas fa-pen" style="margin-right:3px;font-size:8px"></i>เปลี่ยน</button>
+        <button onclick="regClearFound()" style="background:none;border:1px solid var(--border);border-radius:5px;color:#f59e0b;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;padding:3px 8px"><i class="fas fa-pen" style="margin-right:3px;font-size:8px"></i>เปลี่ยน</button>
       </div>
     </div>
 
@@ -394,7 +394,7 @@
     </div>
 
     <!-- Section: Triage -->
-    <div class="qv-grp" style="padding:14px 0 8px;border-top:1px solid #1a2840;margin-top:10px">การประเมินแรกรับ</div>
+    <div class="qv-grp" style="padding:14px 0 8px;border-top:1px solid var(--border);margin-top:10px">การประเมินแรกรับ</div>
 
     <!-- Fast Track -->
     <div style="margin-bottom:6px">
@@ -431,7 +431,7 @@
   </div>
 
   <!-- Footer -->
-  <div class="px-4 border-t flex-shrink-0" style="border-color:#1a2840;height:120px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding-bottom:16px">
+  <div class="px-4 border-t flex-shrink-0" style="border-color:var(--border);height:120px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding-bottom:16px">
     <div id="reg-err" style="font-family:'Sarabun',sans-serif;font-size:12px;color:#ef4444;min-height:14px"></div>
     <button id="reg-submit" onclick="submitReg()" style="width:100%;height:36px;border-radius:8px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;background:#0ea5e9;color:#fff;transition:opacity .15s">
       PATIENT REGISTER
@@ -442,7 +442,7 @@
 
 <!-- ══════════════ BARCODE SCANNER ══════════════ -->
 <div id="scan-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:16px">
-  <div style="position:relative;width:320px;border-radius:12px;overflow:hidden;border:1px solid #1a2840">
+  <div style="position:relative;width:320px;border-radius:12px;overflow:hidden;border:1px solid var(--border)">
     <video id="scan-video" autoplay playsinline style="width:100%;display:block;background:#000"></video>
     <!-- scanning line -->
     <div id="scan-line" style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#0ea5e9,transparent);top:50%;animation:scanline 1.8s ease-in-out infinite"></div>
@@ -452,8 +452,8 @@
     <div style="position:absolute;bottom:12px;left:12px;width:20px;height:20px;border-bottom:2px solid #0ea5e9;border-left:2px solid #0ea5e9;border-radius:0 0 0 2px"></div>
     <div style="position:absolute;bottom:12px;right:12px;width:20px;height:20px;border-bottom:2px solid #0ea5e9;border-right:2px solid #0ea5e9;border-radius:0 0 2px 0"></div>
   </div>
-  <div id="scan-status" style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;color:#6b8ba4">SCANNING FOR BARCODE…</div>
-  <button onclick="closeScanner()" style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;color:#6b8ba4;background:transparent;border:1px solid #1a2840;border-radius:6px;padding:6px 18px;cursor:pointer">CANCEL</button>
+  <div id="scan-status" style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--text-muted)">SCANNING FOR BARCODE…</div>
+  <button onclick="closeScanner()" style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--text-muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 18px;cursor:pointer">CANCEL</button>
 </div>
 
 
