@@ -1062,7 +1062,7 @@ function _renderQVEditRows(p){
     </div>
     <div class="qv-edit-row" id="qv-sex-row">
       <span class="qv-edit-lbl">SEX</span>
-      <span class="qv-edit-val" id="qv-sex-display">${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':p.sex||'—'}</span>
+      <span class="qv-edit-val" id="qv-sex-display" style="font-family:'Sarabun',sans-serif">${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':p.sex||'—'}</span>
       <span id="qv-sex-lock" style="color:var(--accent);font-size:10px;display:${sexLocked?'':'none'}"><i class="fas fa-lock"></i></span>
       <button class="qv-edit-btn" id="qv-sex-edit-btn" onclick="toggleQVSexEdit()" style="margin-left:auto"><i class="fas fa-pen-to-square"></i></button>
       <div class="qv-field-wrap" id="qv-sex-field-wrap">
@@ -1083,9 +1083,9 @@ function _renderQVEditRows(p){
       <span class="qv-edit-val" id="qv-name-display" style="font-family:'Sarabun',sans-serif">${[p.firstName,p.lastName].filter(Boolean).join(' ')}</span>
       <button class="qv-edit-btn" id="qv-name-edit-btn" onclick="toggleQVNameEdit()" style="margin-left:auto"><i class="fas fa-pen-to-square"></i></button>
       <div class="qv-field-wrap" id="qv-name-field-wrap">
-        <input class="qv-fi" id="qv-name-first" type="text" value="${p.firstName||''}" placeholder="ชื่อจริง" autocomplete="off" style="flex:1"
+        <input class="qv-fi" id="qv-name-first" type="text" value="${p.firstName||''}" placeholder="ชื่อจริง" autocomplete="off" style="flex:1;font-family:'Sarabun',sans-serif"
           onkeydown="if(event.key==='Enter')saveQVName();if(event.key==='Escape')cancelQVNameEdit()">
-        <input class="qv-fi" id="qv-name-last" type="text" value="${p.lastName||''}" placeholder="นามสกุล" autocomplete="off" style="flex:1"
+        <input class="qv-fi" id="qv-name-last" type="text" value="${p.lastName||''}" placeholder="นามสกุล" autocomplete="off" style="flex:1;font-family:'Sarabun',sans-serif"
           onkeydown="if(event.key==='Enter')saveQVName();if(event.key==='Escape')cancelQVNameEdit()">
         <button class="qv-save-btn" onclick="saveQVName()">Save</button>
         <button class="qv-cancel-btn" onclick="cancelQVNameEdit()"><i class="fas fa-times"></i></button>
