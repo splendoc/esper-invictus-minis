@@ -1760,7 +1760,10 @@ function _renderQVEditRows(p){
   }
 
   const a = p.age||{y:0,m:0,d:0};
-  const titleOpts = TITLE_OPTIONS.map(t=>`<option value="${t}"${t===p.title?' selected':''}>${t||'— ไม่ระบุ'}</option>`).join('');
+  const titleOpts = TITLE_OPTIONS.map(t=>`<option value="${t}"${t===p.title?' selected':''}>${t||'— ไม่ระบุ'}</option>`).join('')
+    + `<option value="other"${!p.title||TITLE_OPTIONS.includes(p.title)?'':' selected'}>อื่นๆ</option>`;
+  const isCustomTitle = p.title && !TITLE_OPTIONS.includes(p.title);
+  const sexLocked = M_TITLES.includes(p.title)||F_TITLES.includes(p.title);
 
   return `
     <div class="qv-edit-row" id="qv-title-row">
@@ -1769,11 +1772,30 @@ function _renderQVEditRows(p){
       <button class="qv-edit-btn" id="qv-title-edit-btn" onclick="toggleQVTitleEdit()" style="margin-left:auto"><i class="fas fa-pen-to-square"></i></button>
       <div class="qv-field-wrap" id="qv-title-field-wrap">
         <select class="qv-fi" id="qv-title-select" style="flex:1;font-family:'Sarabun',sans-serif;cursor:pointer"
-          onkeydown="if(event.key==='Escape')cancelQVTitleEdit()">
+          onchange="qvTitleChanged()" onkeydown="if(event.key==='Escape')cancelQVTitleEdit()">
           ${titleOpts}
         </select>
+        <input type="text" class="qv-fi" id="qv-title-other" placeholder="ระบุคำนำหน้า" autocomplete="off" style="display:${isCustomTitle?'':'none'};flex:1;font-family:'Sarabun',sans-serif" value="${isCustomTitle?p.title:''}">
         <button class="qv-save-btn" onclick="saveQVTitle()">Save</button>
         <button class="qv-cancel-btn" onclick="cancelQVTitleEdit()"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="qv-edit-row" id="qv-sex-row">
+      <span class="qv-edit-lbl">SEX</span>
+      <span class="qv-edit-val" id="qv-sex-display">${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':p.sex||'—'}</span>
+      <span id="qv-sex-lock" style="color:#0ea5e9;font-size:10px;display:${sexLocked?'':'none'}"><i class="fas fa-lock"></i></span>
+      <button class="qv-edit-btn" id="qv-sex-edit-btn" onclick="toggleQVSexEdit()" style="margin-left:auto"><i class="fas fa-pen-to-square"></i></button>
+      <div class="qv-field-wrap" id="qv-sex-field-wrap">
+        <select class="qv-fi" id="qv-sex-select" style="flex:1;font-family:'Sarabun',sans-serif;cursor:pointer"
+          onkeydown="if(event.key==='Escape')cancelQVSexEdit()">
+          <option value="">-- เลือก --</option>
+          <option value="M"${p.sex==='M'?' selected':''}>ชาย</option>
+          <option value="F"${p.sex==='F'?' selected':''}>หญิง</option>
+          <option value="X"${p.sex==='X'?' selected':''}>X</option>
+        </select>
+        <button class="qv-cancel-btn" id="qv-sex-clr" onclick="qvSexClear()" style="display:${sexLocked?'':'none'};font-size:14px"><i class="fas fa-times"></i></button>
+        <button class="qv-save-btn" onclick="saveQVSex()">Save</button>
+        <button class="qv-cancel-btn" onclick="cancelQVSexEdit()"><i class="fas fa-times"></i></button>
       </div>
     </div>
     <div class="qv-edit-row" id="qv-name-row">
@@ -1839,7 +1861,9 @@ function toggleQVEditMode(){
 // ══════════════════════════════════════════
 // QV INLINE EDIT — TITLE
 // ══════════════════════════════════════════
-const TITLE_OPTIONS=['','นาย','นาง','นางสาว','เด็กชาย','เด็กหญิง','ด.ช.','ด.ญ.','พระภิกษุ','แม่ชี'];
+const TITLE_OPTIONS=['','นาย','นาง','นางสาว','เด็กชาย','เด็กหญิง','ด.ช.','ด.ญ.','Mr.','Ms.','Mrs.','พระภิกษุ','แม่ชี'];
+const M_TITLES=['นาย','เด็กชาย','ด.ช.','พระภิกษุ','Mr.'];
+const F_TITLES=['นาง','นางสาว','เด็กหญิง','ด.ญ.','แม่ชี','Ms.','Mrs.'];
 function toggleQVTitleEdit(){
   const wrap=document.getElementById('qv-title-field-wrap');
   const disp=document.getElementById('qv-title-display');
@@ -1849,7 +1873,12 @@ function toggleQVTitleEdit(){
   btn.style.display =open?'none':'';
   if(open){
     const p=patients.find(x=>x.id===qvId);
-    if(p) document.getElementById('qv-title-select').value=p.title||'';
+    if(p){
+      const isCustom = p.title && !TITLE_OPTIONS.includes(p.title);
+      document.getElementById('qv-title-select').value = isCustom ? 'other' : (p.title||'');
+      document.getElementById('qv-title-other').style.display = isCustom ? '' : 'none';
+      document.getElementById('qv-title-other').value = isCustom ? p.title : '';
+    }
   }
 }
 function cancelQVTitleEdit(){
@@ -1858,19 +1887,115 @@ function cancelQVTitleEdit(){
   document.getElementById('qv-title-display').style.display='';
   document.getElementById('qv-title-edit-btn').style.display='';
 }
+// Title changed → auto-select sex
+function qvTitleChanged(){
+  const sel=document.getElementById('qv-title-select');
+  const otherInput=document.getElementById('qv-title-other');
+  if(sel.value==='other'){
+    otherInput.style.display='';
+    otherInput.focus();
+  } else {
+    otherInput.style.display='none';
+    otherInput.value='';
+  }
+  // Auto-set sex in the sex select (if sex edit is open)
+  const sexSel=document.getElementById('qv-sex-select');
+  const sexClr=document.getElementById('qv-sex-clr');
+  const sexLock=document.getElementById('qv-sex-lock');
+  if(M_TITLES.includes(sel.value)){
+    sexSel.value='M'; sexSel.disabled=true; sexClr.style.display=''; sexLock.style.display='';
+  } else if(F_TITLES.includes(sel.value)){
+    sexSel.value='F'; sexSel.disabled=true; sexClr.style.display=''; sexLock.style.display='';
+  } else {
+    sexSel.disabled=false; sexClr.style.display='none'; sexLock.style.display='none';
+  }
+}
+function qvGetTitle(){
+  const sel=document.getElementById('qv-title-select');
+  if(sel.value==='other') return document.getElementById('qv-title-other').value.trim();
+  return sel.value;
+}
 function saveQVTitle(){
   const p=patients.find(x=>x.id===qvId);
   if(!p) return;
-  p.title=document.getElementById('qv-title-select').value;
-  const display=p.title||'— none';
-  document.getElementById('qv-title-display').textContent=display;
-  if(!p.title) document.getElementById('qv-title-display').className='qv-edit-val empty';
-  else document.getElementById('qv-title-display').className='qv-edit-val';
+  const newTitle=qvGetTitle();
+  p.title=newTitle;
+
+  // Auto-update sex if title implies it
+  if(M_TITLES.includes(newTitle)){ p.sex='M'; }
+  else if(F_TITLES.includes(newTitle)){ p.sex='F'; }
+
+  // Update displays
+  document.getElementById('qv-title-display').textContent=p.title||'— none';
+  document.getElementById('qv-title-display').className=p.title?'qv-edit-val':'qv-edit-val empty';
+  document.getElementById('qv-sex-display').textContent=p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':p.sex||'—';
+  const sexLocked=M_TITLES.includes(p.title)||F_TITLES.includes(p.title);
+  document.getElementById('qv-sex-lock').style.display=sexLocked?'':'none';
+
   const hdrName=document.querySelector('#qv-pt div[style*="font-size:15px"]');
   if(hdrName) hdrName.textContent=fullName(p);
   cancelQVTitleEdit();
   renderCards();
+  updatePatientInfo(p.patientId, { title: p.title, sex: p.sex });
   showToast('Title → '+(p.title||'none'),'#0ea5e9','fa-user');
+}
+
+// ══════════════════════════════════════════
+// QV INLINE EDIT — SEX
+// ══════════════════════════════════════════
+function toggleQVSexEdit(){
+  const wrap=document.getElementById('qv-sex-field-wrap');
+  const disp=document.getElementById('qv-sex-display');
+  const btn =document.getElementById('qv-sex-edit-btn');
+  const lock=document.getElementById('qv-sex-lock');
+  const open=wrap.classList.toggle('open');
+  disp.style.display=open?'none':'';
+  btn.style.display =open?'none':'';
+  lock.style.display=open?'none':lock.style.display;
+  if(open){
+    const p=patients.find(x=>x.id===qvId);
+    if(p){
+      const sexSel=document.getElementById('qv-sex-select');
+      sexSel.value=p.sex||'';
+      const locked=M_TITLES.includes(p.title)||F_TITLES.includes(p.title);
+      sexSel.disabled=locked;
+      document.getElementById('qv-sex-clr').style.display=locked?'':'none';
+    }
+  }
+}
+function cancelQVSexEdit(){
+  const wrap=document.getElementById('qv-sex-field-wrap');
+  wrap.classList.remove('open');
+  document.getElementById('qv-sex-display').style.display='';
+  document.getElementById('qv-sex-edit-btn').style.display='';
+  const p=patients.find(x=>x.id===qvId);
+  if(p){
+    const locked=M_TITLES.includes(p.title)||F_TITLES.includes(p.title);
+    document.getElementById('qv-sex-lock').style.display=locked?'':'none';
+  }
+}
+function qvSexClear(){
+  document.getElementById('qv-sex-select').value='';
+  document.getElementById('qv-sex-select').disabled=false;
+  document.getElementById('qv-sex-clr').style.display='none';
+  document.getElementById('qv-sex-lock').style.display='none';
+  // Also clear title since sex is now unlocked
+  const p=patients.find(x=>x.id===qvId);
+  if(p){ p.title=''; }
+  document.getElementById('qv-title-display').textContent='— none';
+  document.getElementById('qv-title-display').className='qv-edit-val empty';
+}
+function saveQVSex(){
+  const p=patients.find(x=>x.id===qvId);
+  if(!p) return;
+  const newSex=document.getElementById('qv-sex-select').value;
+  if(!newSex){ showToast('กรุณาเลือกเพศ','#ef4444','fa-exclamation-triangle'); return; }
+  p.sex=newSex;
+  document.getElementById('qv-sex-display').textContent=p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':p.sex;
+  cancelQVSexEdit();
+  renderCards();
+  updatePatientInfo(p.patientId, { sex: p.sex });
+  showToast('Sex → '+(p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':p.sex),'#0ea5e9','fa-venus-mars');
 }
 
 // ══════════════════════════════════════════
@@ -2410,11 +2535,9 @@ function regTitleChange(){
     other.value='';
   }
   // Auto-select sex based on title and lock
-  const mTitles=['นาย','เด็กชาย','ด.ช.','พระภิกษุ','Mr.'];
-  const fTitles=['นาง','นางสาว','เด็กหญิง','ด.ญ.','แม่ชี','Ms.','Mrs.'];
   const sexClr=document.getElementById('reg-sex-clr');
-  if(mTitles.includes(sel.value)){ sexEl.value='M'; sexEl.disabled=true; sexClr.style.display=''; }
-  else if(fTitles.includes(sel.value)){ sexEl.value='F'; sexEl.disabled=true; sexClr.style.display=''; }
+  if(M_TITLES.includes(sel.value)){ sexEl.value='M'; sexEl.disabled=true; sexClr.style.display=''; }
+  else if(F_TITLES.includes(sel.value)){ sexEl.value='F'; sexEl.disabled=true; sexClr.style.display=''; }
   else { sexEl.value=''; sexEl.disabled=false; sexClr.style.display='none'; }
 }
 
