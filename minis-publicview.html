@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Mask name for public display (PDPA)
     function maskStr(s, show) { return s.length<=show ? s : s.substring(0,show)+'*'.repeat(s.length-show); }
-    function maskedName(p) { return `${maskStr(p.firstName,3)} ${maskStr(p.lastName,3)}`; }
+    function maskedName(p) { return `${maskStr(p.firstName,3)}<span style="display:inline-block;width:16px"></span>${maskStr(p.lastName,3)}`; }
 
     // Format age — show ONE unit in Thai
     function fmtAgePub(a) {
@@ -450,13 +450,13 @@ document.addEventListener('DOMContentLoaded', function () {
                  style="background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--esi-${patient.esi}-c)">
                 <div class="esi-${patient.esi} rounded-lg flex-shrink-0 flex flex-col items-center justify-center mr-3 text-center gap-1" style="width:76px;height:76px">
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;letter-spacing:.08em;line-height:1">**${patient.hnLast3}</div>
-                    <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;margin-top:2px">ESI ${patient.esi}</div>
+                    <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;opacity:.85;margin-top:2px">ESI ${patient.esi}</div>
                 </div>
-                <div class="flex-shrink-0 mr-3 flex flex-col items-center justify-center" style="width:90px;height:76px;border-right:1px solid var(--border);padding-right:12px">
+                <div class="flex-shrink-0 mr-3 flex flex-col items-center justify-center" style="width:100px;height:76px;border-right:1px solid var(--border);padding-right:12px">
                     <div class="esi-${patient.esi} rounded-lg px-2 py-1 mb-1 text-center w-full">
-                        <div style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;line-height:1.2">${label.th}</div>
+                        <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;line-height:1.2">${label.th}</div>
                     </div>
-                    <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em" class="pv-sub-text">${label.en}</div>
+                    <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em" class="pv-sub-text">${label.en}</div>
                 </div>
                 <div class="flex-grow min-w-0 pl-1">
                     <p class="font-bold text-2xl truncate pv-text" style="font-family:'Sarabun',sans-serif">${maskedName(patient)}</p>
