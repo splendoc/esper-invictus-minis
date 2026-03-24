@@ -111,10 +111,42 @@ body{font-family:'Sarabun',sans-serif;background:#080e17;color:#dde6f0;line-heig
 </head>
 <body>
 
-<div class="survey-hdr">
-  <h1>ESPER CROWDING INDEX SURVEY</h1>
-  <div class="sub">BBT EMERGENCY DEPARTMENT · STAFF WORKLOAD CALIBRATION</div>
-</div>
+<header class="survey-hdr" style="display:flex;align-items:center;padding:0 20px;height:64px;gap:14px">
+  <!-- Logo -->
+  <svg width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+    <circle cx="40" cy="40" r="38" stroke="url(#lg1)" stroke-width="2" fill="none" opacity="0.7"/>
+    <circle cx="40" cy="40" r="28" fill="url(#lg2)" opacity="0.92"/>
+    <rect x="36" y="25" width="8" height="30" fill="white" rx="2"/>
+    <rect x="25" y="36" width="30" height="8" fill="white" rx="2"/>
+    <circle cx="40" cy="18" r="3" fill="url(#lg3)" opacity="0.85"/>
+    <circle cx="62" cy="40" r="2.5" fill="url(#lg3)" opacity="0.65"/>
+    <circle cx="40" cy="62" r="2" fill="url(#lg3)" opacity="0.45"/>
+    <circle cx="18" cy="40" r="2.5" fill="url(#lg3)" opacity="0.65"/>
+    <defs>
+      <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FCD34D"/><stop offset="33%" stop-color="#F59E0B"/><stop offset="66%" stop-color="#D97706"/><stop offset="100%" stop-color="#B45309"/>
+      </linearGradient>
+      <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#F59E0B"/><stop offset="50%" stop-color="#D97706"/><stop offset="100%" stop-color="#B45309"/>
+      </linearGradient>
+      <linearGradient id="lg3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#F59E0B"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <!-- Brand -->
+  <div style="text-align:left">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:.06em;line-height:1;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">ESPER INVICTUS</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:#3a6a8a;letter-spacing:.16em;line-height:1;margin-top:3px;text-transform:uppercase">Survey · Minis</div>
+  </div>
+  <!-- Divider -->
+  <div style="width:1px;height:28px;background:#1a2840;flex-shrink:0"></div>
+  <!-- Survey title -->
+  <div style="flex:1">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.08em;color:#dde6f0">ESPER CROWDING INDEX SURVEY</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#4a6a88;letter-spacing:.1em;margin-top:2px">BBT EMERGENCY DEPARTMENT · STAFF WORKLOAD CALIBRATION</div>
+  </div>
+</header>
 <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
 
 <div class="section-tabs" id="tabs"></div>
