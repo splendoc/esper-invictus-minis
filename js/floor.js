@@ -657,14 +657,16 @@ function renderSit(){
 function goToPatient(id, tab){
   const targetBtn=document.querySelector(`.tab-btn[data-tab="${tab}"]`);
   if(targetBtn && activeTab!==tab) switchTab(targetBtn);
-  requestAnimationFrame(()=>{
+  setTimeout(()=>{
     const card=document.getElementById('card-'+id);
     if(card){
       card.scrollIntoView({behavior:'smooth',block:'center'});
       card.classList.add('card-highlight');
       setTimeout(()=>card.classList.remove('card-highlight'),3500);
+      // Open QV for this patient
+      openQV(id);
     }
-  });
+  }, 100);
 }
 
 // ══════════════════════════════════════════
