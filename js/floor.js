@@ -498,7 +498,7 @@ function setEsiFilter(val){
     const chk=row.querySelector('.esi-chk');
     const isActive = row.dataset.esi===String(val);
     chk.style.display=isActive?'inline':'none';
-    row.querySelector('span:nth-child(2)').style.color=isActive?'#dde6f0':'#7a9ab8';
+    row.querySelector('span:nth-child(2)').style.color=isActive?'var(--text-primary)':'var(--text-sub)';
   });
   const btn = document.getElementById('esi-dd-btn');
   const lbl = document.getElementById('esi-dd-label');
@@ -662,7 +662,7 @@ function buildCard(p){
   const isWaiting = p.tab === 'waiting';
   const timeMin   = isWaiting ? p.waitMin : p.stayMin;
   const timeLabel = isWaiting ? `Wait ${fm(timeMin)}` : `Stay ${fm(timeMin)}`;
-  let   timeColor = '#dde6f0';
+  let   timeColor = 'var(--text-primary)';
   if(isWaiting){
     if(timeMin >= ESI_RED[p.esi])       timeColor = '#ef4444';
     else if(timeMin >= ESI_AMB[p.esi])  timeColor = '#f59e0b';
@@ -809,7 +809,7 @@ function openQV(id,evt){
       const itemStyle = isResus ? 'border-left:2px solid rgba(239,68,68,0.3)' : '';
       html+=`<div class="qv-item${isSel?' sel':''}" data-s="${s}" data-g="${grp.g}" onclick="selStatus('${s}','${grp.g}')" style="${itemStyle}">
         <span class="qv-dot" style="background:${sg.dot}"></span>
-        <span style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:${isSel?600:400};color:${isResus?'#fca5a5':isSel?'#dde6f0':'#7a9ab8'}">${sg.label}</span>
+        <span style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:${isSel?600:400};color:${isResus?'#fca5a5':isSel?'var(--text-primary)':'var(--text-sub)'}">${sg.label}</span>
         ${isSel?'<i class="fas fa-check ml-auto" style="font-size:14px;color:var(--accent)"></i>':''}
       </div>`;
     });
@@ -830,7 +830,7 @@ function selStatus(s,g){
     const isSel=el.dataset.s===s && el.dataset.g===g;
     el.classList.toggle('sel',isSel);
     const lbl=el.querySelector('span:nth-child(2)');
-    if(lbl){ lbl.style.color=isSel?'#dde6f0':'#7a9ab8'; lbl.style.fontWeight=isSel?600:400; }
+    if(lbl){ lbl.style.color=isSel?'var(--text-primary)':'var(--text-sub)'; lbl.style.fontWeight=isSel?600:400; }
     const chk=el.querySelector('.fa-check');
     if(isSel&&!chk){ const i=document.createElement('i'); i.className='fas fa-check ml-auto'; i.style.cssText='font-size:14px;color:var(--accent)'; el.appendChild(i); }
     if(!isSel&&chk) chk.remove();
@@ -1480,7 +1480,7 @@ function openFinalizedQV(id){
       </div>
       <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <span class="sp ${cfg.pill}">${cfg.label}</span>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3a5a7a;display:flex;align-items:center;gap:4px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:4px">
           <i class="fas fa-lock" style="font-size:9px"></i> Finalized
         </div>
         <button class="qv-toggle-edit" onclick="toggleQVEditMode()"><i class="fas fa-pen" style="font-size:9px"></i> Edit</button>
@@ -1550,7 +1550,7 @@ async function openScanner(){
 
     _scanDetector = new BarcodeDetector({formats:['code_128','code_39','ean_13','ean_8','qr_code','data_matrix']});
     document.getElementById('scan-status').textContent = 'SCANNING FOR BARCODE…';
-    document.getElementById('scan-status').style.color = '#6b8ba4';
+    document.getElementById('scan-status').style.color = 'var(--text-muted)';
     _scanLoop();
   } catch(e) {
     document.getElementById('scan-status').textContent = 'Camera access denied — use a USB scanner instead';
@@ -1569,8 +1569,8 @@ async function _scanLoop(){
         closeScanner();
         const srch = document.getElementById('srch');
         srch.value = val;
-        srch.style.borderColor = '#0ea5e9';
-        srch.style.color = '#dde6f0';
+        srch.style.borderColor = 'var(--accent)';
+        srch.style.color = 'var(--text-primary)';
         renderCards();
         showToast(`Scanned: ${val}`, '#0ea5e9', 'fa-barcode');
         return;
