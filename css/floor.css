@@ -74,26 +74,26 @@
 
 /* ── Light Theme ── */
 :root:not(.dark) {
-  --bg-body:       #dce4ed;
-  --bg-card:       #f5f7fa;
-  --bg-panel:      #f0f3f7;
-  --bg-input:      #e8edf4;
-  --bg-elevated:   #eef2f7;
-  --bg-sit:        #e2e8f0;
-  --bg-hn-pfx:     #e8eef4;
+  --bg-body:       #e2eaf2;
+  --bg-card:       #f9fafb;
+  --bg-panel:      #f9fafb;
+  --bg-input:      #f9fafb;
+  --bg-elevated:   #ffffff;
+  --bg-sit:        #edf1f7;
+  --bg-hn-pfx:     #edf1f7;
 
-  --border:        #d0dbe8;
-  --border-subtle: #e2e8f0;
-  --border-sit:    #d0dbe8;
-  --border-card:   #e5eaf0;
+  --border:        #d1d5db;
+  --border-subtle: #e5e7eb;
+  --border-sit:    #d1d5db;
+  --border-card:   #e5e7eb;
 
-  --text-primary:  #0c2340;
-  --text-sub:      #4a6a88;
-  --text-muted:    #6b8ba4;
-  --text-dim:      #8a9ab0;
-  --text-detail:   #6b8ba4;
-  --text-faint:    #a0b0c0;
-  --text-clock:    #0c2340;
+  --text-primary:  #1e3a5f;
+  --text-sub:      #3d5a80;
+  --text-muted:    #5a7a9a;
+  --text-dim:      #7a8fa5;
+  --text-detail:   #5a7a9a;
+  --text-faint:    #9aacbe;
+  --text-clock:    #1e3a5f;
 
   --accent:        #0284c7;
   --accent-hover:  #0369a1;
