@@ -74,12 +74,12 @@
 
 /* ── Light Theme ── */
 :root:not(.dark) {
-  --bg-body:       #edf2f7;
-  --bg-card:       #f8fafc;
-  --bg-panel:      #ffffff;
-  --bg-input:      #f1f5f9;
-  --bg-elevated:   #ffffff;
-  --bg-sit:        #f0f4f8;
+  --bg-body:       #dce4ed;
+  --bg-card:       #f5f7fa;
+  --bg-panel:      #f0f3f7;
+  --bg-input:      #e8edf4;
+  --bg-elevated:   #eef2f7;
+  --bg-sit:        #e2e8f0;
   --bg-hn-pfx:     #e8eef4;
 
   --border:        #d0dbe8;
