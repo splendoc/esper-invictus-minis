@@ -531,11 +531,19 @@ function toggleTheme(){
   const isDark=!document.documentElement.classList.contains('dark');
   document.documentElement.classList.toggle('dark',isDark);
   localStorage.setItem('darkMode',isDark);
+  updateHospIcon(isDark);
+}
+function updateHospIcon(isDark){
+  const cross=document.getElementById('hosp-cross');
+  const rect=document.getElementById('hosp-rect');
+  if(cross) cross.setAttribute('stroke', isDark ? '#60a5fa' : '#1e3a5f');
+  if(rect)  rect.setAttribute('stroke', isDark ? '#1e4a80' : '#94a3b8');
 }
 (function(){
   const saved=localStorage.getItem('darkMode');
   const isDark=saved===null?true:saved==='true';
   document.documentElement.classList.toggle('dark',isDark);
+  document.addEventListener('DOMContentLoaded',()=>updateHospIcon(isDark));
 })();
 
 // ══════════════════════════════════════════

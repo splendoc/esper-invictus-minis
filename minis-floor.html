@@ -168,12 +168,10 @@
 
   <!-- Hospital identity (cross icon = theme toggle) -->
   <div class="hosp-badge">
-    <div class="hosp-icon" onclick="toggleTheme()" style="cursor:pointer;transition:border-color .15s,background .15s" title="Toggle theme"
-      onmouseenter="this.style.borderColor='var(--scrollbar-hover)';this.style.background='linear-gradient(135deg,#0d2a50,#0f3060)'"
-      onmouseleave="this.style.borderColor='#1a3a60';this.style.background='linear-gradient(135deg,#0a1e38,#0d2a50)'">
+    <div class="hosp-icon" onclick="toggleTheme()" style="cursor:pointer;transition:border-color .15s,background .15s" title="Toggle theme">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 2v12M2 8h12" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
-        <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="#1e4a80" stroke-width="1"/>
+        <path id="hosp-cross" d="M8 2v12M2 8h12" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
+        <rect id="hosp-rect" x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="#1e4a80" stroke-width="1"/>
       </svg>
     </div>
     <div>
