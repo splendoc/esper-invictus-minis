@@ -536,8 +536,9 @@ function toggleTheme(){
 function updateHospIcon(isDark){
   const cross=document.getElementById('hosp-cross');
   const rect=document.getElementById('hosp-rect');
-  if(cross) cross.setAttribute('stroke', isDark ? '#60a5fa' : '#1e3a5f');
-  if(rect)  rect.setAttribute('stroke', isDark ? '#1e4a80' : '#94a3b8');
+  // Show opposite theme colors as hint of what you'll switch to
+  if(cross) cross.setAttribute('stroke', isDark ? '#1e3a5f' : '#60a5fa');
+  if(rect)  rect.setAttribute('stroke', isDark ? '#94a3b8' : '#1e4a80');
 }
 (function(){
   const saved=localStorage.getItem('darkMode');

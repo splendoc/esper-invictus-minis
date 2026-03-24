@@ -168,7 +168,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .sf-chip.on{background:var(--accent-bg);border-color:var(--accent);color:var(--text-primary)}
 .sf-cnt{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:1px 5px;border-radius:8px;background:var(--border);color:var(--text-muted)}
 .sf-chip.on .sf-cnt{background:#0ea5e920;color:var(--accent-hover)}
-:root:not(.dark) .sf-chip{color:#60646c}
+:root:not(.dark) .sf-chip{color:#4a4d55}
 #cards{flex:1 1 0;overflow-y:auto;overflow-x:hidden;padding:8px 12px 16px;display:flex;flex-direction:column;gap:6px;min-height:0}
 #cards::-webkit-scrollbar{width:4px}
 #cards::-webkit-scrollbar-track{background:transparent}
