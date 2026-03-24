@@ -74,7 +74,7 @@
 
 /* ── Light Theme ── */
 :root:not(.dark) {
-  --bg-body:       #e2eaf2;
+  --bg-body:       #e9eff5;
   --bg-card:       #f9fafb;
   --bg-panel:      #f9fafb;
   --bg-input:      #f9fafb;
@@ -194,6 +194,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .sp-notfound{background:#3b2500;color:#fcd34d;border:1px solid #92400e}
 .sp-default {background:#111c2a;color:#64748b;border:1px solid var(--border)}
 
+/* Status pills — light theme overrides */
+:root:not(.dark) .sp-resus   {background:#fef2f2;color:#b91c1c;border-color:#fca5a5}
+:root:not(.dark) .sp-active  {background:#f0fdf4;color:#166534;border-color:#86efac}
+:root:not(.dark) .sp-observe {background:#fefce8;color:#854d0e;border-color:#fde68a}
+:root:not(.dark) .sp-lab     {background:#eef2ff;color:#3730a3;border-color:#a5b4fc}
+:root:not(.dark) .sp-imaging {background:#eef2ff;color:#3730a3;border-color:#a5b4fc}
+:root:not(.dark) .sp-waiting {background:#eff6ff;color:#1e40af;border-color:#93c5fd}
+:root:not(.dark) .sp-dispo   {background:#f5f3ff;color:#5b21b6;border-color:#c4b5fd}
+:root:not(.dark) .sp-notfound{background:#fefce8;color:#92400e;border-color:#fcd34d}
+:root:not(.dark) .sp-default {background:#f3f4f6;color:#4b5563;border-color:#d1d5db}
+
 /* Cards */
 .pcard{background:var(--bg-card);border-radius:7px;overflow:visible;transition:box-shadow .15s,background .15s;flex-shrink:0}
 .pcard:hover{background:var(--card-hover-bg);box-shadow:0 0 0 1px var(--card-hover-ring),0 8px 32px rgba(0,0,0,.6)}
@@ -221,6 +232,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 .tc-a{background:#052e16;color:#86efac}
 .tc-d{background:#1a0f40;color:#c4b5fd}
 .tc-f{background:#111c2a;color:var(--text-sub)}
+:root:not(.dark) .tc-w{background:#dbeafe;color:#1e40af}
+:root:not(.dark) .tc-a{background:#dcfce7;color:#166534}
+:root:not(.dark) .tc-d{background:#ede9fe;color:#5b21b6}
+:root:not(.dark) .tc-f{background:#f3f4f6;color:#4b5563}
 
 /* Quick View */
 #qv{position:fixed;top:0;right:0;width:390px;bottom:0;background:var(--bg-panel);border-left:1px solid var(--border);z-index:100;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
