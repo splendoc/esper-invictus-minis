@@ -1764,7 +1764,7 @@ function regGenHN(){
   const hnEl=document.getElementById('reg-hn');
   hnEl.value='GEN'+String(_regHnCounter).padStart(6,'0');
   hnEl.readOnly=true;
-  hnEl.style.color=document.documentElement.classList.contains('dark')?'#86efac':'#15803d';
+  hnEl.style.color=document.documentElement.classList.contains('dark')?'#86efac':'#16a34a';
   document.getElementById('reg-hn-results').style.display='none';
   document.getElementById('reg-gen-btn').style.display='none';
   document.getElementById('reg-hn-clr').style.display='';

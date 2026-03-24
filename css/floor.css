@@ -410,8 +410,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0
 }
-.hosp-name{font-size:14px;font-weight:700;color:var(--hosp-name);font-family:'Rajdhani',sans-serif;letter-spacing:.12em;line-height:1.1}
-.hosp-dept{font-size:12px;font-weight:700;color:var(--hosp-dept);font-family:'Rajdhani',sans-serif;letter-spacing:.14em;line-height:1.4;text-transform:uppercase}
+.hosp-name{font-size:16px;font-weight:700;color:var(--hosp-name);font-family:'Rajdhani',sans-serif;letter-spacing:.12em;line-height:1.1}
+.hosp-dept{font-size:13px;font-weight:700;color:var(--hosp-dept);font-family:'Rajdhani',sans-serif;letter-spacing:.14em;line-height:1.4;text-transform:uppercase}
 
 /* Brand text */
 .brand-name{
