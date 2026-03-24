@@ -355,19 +355,19 @@ document.addEventListener('DOMContentLoaded', function () {
     function sc(s) { return SC[s] || {dot:'#6b8ba4', pub:s}; }
 
     const LEVELS = [
-        { max:2.06,     bdr:'#16a34a', bgl:'#dcfce7', bgd:'rgba(5,46,22,0.5)',   icon:'✓',  pill:'ปกติ',         pillEn:'Normal',
+        { max:2.06,     bdr:'#16a34a', bgl:'#dcfce7', bgd:'rgba(5,80,30,0.35)',  icon:'✓',  pill:'ปกติ',         pillEn:'Normal',
           pillDark:{bg:'#16a34a',c:'#fff',bdr:'#16a34a'}, pillLight:{bg:'#dcfce7',c:'#15803d',bdr:'#16a34a'}, blink:false,
           th:'ห้องฉุกเฉินพร้อมให้บริการ',                                         mult:1.0 },
-        { max:2.34,     bdr:'#d97706', bgl:'#fef3c7', bgd:'rgba(28,20,0,0.65)',  icon:'ℹ️', pill:'ปานกลาง',      pillEn:'Medium',
+        { max:2.34,     bdr:'#d97706', bgl:'#fef3c7', bgd:'rgba(80,50,0,0.35)',  icon:'ℹ️', pill:'ปานกลาง',      pillEn:'Medium',
           pillDark:{bg:'#d97706',c:'#fff',bdr:'#d97706'}, pillLight:{bg:'#fef3c7',c:'#92400e',bdr:'#d97706'}, blink:true,
           th:'ห้องฉุกเฉินมีผู้ป่วยในระดับปานกลาง',                                mult:1.3 },
-        { max:3.50,     bdr:'#ea580c', bgl:'#ffedd5', bgd:'rgba(28,10,0,0.65)',  icon:'⚠️', pill:'หนาแน่น',      pillEn:'Crowded',
+        { max:3.50,     bdr:'#ea580c', bgl:'#ffedd5', bgd:'rgba(90,30,0,0.35)',  icon:'⚠️', pill:'หนาแน่น',      pillEn:'Crowded',
           pillDark:{bg:'#ea580c',c:'#fff',bdr:'#ea580c'}, pillLight:{bg:'#ffedd5',c:'#c2410c',bdr:'#ea580c'}, blink:true,
           th:'ห้องฉุกเฉินมีผู้ป่วยค่อนข้างมาก  เวลารออาจนานกว่าปกติ',             mult:1.6 },
-        { max:5.00,     bdr:'#dc2626', bgl:'#fee2e2', bgd:'rgba(28,0,0,0.65)',   icon:'⚠️', pill:'หนาแน่นมาก',   pillEn:'Very Crowded',
+        { max:5.00,     bdr:'#dc2626', bgl:'#fee2e2', bgd:'rgba(100,10,10,0.35)',icon:'⚠️', pill:'หนาแน่นมาก',   pillEn:'Very Crowded',
           pillDark:{bg:'#dc2626',c:'#fff',bdr:'#dc2626'}, pillLight:{bg:'#fee2e2',c:'#991b1b',bdr:'#dc2626'}, blink:true,
           th:'ห้องฉุกเฉินมีผู้ป่วยหนาแน่น  กรุณาเตรียมใจรอนานกว่าปกติ',          mult:2.0 },
-        { max:Infinity, bdr:'#991b1b', bgl:'#fecaca', bgd:'rgba(21,0,0,0.65)',   icon:'🚨', pill:'วิกฤต',         pillEn:'Critical',
+        { max:Infinity, bdr:'#991b1b', bgl:'#fecaca', bgd:'rgba(120,10,10,0.4)', icon:'🚨', pill:'วิกฤต',         pillEn:'Critical',
           pillDark:{bg:'#dc2626',c:'#fff',bdr:'#dc2626'}, pillLight:{bg:'#fecaca',c:'#991b1b',bdr:'#991b1b'}, blink:true,
           th:'ขณะนี้มีผู้ป่วยวิกฤตฉุกเฉินหลายราย  กรุณาเตรียมใจรอนานมากกว่าปกติ', mult:2.5 }
     ];
