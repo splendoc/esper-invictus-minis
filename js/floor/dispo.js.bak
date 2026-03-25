@@ -1,0 +1,1182 @@
+// floor/dispo.js — Disposition flow: จองเตียง, ส่งเวร, ย้ายผู้ป่วย, finalization
+
+// ══════════════════════════════════════════
+// IN-MEMORY DISPOSITION STATE
+// (persisted to Supabase when available)
+// ══════════════════════════════════════════
+const _dispo = {};  // { visitId: { bedWard, bedAt, bedHistory[], handoverWardAt, handoverReferAt, referContacts[] } }
+
+function getDispoState(id) {
+  if (!_dispo[id]) _dispo[id] = { bedWard:null, bedAt:null, bedHistory:[], handoverWardAt:null, handoverReferAt:null, moveAt:null };
+  return _dispo[id];
+}
+
+// ══════════════════════════════════════════
+// STATUSES THAT TRIGGER ACTIONS
+// ══════════════════════════════════════════
+const ADMIT_WAIT_STATUSES = new Set(['รอขึ้นหอผู้ป่วย']);
+const REFER_WAIT_STATUSES = new Set(['รอส่งตัวโรงพยาบาลอื่น']);
+const REFER_CONTACT_STATUS = 'ติดต่อส่งตัวโรงพยาบาลอื่น';
+const ADMIT_WARD_STATUSES = new Set(['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา']);
+
+// ══════════════════════════════════════════
+// BUILD DISPO ZONE (Zone 3 on patient cards)
+// Called from buildCard() in core.js
+// ══════════════════════════════════════════
+function buildDispoZone(p) {
+  if (p.tab === 'finalized') return buildFinalizedDispoZone(p);
+  if (p.tab !== 'active') return '';
+
+  const d = getDispoState(p.id);
+  let html = '';
+
+  // ── จองเตียง tag ──
+  if (d.bedWard) {
+    const timeStr = d.bedAt ? new Date(d.bedAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'}) : '';
+    const historyStr = d.bedHistory.length
+      ? d.bedHistory.map(h => `<span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);text-decoration:line-through;margin-left:6px">${h.ward} ${new Date(h.at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'})}</span>`).join('')
+      : '';
+    html += `<div class="dispo-bed-tag" onclick="event.stopPropagation();openBedPicker('${p.id}')" title="คลิกเพื่อเปลี่ยนวอร์ด">
+      <i class="fas fa-bed" style="font-size:11px"></i>
+      <span>จองเตียง ${d.bedWard}</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:.7">${timeStr}</span>
+      ${historyStr}
+    </div>`;
+  }
+
+  // ── Action buttons row ──
+  let buttons = '';
+
+  // Bed Request button (always available if no bed yet)
+  if (!d.bedWard) {
+    buttons += `<button class="dispo-btn" onclick="event.stopPropagation();openBedPicker('${p.id}')">
+      <i class="fas fa-bed"></i> BED REQUEST
+    </button>`;
+  }
+
+  // ส่งเวรวอร์ด (appears at รอ Admit)
+  if (ADMIT_WAIT_STATUSES.has(p.status) || d.bedWard) {
+    if (d.handoverWardAt) {
+      const hwTime = new Date(d.handoverWardAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+      buttons += `<button class="dispo-btn dispo-done">
+        <i class="fas fa-people-arrows"></i> ส่งเวรวอร์ด <span class="dispo-time">${hwTime}</span>
+      </button>`;
+      // ย้ายผู้ป่วย button
+      if (!d.moveAt) {
+        buttons += `<button class="dispo-btn dispo-move" onclick="event.stopPropagation();dispoMoveAdmit('${p.id}')">
+          <i class="fas fa-person-walking-arrow-right"></i> ย้ายผู้ป่วย
+        </button>`;
+      }
+    } else if (ADMIT_WAIT_STATUSES.has(p.status)) {
+      buttons += `<button class="dispo-btn" onclick="event.stopPropagation();dispoHandoverWard('${p.id}')">
+        <i class="fas fa-people-arrows"></i> ส่งเวรวอร์ด
+      </button>`;
+    }
+  }
+
+  // Refer contact log moved to QV panel (not on card)
+
+  // ส่งเวร Refer (appears at รอ Refer or ติดต่อ Refer)
+  if (REFER_WAIT_STATUSES.has(p.status) || p.status === REFER_CONTACT_STATUS) {
+    if (d.handoverReferAt) {
+      const hrTime = new Date(d.handoverReferAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+      buttons += `<button class="dispo-btn dispo-done">
+        <i class="fas fa-people-arrows"></i> ส่งเวร Refer <span class="dispo-time">${hrTime}</span>
+      </button>`;
+      // ส่งแล้ว button
+      if (!d.moveAt) {
+        buttons += `<button class="dispo-btn dispo-move" onclick="event.stopPropagation();dispoMoveRefer('${p.id}')">
+          <i class="fas fa-ambulance"></i> ส่งแล้ว
+        </button>`;
+      }
+    } else {
+      buttons += `<button class="dispo-btn" onclick="event.stopPropagation();dispoHandoverRefer('${p.id}')">
+        <i class="fas fa-people-arrows"></i> ส่งเวร Refer
+      </button>`;
+    }
+  }
+
+  if (buttons) {
+    html += `<div class="dispo-actions">${buttons}</div>`;
+  }
+
+  return html ? `<div class="dispo-zone">${html}</div>` : '';
+}
+
+// ── Finalized card: show completion badge ──
+function buildFinalizedDispoZone(p) {
+  const d = getDispoState(p.id);
+  const isComplete = p.diagnosis && p.finalEsi;
+  // TODO: check all required fields based on disposition type
+
+  if (isComplete) {
+    return `<div class="dispo-zone" style="padding:2px 12px 6px;display:flex;align-items:center;gap:6px">
+      <span class="dispo-badge-ok"><i class="fas fa-check-circle"></i> ข้อมูลครบ</span>
+      <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)"><i class="fas fa-clock"></i> auto-remove</span>
+    </div>`;
+  } else {
+    return `<div class="dispo-zone" style="padding:2px 12px 6px;display:flex;align-items:center;gap:6px">
+      <span class="dispo-badge-inc"><i class="fas fa-exclamation-circle"></i> ข้อมูลไม่ครบ</span>
+    </div>`;
+  }
+}
+
+// ══════════════════════════════════════════
+// BED REQUEST (จองเตียง)
+// ══════════════════════════════════════════
+let _bedPickerVisitId = null;
+
+function openBedPicker(visitId) {
+  // Close any existing picker
+  closeBedPicker();
+  _bedPickerVisitId = visitId;
+
+  const card = document.getElementById('card-' + visitId);
+  if (!card) return;
+
+  // Build ward picker dropdown
+  const wards = (typeof WARD_LIST !== 'undefined') ? WARD_LIST : ['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา'];
+  const pickerHtml = `<div class="dispo-ward-picker" id="bed-picker">
+    <div class="dispo-wp-title">เลือกวอร์ด</div>
+    ${wards.map(w => `<div class="dispo-wp-item" onclick="event.stopPropagation();selectBedWard('${w}')">${w}</div>`).join('')}
+  </div>`;
+
+  // Insert after dispo-zone or at end of card
+  const zone = card.querySelector('.dispo-zone');
+  if (zone) {
+    zone.insertAdjacentHTML('beforeend', pickerHtml);
+  } else {
+    card.insertAdjacentHTML('beforeend', `<div class="dispo-zone">${pickerHtml}</div>`);
+  }
+}
+
+function closeBedPicker() {
+  const picker = document.getElementById('bed-picker');
+  if (picker) picker.remove();
+  _bedPickerVisitId = null;
+}
+
+function selectBedWard(ward) {
+  const id = _bedPickerVisitId;
+  if (!id) return;
+
+  const d = getDispoState(id);
+
+  // Save old ward to history if changing
+  if (d.bedWard && d.bedWard !== ward) {
+    d.bedHistory.push({ ward: d.bedWard, at: d.bedAt });
+  }
+
+  d.bedWard = ward;
+  d.bedAt = new Date().toISOString();
+
+  closeBedPicker();
+
+  // TODO: persist to Supabase bed_request_log + visits.bed_requested_at/bed_requested_ward
+
+  // Re-render to show the tag
+  renderCards();
+
+  // Toast
+  const p = patients.find(x => x.id === id);
+  if (p) {
+    showToast(`<div style="line-height:1.3">
+      <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#86efac;margin-top:2px"><i class="fas fa-bed" style="margin-right:4px"></i>จองเตียง ${ward}</div>
+    </div>`, '#22c55e', 'fa-bed');
+  }
+}
+
+// Close picker when clicking elsewhere
+document.addEventListener('click', function(e) {
+  if (_bedPickerVisitId && !e.target.closest('#bed-picker') && !e.target.closest('.dispo-btn')) {
+    closeBedPicker();
+  }
+});
+
+// ══════════════════════════════════════════
+// HANDOVER (ส่งเวร)
+// ══════════════════════════════════════════
+function dispoHandoverWard(visitId) {
+  const d = getDispoState(visitId);
+  d.handoverWardAt = new Date().toISOString();
+
+  // TODO: persist to Supabase visits.handover_ward_at
+
+  renderCards();
+
+  const p = patients.find(x => x.id === visitId);
+  if (p) {
+    showToast(`<div style="line-height:1.3">
+      <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#86efac;margin-top:2px"><i class="fas fa-people-arrows" style="margin-right:4px"></i>ส่งเวรวอร์ดแล้ว</div>
+    </div>`, '#22c55e', 'fa-people-arrows');
+  }
+}
+
+function dispoHandoverRefer(visitId) {
+  const d = getDispoState(visitId);
+  d.handoverReferAt = new Date().toISOString();
+
+  // TODO: persist to Supabase visits.handover_refer_at
+
+  renderCards();
+
+  const p = patients.find(x => x.id === visitId);
+  if (p) {
+    showToast(`<div style="line-height:1.3">
+      <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#86efac;margin-top:2px"><i class="fas fa-people-arrows" style="margin-right:4px"></i>ส่งเวร Refer แล้ว</div>
+    </div>`, '#22c55e', 'fa-people-arrows');
+  }
+}
+
+// ══════════════════════════════════════════
+// MOVE (ย้ายผู้ป่วย / ส่งแล้ว)
+// ══════════════════════════════════════════
+async function dispoMoveAdmit(visitId) {
+  const d = getDispoState(visitId);
+  const p = patients.find(x => x.id === visitId);
+  if (!p) return;
+
+  const ward = d.bedWard || 'วอร์ดชาย'; // fallback
+  d.moveAt = new Date().toISOString();
+
+  // Auto-cancel refer handover
+  d.handoverReferAt = null;
+
+  // Update status to the admit ward → finalized
+  await updateVisitStatus(visitId, ward, 'finalized', p.activatedAt);
+
+  // TODO: persist actual_move_at to Supabase
+
+  // Reload
+  const fresh = await loadPatients();
+  patients.length = 0;
+  fresh.forEach(px => patients.push(px));
+  renderSit();
+  renderSFilter();
+
+  // Switch to finalized tab and highlight
+  const targetBtn = document.querySelector('.tab-btn[data-tab="finalized"]');
+  if (targetBtn) switchTab(targetBtn);
+  else renderCards();
+
+  highlightCard(visitId, 5000);
+
+  showToast(`<div style="line-height:1.3">
+    <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
+    <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#a78bfa;margin-top:2px"><i class="fas fa-person-walking-arrow-right" style="margin-right:4px"></i>ย้ายผู้ป่วยไป ${ward}</div>
+  </div>`, '#a78bfa', 'fa-person-walking-arrow-right');
+}
+
+async function dispoMoveRefer(visitId) {
+  const d = getDispoState(visitId);
+  const p = patients.find(x => x.id === visitId);
+  if (!p) return;
+
+  d.moveAt = new Date().toISOString();
+
+  // Auto-cancel ward handover
+  d.handoverWardAt = null;
+
+  // Update status to refer out → finalized
+  await updateVisitStatus(visitId, 'ส่งตัวโรงพยาบาลอื่น', 'finalized', p.activatedAt);
+
+  // TODO: persist actual_move_at to Supabase
+
+  // Reload
+  const fresh = await loadPatients();
+  patients.length = 0;
+  fresh.forEach(px => patients.push(px));
+  renderSit();
+  renderSFilter();
+
+  // Switch to finalized tab and highlight
+  const targetBtn = document.querySelector('.tab-btn[data-tab="finalized"]');
+  if (targetBtn) switchTab(targetBtn);
+  else renderCards();
+
+  highlightCard(visitId, 5000);
+
+  showToast(`<div style="line-height:1.3">
+    <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
+    <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#a78bfa;margin-top:2px"><i class="fas fa-ambulance" style="margin-right:4px"></i>ส่งผู้ป่วยแล้ว</div>
+  </div>`, '#a78bfa', 'fa-ambulance');
+}
+
+// ══════════════════════════════════════════
+// DISPOSITION TYPE DETECTION
+// ══════════════════════════════════════════
+const DISCHARGE_STATUSES = new Set(['Discharge','ส่งแผนกผู้ป่วยนอก','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา','ส่งห้องผ่าตัด']);
+const REFER_STATUSES = new Set(['ส่งตัวโรงพยาบาลอื่น']);
+const OTHER_FINAL = new Set(['ปฏิเสธการรักษา','เสียชีวิต','เรียกไม่พบ']);
+
+function getDispoType(status) {
+  if (ADMIT_WARD_STATUSES.has(status)) return 'admit';
+  if (REFER_STATUSES.has(status)) return 'refer';
+  if (DISCHARGE_STATUSES.has(status)) return 'discharge';
+  if (OTHER_FINAL.has(status)) return 'other';
+  return 'unknown';
+}
+
+// ══════════════════════════════════════════
+// FINALIZATION QV PANEL
+// Builds the data-completion fields for finalized cards
+// ══════════════════════════════════════════
+
+// In-memory finalization data (until saved to Supabase)
+const _finalData = {}; // { visitId: { finalEsi, diagnosis, diagnosisIcd, dept, doctor, ... } }
+
+function getFinalData(id) {
+  if (!_finalData[id]) _finalData[id] = {
+    finalEsi: null, caseCategory: '', diagnosis: '', diagnosisIcd: '', department: '', doctor: '', doctorLicense: '',
+    arrivalMode: '', arrivalModeSub: '', arrivalModeExtra: '', arrivalModeCustom: '',
+    hospitalArrivalTime: '', treatmentOutcome: '',
+    hadETT: false, hadCPR: false,
+    referralHospital: '', referralReason: '', referralDoctor: '', referralDoctorLicense: '',
+    referralReceivingDept: ''
+  };
+  return _finalData[id];
+}
+
+function buildFinalizationPanel(p) {
+  const d = getDispoState(p.id);
+  const f = getFinalData(p.id);
+  const type = getDispoType(p.status);
+
+  // Visit info (read-only)
+  const arrivedStr = p.arrivedAt
+    ? new Date(p.arrivedAt).toLocaleString('th-TH',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Bangkok'})
+    : '—';
+
+  let html = `<div class="fin-panel">
+    <div class="fin-section-title"><i class="fas fa-clipboard-check" style="color:var(--accent);margin-right:4px"></i> FINALIZE DATA</div>
+
+    <!-- Visit info (read-only) -->
+    <div class="fin-row">
+      <span class="fin-lbl">VISIT DATE</span>
+      <span class="fin-val-ro">${arrivedStr}</span>
+    </div>
+    <div class="fin-row">
+      <span class="fin-lbl">TRIAGE ESI</span>
+      <span class="fin-val-ro" style="font-family:'IBM Plex Mono',monospace">${p.esi}</span>
+    </div>
+    <div class="fin-row">
+      <span class="fin-lbl">STATUS</span>
+      <span class="fin-val-ro">${sc(p.status).label}</span>
+    </div>`;
+
+  // Timestamps (read-only)
+  if (d.bedAt || d.handoverWardAt || d.handoverReferAt || d.moveAt) {
+    html += `<div class="fin-row fin-col"><span class="fin-lbl">TIMESTAMPS</span><div class="fin-ts-wrap">`;
+    if (d.bedAt) {
+      const t = new Date(d.bedAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+      html += `<span class="fin-ts"><span class="fin-ts-lbl">BED REQ</span> ${d.bedWard} ${t}</span>`;
+    }
+    if (d.handoverWardAt) {
+      const t = new Date(d.handoverWardAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+      html += `<span class="fin-ts"><span class="fin-ts-lbl">ส่งเวรวอร์ด</span> ${t}</span>`;
+    }
+    if (d.handoverReferAt) {
+      const t = new Date(d.handoverReferAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+      html += `<span class="fin-ts"><span class="fin-ts-lbl">ส่งเวร Refer</span> ${t}</span>`;
+    }
+    if (d.moveAt) {
+      const t = new Date(d.moveAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+      html += `<span class="fin-ts"><span class="fin-ts-lbl">${type==='refer'?'ส่งแล้ว':'ย้าย'}</span> ${t}</span>`;
+    }
+    html += `</div></div>`;
+  }
+
+  // ── EDITABLE FIELDS ──
+
+  // Case Category (always in finalization — auto from fast track if available)
+  const cats = typeof CASE_CATEGORIES !== 'undefined' ? CASE_CATEGORIES : [];
+  const ftCat = p.fastTrack && typeof FAST_TRACK_TO_CATEGORY !== 'undefined' ? FAST_TRACK_TO_CATEGORY[p.fastTrack] : null;
+  if (!f.caseCategory && ftCat) f.caseCategory = ftCat;
+  html += `<div class="fin-row">
+    <span class="fin-lbl">CASE TYPE <span class="fin-req">*</span></span>
+    <div style="display:flex;gap:6px">
+      ${cats.map(c => `<button class="fin-toggle-btn${f.caseCategory===c.value?' on':''}" onclick="setFinalField('${p.id}','caseCategory','${c.value}');this.parentElement.querySelectorAll('.fin-toggle-btn').forEach(b=>b.classList.remove('on'));this.classList.add('on')" style="flex:1">${c.label}</button>`).join('')}
+    </div>
+    ${ftCat ? `<div class="fin-hint">Auto จาก Fast Track: ${p.fastTrack}</div>` : ''}
+  </div>`;
+
+  // Final ESI (all cases)
+  html += `<div class="fin-row">
+    <span class="fin-lbl">FINAL ESI <span class="fin-req">*</span></span>
+    <div class="fin-esi-row">
+      ${[1,2,3,4,5].map(n => `<div class="fin-esi-btn esi-c-${n}${f.finalEsi===n?' sel':''}" onclick="setFinalEsi('${p.id}',${n})">${n}</div>`).join('')}
+    </div>
+    <div class="fin-hint">Initial ESI: <span style="font-family:'IBM Plex Mono',monospace;font-weight:600">${p.esi}</span> — กรุณากดยืนยัน Final ESI</div>
+  </div>`;
+
+  // ETT + CPR toggle buttons (optional)
+  html += `<div class="fin-row">
+    <span class="fin-lbl">PROCEDURE</span>
+    <div style="display:flex;gap:6px">
+      <button class="fin-toggle-btn${f.hadETT?' on':''}" onclick="toggleFinFlag('${p.id}','hadETT',this)">
+        <i class="fas fa-lungs"></i> ETT
+      </button>
+      <button class="fin-toggle-btn${f.hadCPR?' on':''}" onclick="toggleFinFlag('${p.id}','hadCPR',this)">
+        <i class="fas fa-heart-pulse"></i> CPR
+      </button>
+    </div>
+  </div>`;
+
+  // Diagnosis (searchable — all cases)
+  html += `<div class="fin-row fin-col">
+    <span class="fin-lbl">DIAGNOSIS <span class="fin-req">*</span></span>
+    <div class="fin-dx-wrap">
+      <input class="fin-input" id="fin-dx-${p.id}" placeholder="พิมพ์เพื่อค้นหา Dx..."
+        value="${f.diagnosis}" oninput="finDxSearch('${p.id}',this.value)" onfocus="finDxSearch('${p.id}',this.value)">
+      ${f.diagnosisIcd ? `<div class="fin-icd">ICD-10: ${f.diagnosisIcd}</div>` : ''}
+      <div class="fin-dx-drop" id="fin-dx-drop-${p.id}"></div>
+    </div>
+  </div>`;
+
+  // Arrival Mode (flat list + optional sub-text or hospital auto-suggest for Refer in)
+  const arrModes = typeof ARRIVAL_MODES !== 'undefined' ? ARRIVAL_MODES : [];
+  const selectedMode = arrModes.find(m => m.label === f.arrivalMode);
+  const needSubText = selectedMode?.subText;
+  const needReferHosp = selectedMode?.referHosp;
+
+  html += `<div class="fin-row fin-col">
+    <span class="fin-lbl">ARRIVAL MODE <span class="fin-req">*</span></span>
+    <div style="position:relative">
+      <input class="fin-input" id="fin-arr-${p.id}" placeholder="พิมพ์เพื่อค้นหา..."
+        value="${f.arrivalMode||''}" style="font-size:12px;padding:5px 8px"
+        oninput="finArrModeSearch('${p.id}',this.value)" onfocus="finArrModeSearch('${p.id}',this.value)"
+        onblur="setTimeout(()=>{const d=document.getElementById('fin-arr-drop-${p.id}');if(d)d.style.display='none'},150)">
+      <div class="fin-dx-drop" id="fin-arr-drop-${p.id}"></div>
+    </div>
+    ${selectedMode?.subOptions ? `<div style="display:flex;gap:4px;margin-top:4px">
+      <select class="fin-select" style="font-size:12px;padding:5px 8px;flex:1"
+        onchange="setFinalField('${p.id}','arrivalModeSub',this.value);if(this.value==='อื่นๆ'){document.getElementById('fin-arr-custom-${p.id}').style.display=''}else{document.getElementById('fin-arr-custom-${p.id}').style.display='none'}">
+        <option value="">— เลือก —</option>
+        ${selectedMode.subOptions.map(o => `<option value="${o}"${f.arrivalModeSub===o?' selected':''}>${o}</option>`).join('')}
+      </select>
+      ${selectedMode.subPlaceholder ? `<input class="fin-input" id="fin-arr-extra-${p.id}" placeholder="${selectedMode.subPlaceholder}"
+        value="${f.arrivalModeExtra||''}" oninput="setFinalField('${p.id}','arrivalModeExtra',this.value)"
+        style="font-size:12px;padding:5px 8px;flex:0 0 100px">` : ''}
+    </div>
+    <input class="fin-input" id="fin-arr-custom-${p.id}" placeholder="ระบุชื่อ..."
+      value="${f.arrivalModeSub==='อื่นๆ' ? (f.arrivalModeCustom||'') : ''}"
+      oninput="setFinalField('${p.id}','arrivalModeCustom',this.value)"
+      style="font-size:12px;padding:5px 8px;margin-top:4px;display:${f.arrivalModeSub==='อื่นๆ'?'':'none'}">` :
+    needSubText ? `<input class="fin-input" id="fin-arr-sub-${p.id}" placeholder="ระบุสาขา/ชื่อ..."
+      value="${f.arrivalModeSub||''}" oninput="setFinalField('${p.id}','arrivalModeSub',this.value)"
+      style="font-size:12px;padding:5px 8px;margin-top:4px">` : ''}
+    ${needReferHosp ? `<div style="position:relative;margin-top:4px">
+      <input class="fin-input" id="fin-arr-hosp-${p.id}" placeholder="จากโรงพยาบาล..."
+        value="${f.arrivalModeSub||''}" style="font-size:12px;padding:5px 8px"
+        oninput="finArrHospSearch('${p.id}',this.value)" onfocus="finArrHospSearch('${p.id}',this.value)"
+        onblur="setTimeout(()=>{const d=document.getElementById('fin-arr-hosp-drop-${p.id}');if(d)d.style.display='none'},150)">
+      <div class="fin-dx-drop" id="fin-arr-hosp-drop-${p.id}"></div>
+    </div>` : ''}
+  </div>`;
+
+  // Hospital Arrival Time
+  html += `<div class="fin-row">
+    <span class="fin-lbl">ARRIVAL TIME</span>
+    <input class="fin-input" type="time" value="${f.hospitalArrivalTime}"
+      onchange="setFinalField('${p.id}','hospitalArrivalTime',this.value)"
+      style="font-family:'IBM Plex Mono',monospace;max-width:140px">
+  </div>`;
+
+  // ── ADMIT-SPECIFIC FIELDS ──
+  if (type === 'admit') {
+    // Department (auto-suggest)
+    const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+    const deptDisplay = f.department ? (deptLabels[f.department] || f.department) : '';
+    html += `<div class="fin-row fin-col">
+      <span class="fin-lbl">DEPARTMENT <span class="fin-req">*</span></span>
+      <div style="position:relative">
+        <input class="fin-input" id="fin-dept-${p.id}" placeholder="พิมพ์ชื่อแผนก..."
+          value="${deptDisplay}" style="font-size:12px;padding:5px 8px"
+          oninput="finDeptSearch('${p.id}',this.value)" onfocus="finDeptSearch('${p.id}',this.value)"
+          onblur="setTimeout(()=>{const d=document.getElementById('fin-dept-drop-${p.id}');if(d)d.style.display='none'},150)">
+        <div class="fin-dx-drop" id="fin-dept-drop-${p.id}"></div>
+      </div>
+    </div>`;
+
+    // Doctor (auto-suggest — all doctors, auto-locks department when picked)
+    html += `<div class="fin-row fin-col">
+      <span class="fin-lbl">DOCTOR <span class="fin-req">*</span></span>
+      <div style="position:relative">
+        <input class="fin-input" id="fin-doc-${p.id}" placeholder="พิมพ์ชื่อแพทย์..."
+          value="${f.doctor || ''}" style="font-size:12px;padding:5px 8px"
+          oninput="finDocSearch('${p.id}',this.value)" onfocus="finDocSearch('${p.id}',this.value)"
+          onblur="setTimeout(()=>{const d=document.getElementById('fin-doc-drop-${p.id}');if(d)d.style.display='none'},150)">
+        <div class="fin-dx-drop" id="fin-doc-drop-${p.id}"></div>
+        ${f.doctorLicense ? `<div class="fin-icd">${f.doctorLicense}</div>` : ''}
+        ${f.department ? `<div class="fin-hint">แผนก ${deptLabels[f.department] || f.department}</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // ── REFER-SPECIFIC FIELDS ──
+  if (type === 'refer') {
+    // Pre-fill from contact log
+    const referLog = typeof getReferLog === 'function' ? getReferLog(p.id) : [];
+    const accepted = referLog.find(e => e.result === 'รับ');
+    if (accepted && !f.referralHospital) f.referralHospital = accepted.hospital;
+    if (accepted && !f.referralReason && accepted.reason) f.referralReason = accepted.reason;
+    const isShriThanya = f.referralHospital && f.referralHospital.includes('ศรีธัญญา');
+
+    html += `<div class="fin-row fin-col">
+      <span class="fin-lbl">REFERRAL INFO</span>
+      <div class="fin-ref-box">
+        <div class="fin-ref-row">
+          <span class="fin-ref-lbl">รพ.ปลายทาง</span>
+          <span class="fin-val-ro" style="flex:1;font-size:13px">${f.referralHospital || '—'}</span>
+        </div>
+        <div class="fin-ref-row">
+          <span class="fin-ref-lbl">เหตุผล</span>
+          <span class="fin-val-ro" style="flex:1;font-size:13px">${f.referralReason || '—'}</span>
+        </div>
+        <div class="fin-ref-row">
+          <span class="fin-ref-lbl">แพทย์ Refer <span class="fin-req">*</span></span>
+          <div style="flex:1;position:relative">
+            <input class="fin-input" id="fin-refdoc-${p.id}" placeholder="พิมพ์ชื่อแพทย์..."
+              value="${f.referralDoctor || ''}" style="font-size:12px;padding:5px 8px"
+              oninput="finReferDocSearch('${p.id}',this.value)" onfocus="finReferDocSearch('${p.id}',this.value)"
+              onblur="setTimeout(()=>{const d=document.getElementById('fin-refdoc-drop-${p.id}');if(d)d.style.display='none'},150)">
+            <div class="fin-dx-drop" id="fin-refdoc-drop-${p.id}"></div>
+            ${f.referralDoctorLicense ? `<div class="fin-icd">${f.referralDoctorLicense}</div>` : ''}
+          </div>
+        </div>
+        ${!isShriThanya ? `<div class="fin-ref-row">
+          <span class="fin-ref-lbl">แผนกปลายทาง</span>
+          <select class="fin-select" style="flex:1;font-size:12px;padding:5px 8px" onchange="setFinalField('${p.id}','referralReceivingDept',this.value)">
+            <option value="">— optional —</option>
+            ${(typeof RECEIVING_DEPTS!=='undefined'?RECEIVING_DEPTS:[]).map(d =>
+              `<option${f.referralReceivingDept===d?' selected':''}>${d}</option>`
+            ).join('')}
+          </select>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // ── TREATMENT OUTCOME (Discharge + Refer only) ──
+  if (type === 'discharge' || type === 'refer') {
+    html += `<div class="fin-row">
+      <span class="fin-lbl">OUTCOME <span class="fin-req">*</span></span>
+      <select class="fin-select" onchange="setFinalField('${p.id}','treatmentOutcome',this.value)">
+        <option value="">— เลือก —</option>
+        ${(typeof TREATMENT_OUTCOMES!=='undefined'?TREATMENT_OUTCOMES:[]).map(o =>
+          `<option${f.treatmentOutcome===o?' selected':''}>${o}</option>`
+        ).join('')}
+      </select>
+    </div>`;
+  }
+
+  // ── COMPLETE BUTTON ──
+  const canComplete = checkFinalizationComplete(p.id, type);
+  html += `<div style="margin-top:12px">
+    <button class="fin-complete-btn${canComplete?'':' disabled'}" onclick="${canComplete?`completeFinalization('${p.id}')`:''}">
+      <i class="fas fa-check-circle" style="margin-right:6px"></i> COMPLETE FINALIZATION
+    </button>
+    ${!canComplete ? '<div class="fin-hint" style="text-align:center;margin-top:4px">กรุณากรอกข้อมูลที่จำเป็นให้ครบ</div>' : ''}
+  </div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+// ══════════════════════════════════════════
+// FINALIZATION FIELD HANDLERS
+// ══════════════════════════════════════════
+function setFinalEsi(visitId, esi) {
+  getFinalData(visitId).finalEsi = esi;
+  // Re-render the ESI buttons
+  document.querySelectorAll(`#fin-esi-wrap-${visitId} .fin-esi-btn`).forEach(btn => {
+    btn.classList.toggle('sel', parseInt(btn.textContent) === esi);
+  });
+  // Refresh the whole finalized QV to update button state
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+function setFinalField(visitId, field, value) {
+  getFinalData(visitId)[field] = value;
+}
+
+function finDeptChange(visitId, dept) {
+  const f = getFinalData(visitId);
+  f.department = dept;
+  f.doctor = '';
+  f.doctorLicense = '';
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+function finDocChange(visitId, name) {
+  const f = getFinalData(visitId);
+  f.doctor = name;
+  const doctors = typeof getDoctorsForDept==='function' ? getDoctorsForDept(f.department) : [];
+  const doc = doctors.find(d => d.name === name);
+  f.doctorLicense = doc?.license || '';
+}
+
+// Department auto-suggest
+function finDeptSearch(visitId, query) {
+  const drop = document.getElementById('fin-dept-drop-' + visitId);
+  if (!drop) return;
+  const f = getFinalData(visitId);
+
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  const matches = Object.entries(deptLabels).filter(([k, v]) =>
+    k.toLowerCase().includes(query.toLowerCase()) || v.toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 10);
+
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  drop.innerHTML = matches.map(([k, v]) =>
+    `<div class="fin-dx-item" onmousedown="finDeptPick('${visitId}','${k}')">${v}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function finDeptPick(visitId, dept) {
+  const f = getFinalData(visitId);
+  f.department = dept;
+  f.doctor = '';
+  f.doctorLicense = '';
+  const drop = document.getElementById('fin-dept-drop-' + visitId);
+  if (drop) drop.style.display = 'none';
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+// Doctor auto-suggest (all in-hospital doctors, auto-locks department)
+function finDocSearch(visitId, query) {
+  const drop = document.getElementById('fin-doc-drop-' + visitId);
+  if (!drop) return;
+  const f = getFinalData(visitId);
+  f.doctor = query;
+  f.doctorLicense = '';
+
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  // Get all dept doctors
+  const deptDocs = [];
+  if (typeof DEPT_DOCTORS !== 'undefined') {
+    for (const [dept, docs] of Object.entries(DEPT_DOCTORS)) {
+      for (const d of docs) {
+        deptDocs.push({ name: d.name, license: d.license, dept });
+      }
+    }
+  }
+
+  const matches = deptDocs.filter(d =>
+    d.name.toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 10);
+
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  drop.innerHTML = matches.map(d =>
+    `<div class="fin-dx-item" onmousedown="finDocPick('${visitId}','${d.name.replace(/'/g,"\\'")}','${(d.license||'').replace(/'/g,"\\'")}','${d.dept.replace(/'/g,"\\'")}')">${d.name}${d.license ? ` <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${d.license}</span>` : ''} <span style="font-size:10px;color:var(--text-dim)">${deptLabels[d.dept] || d.dept}</span></div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function finDocPick(visitId, name, license, dept) {
+  const f = getFinalData(visitId);
+  f.doctor = name;
+  f.doctorLicense = license;
+  if (dept) f.department = dept; // Auto-lock department
+  const drop = document.getElementById('fin-doc-drop-' + visitId);
+  if (drop) drop.style.display = 'none';
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+function toggleFinFlag(visitId, flag, btn) {
+  const f = getFinalData(visitId);
+  f[flag] = !f[flag];
+  btn.classList.toggle('on', f[flag]);
+}
+
+function finArrivalModeChange(visitId, value) {
+  const f = getFinalData(visitId);
+  f.arrivalMode = value;
+  f.arrivalModeSub = '';
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+// Arrival mode auto-suggest
+function finArrModeSearch(visitId, query) {
+  const drop = document.getElementById('fin-arr-drop-' + visitId);
+  if (!drop) return;
+  const f = getFinalData(visitId);
+
+  const arrModes = typeof ARRIVAL_MODES !== 'undefined' ? ARRIVAL_MODES : [];
+
+  if (!query || query.length < 1) {
+    // Show all on focus
+    drop.innerHTML = arrModes.map(m =>
+      `<div class="fin-dx-item" onmousedown="finArrModePick('${visitId}','${m.label.replace(/'/g,"\\'")}')">${m.label}</div>`
+    ).join('');
+    drop.style.display = 'block';
+    return;
+  }
+
+  const matches = arrModes.filter(m => m.label.toLowerCase().includes(query.toLowerCase())).slice(0, 10);
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  drop.innerHTML = matches.map(m =>
+    `<div class="fin-dx-item" onmousedown="finArrModePick('${visitId}','${m.label.replace(/'/g,"\\'")}')">${m.label}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function finArrModePick(visitId, label) {
+  const f = getFinalData(visitId);
+  f.arrivalMode = label;
+  f.arrivalModeSub = '';
+  f.arrivalModeExtra = '';
+  f.arrivalModeCustom = '';
+  const drop = document.getElementById('fin-arr-drop-' + visitId);
+  if (drop) drop.style.display = 'none';
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+// Hospital auto-suggest for Refer in arrival mode (same list as refer out + อื่นๆ)
+function finArrHospSearch(visitId, query) {
+  const drop = document.getElementById('fin-arr-hosp-drop-' + visitId);
+  if (!drop) return;
+  const f = getFinalData(visitId);
+  f.arrivalModeSub = query;
+
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const hospitals = typeof HOSPITAL_LIST !== 'undefined' ? HOSPITAL_LIST : [];
+  const matches = hospitals.filter(h => h.name.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
+
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  drop.innerHTML = matches.map(h =>
+    `<div class="fin-dx-item" onmousedown="finArrHospPick('${visitId}','${h.name.replace(/'/g,"\\'")}')">${h.name}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function finArrHospPick(visitId, name) {
+  const f = getFinalData(visitId);
+  f.arrivalModeSub = name;
+  const input = document.getElementById('fin-arr-hosp-' + visitId);
+  if (input) input.value = name;
+  const drop = document.getElementById('fin-arr-hosp-drop-' + visitId);
+  if (drop) drop.style.display = 'none';
+}
+
+function finReferDocChange(visitId, name) {
+  const f = getFinalData(visitId);
+  f.referralDoctor = name;
+  const allDocs = typeof getAllDoctors==='function' ? getAllDoctors() : [];
+  const doc = allDocs.find(d => d.name === name);
+  f.referralDoctorLicense = doc?.license || '';
+}
+
+// Auto-suggest referring doctor — in-hospital doctors only (no EP)
+function finReferDocSearch(visitId, query) {
+  const drop = document.getElementById('fin-refdoc-drop-' + visitId);
+  if (!drop) return;
+
+  const f = getFinalData(visitId);
+  f.referralDoctor = query;
+  f.referralDoctorLicense = '';
+
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  // Get all dept doctors (exclude EP)
+  const deptDocs = [];
+  if (typeof DEPT_DOCTORS !== 'undefined') {
+    for (const [dept, docs] of Object.entries(DEPT_DOCTORS)) {
+      for (const d of docs) {
+        deptDocs.push({ name: d.name, license: d.license, dept });
+      }
+    }
+  }
+
+  const matches = deptDocs.filter(d =>
+    d.name.toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 8);
+
+  if (!matches.length) {
+    // No match = free text (อื่นๆ)
+    drop.style.display = 'none';
+    return;
+  }
+
+  drop.innerHTML = matches.map(d =>
+    `<div class="fin-dx-item" onmousedown="finReferDocPick('${visitId}','${d.name.replace(/'/g,"\\'")}','${(d.license||'').replace(/'/g,"\\'")}','${d.dept.replace(/'/g,"\\'")}')">${d.name}${d.license ? ` <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${d.license}</span>` : ''} <span style="font-size:10px;color:var(--text-dim)">${d.dept}</span></div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function finReferDocPick(visitId, name, license, dept) {
+  const f = getFinalData(visitId);
+  f.referralDoctor = name;
+  f.referralDoctorLicense = license;
+  // Auto-lock department from doctor's dept
+  if (dept) f.department = dept;
+  const input = document.getElementById('fin-refdoc-' + visitId);
+  if (input) input.value = name;
+  const drop = document.getElementById('fin-refdoc-drop-' + visitId);
+  if (drop) drop.style.display = 'none';
+  // Refresh to show license + locked dept
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+// ── Diagnosis search ──
+function finDxSearch(visitId, query) {
+  const drop = document.getElementById('fin-dx-drop-' + visitId);
+  if (!drop) return;
+
+  const f = getFinalData(visitId);
+  f.diagnosis = query;
+  f.diagnosisIcd = '';
+
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const matches = (typeof DX_LIST !== 'undefined' ? DX_LIST : []).filter(dx =>
+    dx.text.toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 12);
+
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  drop.innerHTML = matches.map(dx =>
+    `<div class="fin-dx-item" onmousedown="finDxPick('${visitId}','${dx.text.replace(/'/g,"\\'")}','${dx.icd||''}')">
+      ${dx.text} <span style="float:right;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${dx.icd||''}</span>
+    </div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function finDxPick(visitId, text, icd) {
+  const f = getFinalData(visitId);
+  f.diagnosis = text;
+  f.diagnosisIcd = icd;
+  const input = document.getElementById('fin-dx-' + visitId);
+  if (input) input.value = text;
+  const drop = document.getElementById('fin-dx-drop-' + visitId);
+  if (drop) drop.style.display = 'none';
+  // Refresh to show ICD and update button state
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+// ── Check if all required fields are filled ──
+function checkFinalizationComplete(visitId, type) {
+  const f = getFinalData(visitId);
+  const p = patients.find(x => x.id === visitId);
+  if (!f.finalEsi) return false;
+  if (!f.diagnosis) return false;
+  if (!f.arrivalMode) return false;
+  if (!p?.caseCat && !f.caseCategory) return false; // Case category required
+  if (type === 'admit' && (!f.department || !f.doctor)) return false;
+  if (type === 'refer' && !f.referralDoctor) return false; // Referring doctor required
+  if ((type === 'discharge' || type === 'refer') && !f.treatmentOutcome) return false;
+  return true;
+}
+
+// ── Save finalization to Supabase ──
+async function completeFinalization(visitId) {
+  const p = patients.find(x => x.id === visitId);
+  if (!p) return;
+  const f = getFinalData(visitId);
+  const type = getDispoType(p.status);
+
+  // Build update payload
+  const updates = {
+    final_esi: f.finalEsi || p.esi,
+    case_category: f.caseCategory || null,
+    diagnosis: f.diagnosis,
+    diagnosis_icd10: f.diagnosisIcd || null,
+    arrival_mode: f.arrivalMode || null,
+    hospital_arrival_time: f.hospitalArrivalTime ? new Date().toISOString().split('T')[0]+'T'+f.hospitalArrivalTime+':00+07:00' : null,
+    had_ett: f.hadETT || false,
+    had_cpr: f.hadCPR || false,
+    data_complete: true,
+    data_completed_at: new Date().toISOString(),
+  };
+
+  if (type === 'admit') {
+    updates.department = f.department;
+    updates.doctor = f.doctor;
+    updates.doctor_license = f.doctorLicense || null;
+  }
+  if (type === 'refer') {
+    updates.referral_hospital = f.referralHospital || null;
+    updates.referral_reason = f.referralReason || null;
+    updates.referral_doctor = f.referralDoctor || null;
+    updates.referral_doctor_license = f.referralDoctorLicense || null;
+    updates.referral_receiving_dept = f.referralReceivingDept || null;
+  }
+  if (type === 'discharge' || type === 'refer') {
+    updates.treatment_outcome = f.treatmentOutcome || null;
+  }
+
+  // Save to Supabase
+  const { error } = await sb.from('visits').update(updates).eq('id', visitId);
+  if (error) {
+    console.error('Finalization save error:', error);
+    showToast('เกิดข้อผิดพลาดในการบันทึก','#ef4444','fa-exclamation-triangle');
+    return;
+  }
+
+  closeQV();
+
+  showToast(`<div style="line-height:1.3">
+    <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
+    <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#86efac;margin-top:2px"><i class="fas fa-check-circle" style="margin-right:4px"></i>ข้อมูลครบ — บันทึกแล้ว</div>
+  </div>`, '#22c55e', 'fa-check-circle');
+
+  // Reload
+  const fresh = await loadPatients();
+  patients.length = 0;
+  fresh.forEach(px => patients.push(px));
+  renderSit();
+  renderSFilter();
+  renderCards();
+}
+
+// ══════════════════════════════════════════
+// REFER CONTACT LOG
+// Multiple hospital contacts per visit
+// ══════════════════════════════════════════
+const _referLogs = {};  // { visitId: [{ hospital, type, result, reason, at }] }
+
+function getReferLog(id) {
+  if (!_referLogs[id]) _referLogs[id] = [];
+  return _referLogs[id];
+}
+
+function buildReferContactSection(p) {
+  const log = getReferLog(p.id);
+  const hasAccepted = log.some(e => e.result === 'รับ');
+  const reasons = typeof REFERRAL_REASONS !== 'undefined' ? REFERRAL_REASONS : ['เกินศักยภาพ','ตามสิทธิ์','ตามความประสงค์ของผู้ป่วย','Emergency PCI'];
+
+  let html = `<div class="dispo-refer-section" onclick="event.stopPropagation()">`;
+
+  // Contact log entries (oldest on top)
+  if (log.length) {
+    html += `<div class="rcl-title">CONTACT LOG</div>`;
+    log.forEach((entry, i) => {
+      const timeStr = new Date(entry.at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+      let actions = '';
+
+      if (entry.result === 'รับ') {
+        actions = '<span class="rcl-ok"><i class="fas fa-check-circle"></i> รับ</span>';
+      } else if (entry.result === 'ไม่รับ') {
+        actions = `<span class="rcl-no"><i class="fas fa-times-circle"></i> ไม่รับ</span>
+          <button class="rcl-change-btn" onclick="event.stopPropagation();rclDeleteEntry('${p.id}',${i})" title="ลบ"><i class="fas fa-trash" style="font-size:8px"></i></button>`;
+      } else if (entry.result === 'ยกเลิก') {
+        actions = '<span class="rcl-cancel"><i class="fas fa-ban"></i> ยกเลิก</span>';
+      } else {
+        // รอตอบ — show รับ, ไม่รับ, แก้ไข, ลบ
+        actions = `<span class="rcl-wait"><i class="fas fa-clock"></i> รอตอบ</span>
+          <button class="rcl-change-btn rcl-res-ok" onclick="event.stopPropagation();rclUpdateResult('${p.id}',${i},'รับ')" title="รับ"><i class="fas fa-check"></i></button>
+          <button class="rcl-change-btn rcl-res-no" onclick="event.stopPropagation();rclUpdateResult('${p.id}',${i},'ไม่รับ')" title="ไม่รับ"><i class="fas fa-times"></i></button>
+          <button class="rcl-change-btn" onclick="event.stopPropagation();rclEditEntry('${p.id}',${i})" title="แก้ไข"><i class="fas fa-pen" style="font-size:8px"></i></button>
+          <button class="rcl-change-btn" onclick="event.stopPropagation();rclDeleteEntry('${p.id}',${i})" title="ลบ"><i class="fas fa-trash" style="font-size:8px"></i></button>`;
+      }
+
+      html += `<div class="rcl-entry" id="rcl-entry-${p.id}-${i}">
+        <span class="rcl-time">${timeStr}</span>
+        <span class="rcl-name">${entry.hospital}</span>
+        ${entry.reason ? `<span class="rcl-reason">${entry.reason}</span>` : ''}
+        <div style="margin-left:auto;display:flex;align-items:center;gap:3px">${actions}</div>
+      </div>`;
+    });
+  }
+
+  // Add new contact form — hospital + reason dropdown + SAVE
+  if (!hasAccepted) {
+    html += `<div class="rcl-add" id="rcl-add-${p.id}">
+      <div class="rcl-add-row">
+        <input class="fin-input" id="rcl-hosp-${p.id}" placeholder="ชื่อโรงพยาบาล..."
+          style="flex:1;font-size:12px;padding:5px 8px"
+          oninput="rclHospSearch('${p.id}',this.value)" onfocus="rclHospSearch('${p.id}',this.value)">
+        <div class="rcl-hosp-drop" id="rcl-hosp-drop-${p.id}"></div>
+      </div>
+      <select class="fin-select" id="rcl-reason-${p.id}" style="font-size:12px;padding:5px 8px;margin-top:4px">
+        <option value="">— เหตุผลส่งต่อ —</option>
+        ${reasons.map(r => `<option value="${r}">${r}</option>`).join('')}
+      </select>
+      <div style="display:flex;gap:4px;margin-top:4px;align-items:center">
+        <select class="fin-select" style="font-size:12px;padding:5px 8px;flex:0 0 auto;width:120px;color:var(--text-dim)" disabled>
+          <option>รอตอบ</option>
+        </select>
+        <button class="rcl-save-btn" style="margin-top:0;flex:1" onclick="event.stopPropagation();rclAddEntry('${p.id}')">
+          <i class="fas fa-plus" style="margin-right:4px"></i> บันทึก
+        </button>
+      </div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+// Hospital search for refer contact log
+function rclHospSearch(visitId, query) {
+  const drop = document.getElementById('rcl-hosp-drop-' + visitId);
+  if (!drop) return;
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const hospitals = typeof HOSPITAL_LIST !== 'undefined' ? HOSPITAL_LIST : [];
+  const matches = hospitals.filter(h => h.name.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
+
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  drop.innerHTML = matches.map(h =>
+    `<div class="rcl-hosp-item" onmousedown="rclHospPick('${visitId}','${h.name.replace(/'/g,"\\'")}')">${h.name}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function rclHospPick(visitId, name) {
+  const input = document.getElementById('rcl-hosp-' + visitId);
+  if (input) input.value = name;
+  const drop = document.getElementById('rcl-hosp-drop-' + visitId);
+  if (drop) drop.style.display = 'none';
+}
+
+// Add a contact log entry — always saves as รอตอบ
+async function rclAddEntry(visitId) {
+  const hospInput = document.getElementById('rcl-hosp-' + visitId);
+  const reasonSelect = document.getElementById('rcl-reason-' + visitId);
+  const hospital = hospInput?.value?.trim();
+  const result = 'รอตอบ';
+  if (!hospital) {
+    hospInput?.focus();
+    return;
+  }
+
+  const log = getReferLog(visitId);
+  const hospitals = typeof HOSPITAL_LIST !== 'undefined' ? HOSPITAL_LIST : [];
+  const match = hospitals.find(h => h.name === hospital);
+
+  log.push({
+    hospital,
+    type: match?.type || 'unknown',
+    result,
+    reason: reasonSelect?.value || '',
+    at: new Date().toISOString()
+  });
+
+  // TODO: persist to refer_contact_log table
+
+  // Clear inputs
+  if (hospInput) hospInput.value = '';
+  if (reasonSelect) reasonSelect.value = '';
+
+  const p = patients.find(x => x.id === visitId);
+  const icon = result === 'รับ' ? 'fa-check-circle' : result === 'ไม่รับ' ? 'fa-times-circle' : 'fa-clock';
+  const color = result === 'รับ' ? '#22c55e' : result === 'ไม่รับ' ? '#ef4444' : '#f59e0b';
+  if (p) {
+    showToast(`<div style="line-height:1.3">
+      <div style="font-size:12px;color:var(--text-sub)">${hospital}</div>
+      <div style="font-size:12px;color:${color};margin-top:2px"><i class="fas ${icon}" style="margin-right:4px"></i>${result}</div>
+    </div>`, color, icon);
+  }
+
+  // Re-open QV to refresh the contact log
+  if (p) openQV(p.id);
+}
+
+// Update a รอตอบ entry to รับ or ไม่รับ
+async function rclUpdateResult(visitId, entryIndex, newResult) {
+  const log = getReferLog(visitId);
+  if (!log[entryIndex]) return;
+
+  log[entryIndex].result = newResult;
+
+  // If accepted → auto-cancel all other รอตอบ + set referral hospital + change status to รอ Refer
+  if (newResult === 'รับ') {
+    const f = getFinalData(visitId);
+    f.referralHospital = log[entryIndex].hospital;
+    if (log[entryIndex].hospital.includes('ศรีธัญญา')) {
+      f.referralReason = 'เกินศักยภาพ';
+    }
+
+    // Auto-cancel all other รอตอบ entries
+    log.forEach((entry, i) => {
+      if (i !== entryIndex && entry.result === 'รอตอบ') {
+        entry.result = 'ยกเลิก';
+      }
+    });
+
+    // Change status to รอ Refer
+    const p = patients.find(x => x.id === visitId);
+    if (p && p.status !== 'รอส่งตัวโรงพยาบาลอื่น') {
+      await updateVisitStatus(visitId, 'รอส่งตัวโรงพยาบาลอื่น', 'active', p.activatedAt);
+      const fresh = await loadPatients();
+      patients.length = 0;
+      fresh.forEach(px => patients.push(px));
+      renderSit();
+      renderSFilter();
+    }
+  }
+
+  // TODO: persist to refer_contact_log table
+
+  // Re-open QV to refresh
+  const p = patients.find(x => x.id === visitId);
+  if (p) openQV(p.id);
+
+  const color = newResult === 'รับ' ? '#22c55e' : '#ef4444';
+  const icon = newResult === 'รับ' ? 'fa-check-circle' : 'fa-times-circle';
+  showToast(`<div style="line-height:1.3">
+    <div style="font-size:12px;color:var(--text-sub)">${log[entryIndex].hospital}</div>
+    <div style="font-size:12px;color:${color};margin-top:2px"><i class="fas ${icon}" style="margin-right:4px"></i>${newResult}</div>
+  </div>`, color, icon);
+}
+
+// Delete a contact log entry
+function rclDeleteEntry(visitId, entryIndex) {
+  const log = getReferLog(visitId);
+  if (!log[entryIndex]) return;
+  const name = log[entryIndex].hospital;
+  log.splice(entryIndex, 1);
+
+  // TODO: persist deletion to refer_contact_log table
+
+  const p = patients.find(x => x.id === visitId);
+  if (p) openQV(p.id);
+  showToast(`ลบ ${name}`, '#ef4444', 'fa-trash');
+}
+
+// Edit a contact log entry — re-populate the add form with existing data
+function rclEditEntry(visitId, entryIndex) {
+  const log = getReferLog(visitId);
+  if (!log[entryIndex]) return;
+  const entry = log[entryIndex];
+
+  // Remove old entry
+  log.splice(entryIndex, 1);
+
+  // Re-open QV — the add form will be empty, populate it
+  const p = patients.find(x => x.id === visitId);
+  if (p) {
+    openQV(p.id);
+    // Fill in the form with old values after render
+    setTimeout(() => {
+      const hospInput = document.getElementById('rcl-hosp-' + visitId);
+      const reasonSelect = document.getElementById('rcl-reason-' + visitId);
+      if (hospInput) hospInput.value = entry.hospital;
+      if (reasonSelect) reasonSelect.value = entry.reason || '';
+    }, 50);
+  }
+}
