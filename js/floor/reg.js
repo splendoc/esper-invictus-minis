@@ -477,15 +477,26 @@ async function submitReg(){
 let _ccSelIdx = -1;
 
 function ccAutocomplete(val) {
-  const drop = document.getElementById('cc-dropdown');
-  if (!drop) return;
   const ta = document.getElementById('reg-cc');
   if (!ta) return;
 
-  // Search the full text value — Thai doesn't use spaces between words
-  // so we just search the whole thing against the CC list
-  const query = val.trim();
+  // Create or get dropdown (appended to body to escape overflow:auto)
+  let drop = document.getElementById('cc-dropdown-float');
+  if (!drop) {
+    drop = document.createElement('div');
+    drop.id = 'cc-dropdown-float';
+    drop.className = 'cc-dropdown';
+    drop.style.cssText = 'position:fixed;z-index:9999;display:none';
+    document.body.appendChild(drop);
+  }
 
+  // Search last phrase being typed (after last space, comma, or newline)
+  const full = val;
+  let lastSep = -1;
+  for (let i = full.length - 1; i >= 0; i--) {
+    if (full[i] === ' ' || full[i] === ',' || full[i] === '\n' || full[i] === '\t') { lastSep = i; break; }
+  }
+  const query = lastSep >= 0 ? full.substring(lastSep + 1).trim() : full.trim();
   if (!query || query.length < 1) { drop.style.display = 'none'; return; }
 
   const matches = (typeof CC_LIST !== 'undefined' ? CC_LIST : []).filter(cc =>
@@ -497,12 +508,11 @@ function ccAutocomplete(val) {
   _ccSelIdx = -1;
   _ccQuery = query;
 
-  // Position dropdown below textarea (fixed position to escape overflow:auto)
+  // Position below textarea
   const rect = ta.getBoundingClientRect();
   drop.style.top = (rect.bottom + 2) + 'px';
   drop.style.left = rect.left + 'px';
   drop.style.width = rect.width + 'px';
-  _ccCursorPos = cursorPos;
   drop.innerHTML = matches.map((cc, i) => {
     const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
     const highlighted = cc.replace(re, '<span class="cc-match">$1</span>');
@@ -516,16 +526,28 @@ let _ccCursorPos = 0;
 
 function ccPick(text) {
   const ta = document.getElementById('reg-cc');
-  const drop = document.getElementById('cc-dropdown');
+  const drop = document.getElementById('cc-dropdown-float');
   if (!ta || !drop) return;
-  ta.value = text;
+
+  // Replace only the last word/phrase with the picked text
+  const val = ta.value;
+  let lastSep = -1;
+  for (let i = val.length - 1; i >= 0; i--) {
+    if (val[i] === ' ' || val[i] === ',' || val[i] === '\n' || val[i] === '\t') { lastSep = i; break; }
+  }
+  if (lastSep >= 0) {
+    ta.value = val.substring(0, lastSep + 1) + text;
+  } else {
+    ta.value = text;
+  }
+
   drop.style.display = 'none';
   ta.focus();
 }
 
 // Keyboard navigation for CC dropdown
 document.getElementById('reg-cc')?.addEventListener('keydown', function(e) {
-  const drop = document.getElementById('cc-dropdown');
+  const drop = document.getElementById('cc-dropdown-float');
   if (!drop || drop.style.display === 'none') return;
   const items = drop.querySelectorAll('.cc-item');
   if (e.key === 'ArrowDown') {
@@ -552,9 +574,9 @@ document.getElementById('reg-cc')?.addEventListener('keydown', function(e) {
 // Close dropdown on blur
 document.getElementById('reg-cc')?.addEventListener('blur', function() {
   setTimeout(() => {
-    const drop = document.getElementById('cc-dropdown');
+    const drop = document.getElementById('cc-dropdown-float');
     if (drop) drop.style.display = 'none';
-  }, 150);
+  }, 250);
 });
 
 // ══════════════════════════════════════════
