@@ -427,6 +427,16 @@
     </div>
 
 
+    <!-- Case Category -->
+    <div style="margin-bottom:6px">
+      <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px">CASE CATEGORY</div>
+      <div id="reg-case-cat-wrap" style="display:flex;gap:4px">
+        <button type="button" class="reg-cat-btn" data-cat="trauma" onclick="regCatPick('trauma')">Trauma</button>
+        <button type="button" class="reg-cat-btn" data-cat="non_trauma" onclick="regCatPick('non_trauma')">Non-Trauma</button>
+        <button type="button" class="reg-cat-btn" data-cat="psych" onclick="regCatPick('psych')">Psych</button>
+      </div>
+    </div>
+
     <!-- ESI -->
     <div style="margin-bottom:6px">
       <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px">ESI LEVEL <span style="color:#ef4444">*</span></div>
@@ -438,6 +448,19 @@
         <option value="4">4 – ไม่ฉุกเฉิน (~3-4 ชม.)</option>
         <option value="5">5 – ทั่วไป (ตรวจหลังผู้ป่วยไม่ฉุกเฉิน(สีเขียว) ทั้งหมด)</option>
       </select>
+    </div>
+
+    <!-- Arrival Mode (optional at triage) -->
+    <div style="margin-bottom:6px">
+      <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px">ARRIVAL MODE</div>
+      <input id="reg-arrival" class="qv-fi" placeholder="พิมพ์เพื่อค้นหา..." style="font-family:'Sarabun',sans-serif;font-size:13px;padding:8px"
+        oninput="regArrivalSearch(this.value)" onfocus="regArrivalSearch(this.value)"
+        onkeydown="regArrivalKeydown(event)"
+        onblur="setTimeout(()=>{const d=document.getElementById('reg-arrival-drop');if(d)d.style.display='none'},150)">
+    </div>
+    <!-- Sub-option row (station/detail) — shown after picking a mode with subOptions -->
+    <div id="reg-arrival-sub" style="display:none;margin-bottom:6px">
+      <div id="reg-arrival-sub-wrap"></div>
     </div>
 
 

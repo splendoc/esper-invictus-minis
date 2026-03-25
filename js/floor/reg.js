@@ -47,6 +47,18 @@ function resetRegForm(){
   _regFtActive=false;
   _regFoundPatient=null;
   document.querySelectorAll('.reg-ft-btn').forEach(b=>b.classList.remove('active'));
+  // Reset case category
+  if (typeof regCatReset === 'function') regCatReset();
+  // Reset arrival mode
+  _regArrival = '';
+  const arrInput = document.getElementById('reg-arrival');
+  if (arrInput) arrInput.value = '';
+  const arrSub = document.getElementById('reg-arrival-sub');
+  if (arrSub) { arrSub.style.display = 'none'; }
+  const arrSubWrap = document.getElementById('reg-arrival-sub-wrap');
+  if (arrSubWrap) arrSubWrap.innerHTML = '';
+  const arrDrop = document.getElementById('reg-arrival-drop-float');
+  if (arrDrop) arrDrop.style.display = 'none';
 }
 
 // HN input — format + search after pause
@@ -435,7 +447,7 @@ async function submitReg(){
 
   const result = await registerPatient(
     { hn, title, firstName:fname, lastName:lname, sex, age:{y:ay,m:am,d:ad} },
-    { esi, cc, status, tab, fastTrack:ftName }
+    { esi, cc, status, tab, fastTrack:ftName, caseCategory:_regCaseCat||null, arrivalMode:_regArrival||null }
   );
 
   if (!result) {
@@ -580,36 +592,163 @@ document.getElementById('reg-cc')?.addEventListener('blur', function() {
 });
 
 // ══════════════════════════════════════════
-// FAST TRACK → CASE CATEGORY AUTO-ASSIGN
+// CASE CATEGORY — toggle buttons, auto from Fast Track
 // ══════════════════════════════════════════
+let _regCaseCat = '';
+let _regCatLocked = false;
+
+function regCatPick(cat) {
+  if (_regCatLocked) return;
+  _regCaseCat = (_regCaseCat === cat) ? '' : cat; // toggle
+  document.querySelectorAll('.reg-cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === _regCaseCat);
+  });
+}
+
+function regCatReset() {
+  _regCaseCat = '';
+  _regCatLocked = false;
+  document.querySelectorAll('.reg-cat-btn').forEach(b => {
+    b.classList.remove('active');
+    b.disabled = false;
+    b.style.opacity = '';
+  });
+}
+
+// Auto-assign from Fast Track
 (function() {
   const ftContainer = document.getElementById('reg-ft');
-  const catSel = document.getElementById('reg-case-cat');
-  if (!ftContainer || !catSel) return;
+  if (!ftContainer) return;
 
-  // When fast track button is clicked, auto-assign case category
-  const origClick = ftContainer.onclick;
   ftContainer.addEventListener('click', function() {
     setTimeout(() => {
       const activeBtn = document.querySelector('.reg-ft-btn.active');
       if (activeBtn && typeof FAST_TRACK_TO_CATEGORY !== 'undefined') {
-        const ftName = activeBtn.textContent.trim();
-        const cat = FAST_TRACK_TO_CATEGORY[ftName];
+        const ftName = activeBtn.textContent.trim().replace(/\s+/g,' ').split(' ')[0]; // first word: Trauma, ACS, STROKE, Sepsis, Anaphylaxis
+        // Match against keys
+        let cat = null;
+        for (const [k,v] of Object.entries(FAST_TRACK_TO_CATEGORY)) {
+          if (ftName.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(ftName.toLowerCase())) { cat = v; break; }
+        }
         if (cat) {
-          catSel.value = cat;
-          catSel.disabled = true;
+          _regCaseCat = cat;
+          _regCatLocked = true;
+          document.querySelectorAll('.reg-cat-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.cat === cat);
+            b.disabled = true;
+            b.style.opacity = b.dataset.cat === cat ? '' : '0.3';
+          });
         }
       }
     }, 10);
   });
 
-  // When fast track is cleared, re-enable case category
   const ftClr = document.getElementById('reg-ft-clr');
   if (ftClr) {
-    ftClr.addEventListener('click', function() {
-      catSel.disabled = false;
-      catSel.value = '';
-    });
+    ftClr.addEventListener('click', () => regCatReset());
   }
 })();
+
+// ══════════════════════════════════════════
+// ARRIVAL MODE — auto-suggest at triage (optional)
+// ══════════════════════════════════════════
+let _regArrival = '';
+let _regArrIdx = -1;
+
+function _getArrDrop() {
+  let drop = document.getElementById('reg-arrival-drop-float');
+  if (!drop) {
+    drop = document.createElement('div');
+    drop.id = 'reg-arrival-drop-float';
+    drop.className = 'cc-dropdown';
+    drop.style.cssText = 'position:fixed;z-index:9999;display:none';
+    document.body.appendChild(drop);
+  }
+  return drop;
+}
+
+function regArrivalSearch(query) {
+  const drop = _getArrDrop();
+  const input = document.getElementById('reg-arrival');
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const modes = typeof ARRIVAL_MODES !== 'undefined' ? ARRIVAL_MODES : [];
+  const matches = modes.filter(m =>
+    m.label.toLowerCase().includes(query.toLowerCase()) ||
+    (m.alias && m.alias.toLowerCase().includes(query.toLowerCase()))
+  ).slice(0, 10);
+
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  _regArrIdx = -1;
+  const rect = input.getBoundingClientRect();
+  drop.style.top = (rect.bottom + 2) + 'px';
+  drop.style.left = rect.left + 'px';
+  drop.style.width = rect.width + 'px';
+
+  drop.innerHTML = matches.map(m => {
+    const sub = m.subOptions ? ` <span style="font-size:10px;color:var(--text-dim)">(${m.subOptions.slice(0,3).join(', ')}${m.subOptions.length>3?'...':''})</span>` : '';
+    return `<div class="cc-item" onmousedown="regArrivalPick('${m.label.replace(/'/g,"\\'")}')">${m.label}${sub}</div>`;
+  }).join('');
+  drop.style.display = 'block';
+}
+
+function regArrivalPick(label) {
+  _regArrival = label;
+  const input = document.getElementById('reg-arrival');
+  if (input) input.value = label;
+  const drop = _getArrDrop();
+  drop.style.display = 'none';
+
+  // Show sub-options if the mode has them
+  const modes = typeof ARRIVAL_MODES !== 'undefined' ? ARRIVAL_MODES : [];
+  const mode = modes.find(m => m.label === label);
+  const subWrap = document.getElementById('reg-arrival-sub');
+  const subContent = document.getElementById('reg-arrival-sub-wrap');
+  if (!subWrap || !subContent) return;
+
+  if (mode && mode.subOptions) {
+    subContent.innerHTML = `<div class="qv-edit-lbl" style="width:auto;margin-bottom:4px;font-size:9px">${label} — เลือกสถานี</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${mode.subOptions.map(o => `<button type="button" class="reg-cat-btn reg-arr-sub-btn" onclick="regArrSubPick(this,'${o.replace(/'/g,"\\'")}')" style="flex:none;padding:4px 10px;font-size:11px;font-family:'Sarabun',sans-serif">${o}</button>`).join('')}
+      </div>
+      ${mode.subText ? `<input id="reg-arrival-extra" class="qv-fi" placeholder="${mode.subPlaceholder||'รายละเอียด...'}" style="font-family:'Sarabun',sans-serif;font-size:12px;padding:6px 8px;margin-top:4px">` : ''}`;
+    subWrap.style.display = '';
+  } else if (mode && mode.subText) {
+    subContent.innerHTML = `<input id="reg-arrival-extra" class="qv-fi" placeholder="${mode.subPlaceholder||'รายละเอียด...'}" style="font-family:'Sarabun',sans-serif;font-size:12px;padding:6px 8px">`;
+    subWrap.style.display = '';
+  } else {
+    subWrap.style.display = 'none';
+    subContent.innerHTML = '';
+  }
+}
+
+function regArrSubPick(btn, value) {
+  document.querySelectorAll('.reg-arr-sub-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Append sub to arrival string
+  _regArrival = document.getElementById('reg-arrival').value + ' — ' + value;
+}
+
+function regArrivalKeydown(e) {
+  const drop = _getArrDrop();
+  if (drop.style.display === 'none') return;
+  const items = drop.querySelectorAll('.cc-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _regArrIdx = Math.min(_regArrIdx + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('cc-sel', i === _regArrIdx));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _regArrIdx = Math.max(_regArrIdx - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('cc-sel', i === _regArrIdx));
+  } else if (e.key === 'Enter' && _regArrIdx >= 0 && items[_regArrIdx]) {
+    e.preventDefault();
+    const md = items[_regArrIdx].getAttribute('onmousedown');
+    if (md) eval(md);
+    _regArrIdx = -1;
+  } else if (e.key === 'Escape') {
+    drop.style.display = 'none';
+  }
+}
 

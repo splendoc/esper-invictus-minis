@@ -146,12 +146,12 @@ async function confirmStatus(){
   if(qvSel===p.status && !isClosing){ closeQV(); return; }
 
   p.status=qvSel;
-  if(['active','waiting'].includes(p.tab) && (FINAL_FROM_ACTIVE.has(qvSel) || (isClosing && FINAL_FROM_WAITING.has(qvSel)))){
+  if(['active','waiting'].includes(p.tab) && (FINAL_FROM_ACTIVE.has(qvSel) || FINAL_FROM_WAITING.has(qvSel))){
     p.finalizedAt = Date.now();
   }
 
   // auto tab transition
-  if(p.tab==='waiting' && isClosing && FINAL_FROM_WAITING.has(qvSel)){
+  if(p.tab==='waiting' && FINAL_FROM_WAITING.has(qvSel)){
     p.tab='finalized';
   } else if(p.tab==='waiting' && !WAITING_STATUSES.has(qvSel)){
     p.tab='active';
@@ -165,6 +165,11 @@ async function confirmStatus(){
 
   // Write to Supabase
   await updateVisitStatus(p.id, p.status, p.tab, p.activatedAt);
+
+  // ปฏิเสธการรักษา needs no finalization data — auto-complete immediately
+  if(qvSel==='ปฏิเสธการรักษา' && p.tab==='finalized'){
+    await sb.from('visits').update({ data_complete:true, data_completed_at:new Date().toISOString() }).eq('id',p.id);
+  }
 
   const nm = [p.firstName,p.lastName].filter(Boolean).join(' ')||fullName(p);
   const movedTo = p.tab;

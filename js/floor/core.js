@@ -123,7 +123,9 @@ function dbToPatient(row) {
     upd: row.updated_at ? new Date(row.updated_at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'}) : '—',
     arrivedAt: row.arrived_at,
     activatedAt: row.activated_at,
-    fastTrack: row.fast_track
+    fastTrack: row.fast_track,
+    caseCat: row.case_category || null,
+    arrivalMode: row.arrival_mode || null
   };
 }
 
@@ -143,6 +145,8 @@ async function loadPatients() {
       activated_at,
       finalized_at,
       updated_at,
+      case_category,
+      arrival_mode,
       data_complete,
       data_completed_at,
       patients (
@@ -189,6 +193,8 @@ async function loadPatients() {
       status: row.status,
       tab: row.tab,
       fast_track: row.fast_track,
+      case_category: row.case_category,
+      arrival_mode: row.arrival_mode,
       arrived_at: row.arrived_at,
       activated_at: row.activated_at,
       updated_at: row.updated_at
@@ -214,7 +220,9 @@ async function registerPatient(patientData, visitData) {
     v_cc: visitData.cc || '',
     v_status: visitData.status,
     v_tab: visitData.tab,
-    v_fast_track: visitData.fastTrack || null
+    v_fast_track: visitData.fastTrack || null,
+    v_case_category: visitData.caseCategory || null,
+    v_arrival_mode: visitData.arrivalMode || null
   });
 
   if (error) { console.error('Register error:', error); return null; }

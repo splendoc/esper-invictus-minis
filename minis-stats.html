@@ -353,8 +353,8 @@ function renderAll(){
   document.getElementById('lc-nt').textContent=cat.non_trauma;
   document.getElementById('lc-p').textContent=cat.psych;
 
-  // Fast Track
-  const ft={};v.forEach(r=>{if(r.fast_track)ft[r.fast_track]=(ft[r.fast_track]||0)+1});
+  // Fast Track (Anaphylaxis is NOT a protocol — exclude from stats)
+  const ft={};v.forEach(r=>{if(r.fast_track && r.fast_track!=='Anaphylaxis')ft[r.fast_track]=(ft[r.fast_track]||0)+1});
   document.getElementById('left-ft').innerHTML=Object.entries(ft).map(([k,c])=>`<div class="s-cat-card"><div class="s-cat-num" style="font-size:18px;color:var(--text-primary)">${c}</div><div class="s-cat-lbl">${k}</div></div>`).join('')||'<div style="color:var(--text-dim);font-size:11px">ไม่มี</div>';
 
   // Final ESI breakdown
@@ -440,7 +440,7 @@ function renderAll(){
   </table>`:'<div style="color:var(--text-dim);font-size:11px">ยังไม่มีข้อมูล</div>';
 
   // Arrival mode — number cards
-  const ar={};v.filter(r=>r.arrival_mode).forEach(r=>{ar[r.arrival_mode]=(ar[r.arrival_mode]||0)+1});
+  const ar={};v.filter(r=>r.arrival_mode).forEach(r=>{const m=r.arrival_mode==='อาสานำส่ง'?'FR นำส่ง':r.arrival_mode;ar[m]=(ar[m]||0)+1});
   const arS=Object.entries(ar).sort((a,b)=>b[1]-a[1]);
   document.getElementById('r-arr').innerHTML=arS.length?arS.map(([m,c])=>
     `<div class="s-card s-stat"><div class="s-stat-num" style="font-size:22px">${c}</div><div class="s-stat-lbl" style="font-size:10px">${m}</div></div>`
@@ -530,7 +530,7 @@ function renderAll(){
 // ══════════════════════════════════════════
 function exportCSV(){
   const h=['arrived_at','esi','final_esi','case_category','arrival_mode','fast_track','diagnosis','diagnosis_icd10','status','department','doctor','treatment_outcome','age_y','sex'];
-  const rows=filtered.map(r=>h.map(k=>{let v=r[k]||'';if(typeof v==='string'&&v.includes(','))v='"'+v+'"';return v}).join(','));
+  const rows=filtered.map(r=>h.map(k=>{let v=r[k]||'';if(k==='arrival_mode'&&v==='อาสานำส่ง')v='FR นำส่ง';if(typeof v==='string'&&v.includes(','))v='"'+v+'"';return v}).join(','));
   const csv='\uFEFF'+h.join(',')+'\n'+rows.join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);

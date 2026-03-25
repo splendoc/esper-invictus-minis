@@ -28,7 +28,7 @@ function getFinalData(id) {
     arrivalMode: '', arrivalModeSub: '', arrivalModeExtra: '', arrivalModeCustom: '',
     hospitalArrivalTime: '', treatmentOutcome: '',
     hadETT: false, hadCPR: false,
-    consultDept: '', consultDoctor: '', consultDoctorLicense: '',
+    consults: [], // [{ doctor, department, license }] — สาขาดูร่วม (multiple)
     referralHospital: '', referralReason: '', referralDoctor: '', referralDoctorLicense: '',
     referralReceivingDept: ''
   };
@@ -39,6 +39,36 @@ function buildFinalizationPanel(p) {
   const d = getDispoState(p.id);
   const f = getFinalData(p.id);
   const type = getDispoType(p.status);
+
+  // ปฏิเสธการรักษา — no finalization panel at all
+  if (p.status === 'ปฏิเสธการรักษา') {
+    return `<div class="fin-panel">
+      <div class="fin-section-title"><i class="fas fa-clipboard-check" style="color:var(--accent);margin-right:4px"></i> FINALIZE DATA</div>
+      <div style="padding:12px 0;font-family:'Sarabun',sans-serif;font-size:13px;color:#86efac"><i class="fas fa-check-circle" style="margin-right:4px"></i>ไม่ต้องกรอกข้อมูลเพิ่ม</div>
+    </div>`;
+  }
+
+  // เรียกไม่พบ — only case type
+  if (p.status === 'เรียกไม่พบ') {
+    const cats = typeof CASE_CATEGORIES !== 'undefined' ? CASE_CATEGORIES : [];
+    const ftCat = p.fastTrack && typeof FAST_TRACK_TO_CATEGORY !== 'undefined' ? FAST_TRACK_TO_CATEGORY[p.fastTrack] : null;
+    if (!f.caseCategory && ftCat) f.caseCategory = ftCat;
+    const complete = !!(f.caseCategory || p.caseCat);
+    return `<div class="fin-panel">
+      <div class="fin-section-title"><i class="fas fa-clipboard-check" style="color:var(--accent);margin-right:4px"></i> FINALIZE DATA</div>
+      <div class="fin-row">
+        <span class="fin-lbl">CASE TYPE <span class="fin-req">*</span></span>
+        <div style="display:flex;gap:6px">
+          ${cats.map(c => `<button class="fin-toggle-btn${f.caseCategory===c.value?' on':''}" onclick="setFinalField('${p.id}','caseCategory','${c.value}');this.parentElement.querySelectorAll('.fin-toggle-btn').forEach(b=>b.classList.remove('on'));this.classList.add('on')" style="flex:1">${c.label}</button>`).join('')}
+        </div>
+      </div>
+      <div style="padding:8px 0;text-align:right">
+        <button class="fin-save-btn${complete?'':' disabled'}" ${complete?`onclick="completeFinalization('${p.id}')"`:'disabled'}>
+          <i class="fas fa-check"></i> บันทึก
+        </button>
+      </div>
+    </div>`;
+  }
 
   // Visit info (read-only)
   const arrivedStr = p.arrivedAt
@@ -86,25 +116,29 @@ function buildFinalizationPanel(p) {
 
   // ── EDITABLE FIELDS ──
 
-  // Case Category (always in finalization — auto from fast track if available)
+  // Case Category — pre-fill from triage or fast track
   const cats = typeof CASE_CATEGORIES !== 'undefined' ? CASE_CATEGORIES : [];
+  if (!f.caseCategory && p.caseCat) f.caseCategory = p.caseCat;
   const ftCat = p.fastTrack && typeof FAST_TRACK_TO_CATEGORY !== 'undefined' ? FAST_TRACK_TO_CATEGORY[p.fastTrack] : null;
   if (!f.caseCategory && ftCat) f.caseCategory = ftCat;
+  const catFromTriage = !!p.caseCat;
   html += `<div class="fin-row">
     <span class="fin-lbl">CASE TYPE <span class="fin-req">*</span></span>
     <div style="display:flex;gap:6px">
       ${cats.map(c => `<button class="fin-toggle-btn${f.caseCategory===c.value?' on':''}" onclick="setFinalField('${p.id}','caseCategory','${c.value}');this.parentElement.querySelectorAll('.fin-toggle-btn').forEach(b=>b.classList.remove('on'));this.classList.add('on')" style="flex:1">${c.label}</button>`).join('')}
     </div>
-    ${ftCat ? `<div class="fin-hint">Auto จาก Fast Track: ${p.fastTrack}</div>` : ''}
+    ${catFromTriage ? `<div class="fin-hint">จาก Triage</div>` : ftCat ? `<div class="fin-hint">Auto จาก Fast Track: ${p.fastTrack}</div>` : ''}
   </div>`;
 
   // Final ESI (all cases)
   html += `<div class="fin-row">
     <span class="fin-lbl">FINAL ESI <span class="fin-req">*</span></span>
-    <div class="fin-esi-row">
-      ${[1,2,3,4,5].map(n => `<div class="fin-esi-btn esi-c-${n}${f.finalEsi===n?' sel':''}" onclick="setFinalEsi('${p.id}',${n})">${n}</div>`).join('')}
+    <div style="flex:1">
+      <div class="fin-hint" style="margin:0 0 6px 0;white-space:nowrap">Initial ESI: <span style="font-family:'IBM Plex Mono',monospace;font-weight:600">${p.esi}</span> — กรุณากดยืนยัน Final ESI</div>
+      <div class="fin-esi-row">
+        ${[1,2,3,4,5].map(n => `<div class="fin-esi-btn esi-c-${n}${f.finalEsi===n?' sel':''}" onclick="setFinalEsi('${p.id}',${n})">${n}</div>`).join('')}
+      </div>
     </div>
-    <div class="fin-hint">Initial ESI: <span style="font-family:'IBM Plex Mono',monospace;font-weight:600">${p.esi}</span> — กรุณากดยืนยัน Final ESI</div>
   </div>`;
 
   // ETT + CPR toggle buttons (optional)
@@ -131,7 +165,8 @@ function buildFinalizationPanel(p) {
     </div>
   </div>`;
 
-  // Arrival Mode (flat list + optional sub-text or hospital auto-suggest for Refer in)
+  // Arrival Mode — pre-fill from triage if set
+  if (!f.arrivalMode && p.arrivalMode) f.arrivalMode = p.arrivalMode;
   const arrModes = typeof ARRIVAL_MODES !== 'undefined' ? ARRIVAL_MODES : [];
   const selectedMode = arrModes.find(m => m.label === f.arrivalMode);
   const needSubText = selectedMode?.subText;
@@ -181,26 +216,12 @@ function buildFinalizationPanel(p) {
       style="font-family:'IBM Plex Mono',monospace;max-width:140px">
   </div>`;
 
-  // ── ADMIT-SPECIFIC FIELDS ──
+  // ── ADMISSION DETAIL ──
   if (type === 'admit') {
-    // Department (auto-suggest)
     const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
     const deptDisplay = f.department ? (deptLabels[f.department] || f.department) : '';
-    html += `<div class="fin-row fin-col">
-      <span class="fin-lbl">DEPARTMENT <span class="fin-req">*</span></span>
-      <div style="position:relative">
-        <input class="fin-input" id="fin-dept-${p.id}" placeholder="พิมพ์ชื่อแผนก..."
-          value="${deptDisplay}" style="font-size:12px;padding:5px 8px"
-          oninput="finDeptSearch('${p.id}',this.value)" onfocus="finDeptSearch('${p.id}',this.value)" onkeydown="finDeptKeydown(event,'${p.id}')"
-          onblur="setTimeout(()=>{const d=document.getElementById('fin-dept-drop-${p.id}');if(d)d.style.display='none'},150)">
-        <div class="fin-dx-drop" id="fin-dept-drop-${p.id}"></div>
-      </div>
-    </div>`;
-
-    // Doctor — if dept has list: auto-fill if 1 doctor, locked dropdown if multiple, free text if no list
     const deptDocList = f.department && typeof DEPT_DOCTORS !== 'undefined' ? DEPT_DOCTORS[f.department] : null;
 
-    // Auto-fill if only 1 doctor in department
     if (deptDocList && deptDocList.length === 1 && !f.doctor) {
       f.doctor = deptDocList[0].name;
       f.doctorLicense = deptDocList[0].license || '';
@@ -208,11 +229,14 @@ function buildFinalizationPanel(p) {
 
     const docSelected = f.doctor && (deptDocList ? deptDocList.some(d => d.name === f.doctor) : true);
 
+    html += `<div class="fin-section-title" style="margin-top:8px"><i class="fas fa-bed" style="color:#a78bfa;margin-right:4px"></i> ADMISSION DETAIL</div>`;
+
+    // Attending Physician first — search all doctors, auto-lock dept
     html += `<div class="fin-row fin-col">
-      <span class="fin-lbl">DOCTOR <span class="fin-req">*</span></span>
+      <span class="fin-lbl">ATTENDING PHYSICIAN <span class="fin-req">*</span></span>
       <div style="position:relative">
         <input class="fin-input${docSelected ? ' fin-input-selected' : ''}" id="fin-doc-${p.id}"
-          placeholder="${deptDocList ? 'เลือกแพทย์...' : 'พิมพ์ชื่อแพทย์...'}"
+          placeholder="พิมพ์ชื่อแพทย์..."
           value="${f.doctor || ''}" style="font-size:12px;padding:5px 8px"
           oninput="finDocSearch('${p.id}',this.value)" onfocus="finDocSearch('${p.id}',this.value)"
           onkeydown="finDocKeydown(event,'${p.id}')"
@@ -220,7 +244,19 @@ function buildFinalizationPanel(p) {
           ${deptDocList && deptDocList.length === 1 ? 'readonly' : ''}>
         <div class="fin-dx-drop" id="fin-doc-drop-${p.id}"></div>
         ${f.doctorLicense ? `<div class="fin-icd">${f.doctorLicense}</div>` : ''}
-        ${f.department ? `<div class="fin-hint">แผนก ${deptLabels[f.department] || f.department}${deptDocList ? ' · '+deptDocList.length+' แพทย์' : ''}</div>` : ''}
+      </div>
+    </div>`;
+
+    // Department — locked when doctor is picked
+    html += `<div class="fin-row fin-col">
+      <span class="fin-lbl">DEPARTMENT <span class="fin-req">*</span></span>
+      <div style="position:relative">
+        <input class="fin-input${f.department && docSelected ? ' fin-input-selected' : ''}" id="fin-dept-${p.id}" placeholder="พิมพ์ชื่อแผนก..."
+          value="${deptDisplay}" style="font-size:12px;padding:5px 8px"
+          oninput="finDeptSearch('${p.id}',this.value)" onfocus="finDeptSearch('${p.id}',this.value)" onkeydown="finDeptKeydown(event,'${p.id}')"
+          onblur="setTimeout(()=>{const d=document.getElementById('fin-dept-drop-${p.id}');if(d)d.style.display='none'},150)"
+          ${f.department && docSelected ? 'readonly' : ''}>
+        <div class="fin-dx-drop" id="fin-dept-drop-${p.id}"></div>
       </div>
     </div>`;
   }
@@ -270,38 +306,46 @@ function buildFinalizationPanel(p) {
     </div>`;
   }
 
-  // ── สาขาดูร่วม (Consulting Department — optional, all cases) ──
-  const consultDeptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
-  const consultDeptDisplay = f.consultDept ? (consultDeptLabels[f.consultDept] || f.consultDept) : '';
-  const consultDocList = f.consultDept && typeof DEPT_DOCTORS !== 'undefined' ? DEPT_DOCTORS[f.consultDept] : null;
-  if (consultDocList && consultDocList.length === 1 && !f.consultDoctor) {
-    f.consultDoctor = consultDocList[0].name;
-    f.consultDoctorLicense = consultDocList[0].license || '';
-  }
-  const consultDocSelected = f.consultDoctor && (consultDocList ? consultDocList.some(d => d.name === f.consultDoctor) : true);
+  // ── สาขาดูร่วม (Co-managing — optional, multiple entries) ──
+  const cLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
 
   html += `<div class="fin-row fin-col">
-    <span class="fin-lbl">สาขาดูร่วม</span>
+    <span class="fin-lbl">สาขาดูร่วม</span>`;
+
+  // Existing entries
+  if (f.consults.length) {
+    f.consults.forEach((c, i) => {
+      html += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border-subtle)">
+        <span style="font-family:'Sarabun',sans-serif;font-size:12px;color:var(--text-primary);flex:1">${c.doctor}</span>
+        <span style="font-family:'Sarabun',sans-serif;font-size:11px;color:var(--text-dim)">${cLabels[c.department]||c.department}</span>
+        ${c.license ? `<span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${c.license}</span>` : ''}
+        <button style="background:none;border:none;color:var(--text-dim);cursor:pointer;padding:2px 4px;font-size:10px" onclick="event.stopPropagation();finConsultRemove('${p.id}',${i})"><i class="fas fa-times"></i></button>
+      </div>`;
+    });
+  }
+
+  // Add new entry — doctor first, dept auto-locks
+  html += `<div style="margin-top:6px">
     <div style="display:flex;gap:6px">
       <div style="position:relative;flex:1">
-        <input class="fin-input" id="fin-cdept-${p.id}" placeholder="แผนก..."
-          value="${consultDeptDisplay}" style="font-size:12px;padding:5px 8px"
-          oninput="finConsultDeptSearch('${p.id}',this.value)" onfocus="finConsultDeptSearch('${p.id}',this.value)"
-          onkeydown="finDropKeydown(event,'fin-cdept-drop-${p.id}')"
-          onblur="setTimeout(()=>{const d=document.getElementById('fin-cdept-drop-${p.id}');if(d)d.style.display='none'},150)">
-        <div class="fin-dx-drop" id="fin-cdept-drop-${p.id}"></div>
-      </div>
-      <div style="position:relative;flex:1">
-        <input class="fin-input${consultDocSelected?' fin-input-selected':''}" id="fin-cdoc-${p.id}"
-          placeholder="แพทย์..." value="${f.consultDoctor||''}" style="font-size:12px;padding:5px 8px"
+        <input class="fin-input" id="fin-cdoc-${p.id}" placeholder="พิมพ์ชื่อแพทย์..."
+          style="font-size:12px;padding:5px 8px"
           oninput="finConsultDocSearch('${p.id}',this.value)" onfocus="finConsultDocSearch('${p.id}',this.value)"
           onkeydown="finDropKeydown(event,'fin-cdoc-drop-${p.id}')"
-          onblur="setTimeout(()=>{const d=document.getElementById('fin-cdoc-drop-${p.id}');if(d)d.style.display='none'},150)"
-          ${consultDocList && consultDocList.length === 1 ? 'readonly' : ''}>
+          onblur="setTimeout(()=>{const d=document.getElementById('fin-cdoc-drop-${p.id}');if(d)d.style.display='none'},200)">
         <div class="fin-dx-drop" id="fin-cdoc-drop-${p.id}"></div>
       </div>
+      <div style="position:relative;flex:1">
+        <input class="fin-input" id="fin-cdept-${p.id}" placeholder="แผนก..." readonly
+          style="font-size:12px;padding:5px 8px;color:var(--text-dim)">
+      </div>
     </div>
-    ${f.consultDept ? `<div class="fin-hint">${consultDeptLabels[f.consultDept]||f.consultDept}${f.consultDoctorLicense?' · '+f.consultDoctorLicense:''}</div>` : ''}
+    <div style="text-align:right;margin-top:4px">
+      <button class="fin-toggle-btn" onclick="event.stopPropagation();finConsultAdd('${p.id}')" style="font-size:11px;padding:4px 10px">
+        <i class="fas fa-plus" style="margin-right:3px"></i> เพิ่ม
+      </button>
+    </div>
+  </div>
   </div>`;
 
   // ── TREATMENT OUTCOME (Discharge + Refer only) ──
@@ -496,73 +540,58 @@ function finDocPick(visitId, name, license, dept) {
   if (p) openFinalizedQV(p.id);
 }
 
-// ── สาขาดูร่วม (Consulting) search — same logic as admission ──
-function finConsultDeptSearch(visitId, query) {
-  const drop = document.getElementById('fin-cdept-drop-' + visitId);
-  if (!drop) return;
-  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
-  const matches = query
-    ? Object.entries(deptLabels).filter(([k,v]) => k.toLowerCase().includes(query.toLowerCase()) || v.toLowerCase().includes(query.toLowerCase())).slice(0,10)
-    : Object.entries(deptLabels);
-  drop.innerHTML = matches.map(([k,v]) =>
-    `<div class="fin-dx-item" onmousedown="finConsultDeptPick('${visitId}','${k}')">${v}</div>`
-  ).join('');
-  drop.style.display = matches.length ? 'block' : 'none';
-}
-
-function finConsultDeptPick(visitId, dept) {
-  const f = getFinalData(visitId);
-  f.consultDept = dept;
-  f.consultDoctor = '';
-  f.consultDoctorLicense = '';
-  const drop = document.getElementById('fin-cdept-drop-' + visitId);
-  if (drop) drop.style.display = 'none';
-  const p = patients.find(x => x.id === visitId);
-  if (p) openFinalizedQV(p.id);
-}
+// ── สาขาดูร่วม — multi-entry, doctor-first search ──
+let _finConsultPick = {}; // { visitId: { name, license, dept } }
 
 function finConsultDocSearch(visitId, query) {
   const drop = document.getElementById('fin-cdoc-drop-' + visitId);
   if (!drop) return;
-  const f = getFinalData(visitId);
-  const hasList = f.consultDept && typeof DEPT_DOCTORS !== 'undefined' && DEPT_DOCTORS[f.consultDept];
+  _finConsultPick[visitId] = null;
+  const deptInput = document.getElementById('fin-cdept-' + visitId);
+  if (deptInput) deptInput.value = '';
 
-  if (hasList) {
-    const docs = DEPT_DOCTORS[f.consultDept];
-    const matches = query ? docs.filter(d => d.name.toLowerCase().includes(query.toLowerCase())) : docs;
-    f.consultDoctor = query;
-    f.consultDoctorLicense = '';
-    drop.innerHTML = matches.map(d =>
-      `<div class="fin-dx-item" onmousedown="finConsultDocPick('${visitId}','${d.name.replace(/'/g,"\\'")}','${(d.license||'').replace(/'/g,"\\'")}')">${d.name}${d.license ? ' <span style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--text-dim)">'+d.license+'</span>' : ''}</div>`
-    ).join('');
-    drop.style.display = matches.length ? 'block' : 'none';
-  } else {
-    // No dept selected — show all doctors
-    f.consultDoctor = query;
-    f.consultDoctorLicense = '';
-    if (!query) { drop.style.display = 'none'; return; }
-    const deptDocs = [];
-    if (typeof DEPT_DOCTORS !== 'undefined') {
-      for (const [dept, docs] of Object.entries(DEPT_DOCTORS)) {
-        for (const d of docs) deptDocs.push({ name:d.name, license:d.license, dept });
-      }
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const deptDocs = [];
+  if (typeof DEPT_DOCTORS !== 'undefined') {
+    for (const [dept, docs] of Object.entries(DEPT_DOCTORS)) {
+      for (const d of docs) deptDocs.push({ name:d.name, license:d.license, dept });
     }
-    const matches = deptDocs.filter(d => d.name.toLowerCase().includes(query.toLowerCase())).slice(0,10);
-    const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
-    drop.innerHTML = matches.map(d =>
-      `<div class="fin-dx-item" onmousedown="finConsultDocPick('${visitId}','${d.name.replace(/'/g,"\\'")}','${(d.license||'').replace(/'/g,"\\'")}','${d.dept.replace(/'/g,"\\'")}')">${d.name} <span style="font-size:10px;color:var(--text-dim)">${deptLabels[d.dept]||d.dept}</span></div>`
-    ).join('');
-    drop.style.display = matches.length ? 'block' : 'none';
   }
+  const matches = deptDocs.filter(d => d.name.toLowerCase().includes(query.toLowerCase())).slice(0,10);
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  drop.innerHTML = matches.map(d =>
+    `<div class="fin-dx-item" onmousedown="finConsultDocPick('${visitId}','${d.name.replace(/'/g,"\\'")}','${(d.license||'').replace(/'/g,"\\'")}','${d.dept.replace(/'/g,"\\'")}')">${d.name}${d.license ? ` <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${d.license}</span>` : ''} <span style="font-size:10px;color:var(--text-dim)">${deptLabels[d.dept]||d.dept}</span></div>`
+  ).join('');
+  drop.style.display = 'block';
 }
 
 function finConsultDocPick(visitId, name, license, dept) {
-  const f = getFinalData(visitId);
-  f.consultDoctor = name;
-  f.consultDoctorLicense = license;
-  if (dept) f.consultDept = dept;
+  _finConsultPick[visitId] = { name, license, dept };
+  const input = document.getElementById('fin-cdoc-' + visitId);
+  if (input) { input.value = name; input.classList.add('fin-input-selected'); }
   const drop = document.getElementById('fin-cdoc-drop-' + visitId);
   if (drop) drop.style.display = 'none';
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  const deptInput = document.getElementById('fin-cdept-' + visitId);
+  if (deptInput) deptInput.value = deptLabels[dept] || dept;
+}
+
+function finConsultAdd(visitId) {
+  const pick = _finConsultPick[visitId];
+  if (!pick || !pick.name) return;
+  const f = getFinalData(visitId);
+  f.consults.push({ doctor: pick.name, department: pick.dept, license: pick.license || '' });
+  _finConsultPick[visitId] = null;
+  const p = patients.find(x => x.id === visitId);
+  if (p) openFinalizedQV(p.id);
+}
+
+function finConsultRemove(visitId, idx) {
+  const f = getFinalData(visitId);
+  f.consults.splice(idx, 1);
   const p = patients.find(x => x.id === visitId);
   if (p) openFinalizedQV(p.id);
 }
@@ -750,6 +779,10 @@ function finDxPick(visitId, text, icd) {
 function checkFinalizationComplete(visitId, type) {
   const f = getFinalData(visitId);
   const p = patients.find(x => x.id === visitId);
+  // ปฏิเสธการรักษา — always complete (no fields needed)
+  if (p?.status === 'ปฏิเสธการรักษา') return true;
+  // เรียกไม่พบ — only needs case type
+  if (p?.status === 'เรียกไม่พบ') return !!(f.caseCategory || p.caseCat);
   if (!f.finalEsi) return false;
   if (!f.diagnosis) return false;
   if (!f.arrivalMode) return false;
@@ -808,6 +841,18 @@ async function completeFinalization(visitId) {
     console.error('Finalization save error:', error);
     showToast('เกิดข้อผิดพลาดในการบันทึก','#ef4444','fa-exclamation-triangle');
     return;
+  }
+
+  // Save สาขาดูร่วม entries to consult_log
+  if (f.consults && f.consults.length) {
+    for (const c of f.consults) {
+      await sb.from('consult_log').insert({
+        visit_id: visitId,
+        department: c.department,
+        doctor: c.doctor,
+        doctor_license: c.license || null
+      });
+    }
   }
 
   closeQV();
