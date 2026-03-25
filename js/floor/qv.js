@@ -52,6 +52,12 @@ function openQV(id,evt){
     extraHtml += buildReferContactSection(p_ctx);
   }
 
+  // Consult log (ปรึกษาแพทย์เฉพาะทาง)
+  if (p_ctx && typeof buildConsultSection === 'function' &&
+    p_ctx.status === 'ปรึกษาแพทย์เฉพาะทาง') {
+    extraHtml += buildConsultSection(p_ctx);
+  }
+
   // Admit info (รอ Admit) — show จองเตียง + ส่งเวร summary
   if (p_ctx && p_ctx.status === 'รอขึ้นหอผู้ป่วย' && typeof getDispoState === 'function') {
     const d = getDispoState(p_ctx.id);
