@@ -167,16 +167,28 @@
   <div class="hdr-div"></div>
 
   <!-- Hospital identity (cross icon = theme toggle) -->
-  <div class="hosp-badge">
-    <div class="hosp-icon" onclick="toggleTheme()" style="cursor:pointer;transition:border-color .15s,background .15s" title="Toggle theme">
+  <div class="hosp-badge" id="hosp-nav-wrap" style="position:relative;cursor:pointer" onclick="toggleHospNav()">
+    <div class="hosp-icon" onclick="event.stopPropagation();toggleTheme()" style="cursor:pointer;transition:border-color .15s,background .15s" title="Toggle theme">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path id="hosp-cross" d="M8 2v12M2 8h12" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
         <rect id="hosp-rect" x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="#1e4a80" stroke-width="1"/>
       </svg>
     </div>
     <div>
-      <div class="hosp-name">Bangbuatong</div>
+      <div class="hosp-name">Bangbuatong <i class="fas fa-chevron-down" style="font-size:8px;opacity:.5;margin-left:2px"></i></div>
       <div class="hosp-dept">Emergency</div>
+    </div>
+    <!-- Navigation dropdown -->
+    <div class="hosp-nav" id="hosp-nav" style="display:none">
+      <a href="minis-floor.html" class="hosp-nav-item hosp-nav-active">
+        <i class="fas fa-clipboard-list" style="width:16px"></i> Floor
+      </a>
+      <a href="minis-publicview.html" target="_blank" class="hosp-nav-item">
+        <i class="fas fa-tv" style="width:16px"></i> Public View
+      </a>
+      <a href="minis-stats.html" class="hosp-nav-item">
+        <i class="fas fa-chart-bar" style="width:16px"></i> Stats
+      </a>
     </div>
   </div>
 </header>
@@ -402,15 +414,18 @@
         <button type="button" data-esi="2" class="reg-ft-btn" style="background:linear-gradient(135deg,#db2777,#be185d)">ACS</button>
         <button type="button" data-esi="2" class="reg-ft-btn" style="background:linear-gradient(135deg,#c026d3,#a21caf);line-height:1.1"><span style="font-size:11px;display:block">STROKE</span><span style="font-size:8px;display:block;opacity:.85">Fast Track</span></button>
         <button type="button" data-esi="2" class="reg-ft-btn" style="background:linear-gradient(135deg,#ea580c,#c2410c)">Sepsis</button>
+        <button type="button" data-esi="1" class="reg-ft-btn" style="background:linear-gradient(135deg,#ef4444,#dc2626)">Anaphylaxis</button>
         <button type="button" id="reg-ft-clr" style="width:32px;height:32px;flex:none;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border-radius:5px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
       </div>
     </div>
 
-    <!-- Chief Complaint -->
-    <div style="margin-bottom:6px">
+    <!-- Chief Complaint (autocomplete) -->
+    <div style="margin-bottom:6px;position:relative">
       <div class="qv-edit-lbl" style="width:auto;margin-bottom:4px">CHIEF COMPLAINT <span style="color:#ef4444">*</span></div>
-      <textarea id="reg-cc" class="qv-fi" rows="3" style="resize:vertical;font-family:'Sarabun',sans-serif;min-height:54px"></textarea>
+      <textarea id="reg-cc" class="qv-fi" rows="3" style="resize:vertical;font-family:'Sarabun',sans-serif;min-height:54px" oninput="ccAutocomplete(this.value)" onfocus="ccAutocomplete(this.value)"></textarea>
+      <div id="cc-dropdown" class="cc-dropdown" style="display:none"></div>
     </div>
+
 
     <!-- ESI -->
     <div style="margin-bottom:6px">
@@ -419,9 +434,9 @@
         <option value="">-- Select --</option>
         <option value="1">1 – Resuscitation</option>
         <option value="2">2 – Emergent</option>
-        <option value="3">3 – Urgent</option>
-        <option value="4">4 – Less Urgent</option>
-        <option value="5">5 – Non-urgent</option>
+        <option value="3">3 – กึ่งฉุกเฉิน (~2.5-3 ชม.)</option>
+        <option value="4">4 – ไม่ฉุกเฉิน (~3-4 ชม.)</option>
+        <option value="5">5 – ทั่วไป (ตรวจหลังผู้ป่วยไม่ฉุกเฉิน(สีเขียว) ทั้งหมด)</option>
       </select>
     </div>
 
@@ -463,6 +478,13 @@
 
 
 
-<script src="js/floor.js"></script>
+<script src="js/floor/data.js"></script>
+<script src="js/floor/core.js"></script>
+<script src="js/floor/qv.js"></script>
+<script src="js/floor/reg.js"></script>
+<script src="js/floor/dispo.js"></script>
+<script src="js/floor/finalize.js"></script>
+<script src="js/floor/refer.js"></script>
+<script src="js/floor/notes.js"></script>
 </body>
 </html>

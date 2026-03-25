@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESPER : Invictus — Stats Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="css/floor.css" rel="stylesheet">
+<script>
+tailwind.config={darkMode:'class'}
+</script>
+<style>
+body{background:var(--bg-body);color:var(--text-primary);font-family:'Sarabun',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* Header */
+.s-hdr{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg-panel)}
+
+/* Main grid: left 1/3, right 2/3 */
+.s-grid{display:grid;grid-template-columns:1fr 2fr;gap:16px;padding:16px;height:calc(100vh - 100px);overflow:hidden}
+@media(max-width:900px){.s-grid{grid-template-columns:1fr;height:auto;overflow:auto}}
+.s-left{display:flex;flex-direction:column;gap:12px;overflow-y:auto;padding-right:4px}
+.s-right{display:flex;flex-direction:column;gap:0;overflow-y:auto}
+
+/* Cards */
+.s-card{background:var(--bg-card);border:1px solid var(--border-card);border-radius:8px;padding:14px;overflow:hidden}
+.s-card-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+
+/* Stat number cards */
+.s-stat{text-align:center;padding:20px 12px;min-width:0}
+.s-stat-icon{font-size:28px;margin-bottom:8px}
+.s-stat-num{font-family:'IBM Plex Mono',monospace;font-size:38px;font-weight:700;color:var(--text-primary);line-height:1}
+.s-stat-lbl{font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;color:var(--text-sub);margin-top:6px}
+
+/* ESI row */
+.s-esi-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-subtle)}
+.s-esi-row:last-child{border-bottom:none}
+.s-esi-lbl{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px}
+.s-esi-num{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--text-primary)}
+
+/* Tab bar */
+.s-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg-card);border-radius:8px 8px 0 0;overflow:hidden}
+.s-tab{flex:1;padding:10px 16px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;letter-spacing:.04em;
+  color:var(--text-sub);cursor:pointer;text-align:center;transition:all .15s;border-bottom:2px solid transparent}
+.s-tab:hover{color:var(--text-primary);background:var(--item-hover-bg)}
+.s-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--accent-bg)}
+
+/* Filter row */
+.s-filter{display:flex;align-items:center;gap:6px;padding:10px 14px;flex-wrap:wrap;background:var(--bg-card);border-bottom:1px solid var(--border)}
+.s-filter-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--text-dim)}
+.s-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border-radius:16px;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:500;
+  border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-sub);cursor:pointer;transition:all .12s}
+.s-chip:hover{border-color:var(--accent);color:var(--accent)}
+.s-chip.on{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.s-date{background:var(--bg-input);border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-primary);outline:none}
+.s-date:focus{border-color:var(--accent)}
+
+/* Stats grid (right panel content) */
+.s-stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:14px}
+@media(max-width:1200px){.s-stats-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* Detail sections */
+.s-detail{padding:14px}
+.s-detail-title{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px}
+
+/* Bar */
+.s-bar-track{height:20px;background:var(--bg-input);border-radius:4px;overflow:hidden;flex:1}
+.s-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#fff;font-weight:600;min-width:20px;transition:width .3s}
+.s-bar-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border-subtle)}
+.s-bar-row:last-child{border-bottom:none}
+.s-bar-name{font-family:'Sarabun',sans-serif;font-size:12px;color:var(--text-primary);width:130px;flex-shrink:0}
+.s-bar-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);width:35px;text-align:right;flex-shrink:0}
+
+/* ESI color bar */
+.s-esi-bar{display:flex;height:24px;border-radius:6px;overflow:hidden;margin-bottom:8px}
+.s-esi-seg{display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;min-width:18px;transition:width .3s}
+
+/* Category cards */
+.s-cat-card{text-align:center;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:10px 8px;flex:1;min-width:80px}
+.s-cat-num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;line-height:1}
+.s-cat-lbl{font-family:'Sarabun',sans-serif;font-size:11px;color:var(--text-sub);margin-top:2px}
+
+/* Table */
+.s-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.s-tbl th{text-align:left;padding:6px;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text-dim);border-bottom:1px solid var(--border)}
+.s-tbl td{padding:6px;border-bottom:1px solid var(--border-subtle)}
+.s-tbl .mono{font-family:'IBM Plex Mono',monospace}
+.s-tbl .center{text-align:center}
+
+/* Export */
+.s-export{position:fixed;bottom:16px;right:16px;z-index:40;display:flex;align-items:center;gap:6px;padding:10px 18px;border-radius:24px;
+  background:linear-gradient(135deg,#0ea5e9,#0d9488);color:#fff;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;box-shadow:0 4px 16px rgba(14,165,233,.3)}
+.s-export:hover{transform:scale(1.05)}
+
+/* Scrollbar */
+.s-left::-webkit-scrollbar,.s-right::-webkit-scrollbar{width:4px}
+.s-left::-webkit-scrollbar-thumb,.s-right::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header class="s-hdr">
+  <svg viewBox="0 0 80 80" width="34" height="34" fill="none"><circle cx="40" cy="40" r="28" fill="url(#g2)"/><rect x="36" y="25" width="8" height="30" fill="white" rx="2"/><rect x="25" y="36" width="30" height="8" fill="white" rx="2"/><circle cx="40" cy="18" r="3" fill="url(#g3)" opacity=".8"/><circle cx="62" cy="40" r="2.5" fill="url(#g3)" opacity=".6"/><circle cx="40" cy="62" r="2" fill="url(#g3)" opacity=".4"/><circle cx="18" cy="40" r="2.5" fill="url(#g3)" opacity=".6"/><defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#F59E0B"/><stop offset="100%" style="stop-color:#B45309"/></linearGradient><linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#FCD34D"/><stop offset="100%" style="stop-color:#F59E0B"/></linearGradient></defs></svg>
+  <div>
+    <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent">ESPER INVICTUS</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.12em">STATS · MINIS</div>
+  </div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+    <div style="text-align:right">
+      <div id="clock" style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--text-primary)">--:--</div>
+      <div id="dateD" style="font-family:'Sarabun',sans-serif;font-size:11px;color:var(--text-sub)">---</div>
+    </div>
+    <div style="width:1px;height:28px;background:var(--border)"></div>
+    <div class="hosp-badge" id="hosp-nav-wrap" style="position:relative;cursor:pointer" onclick="toggleHospNav()">
+      <div class="hosp-icon" onclick="event.stopPropagation();toggleTheme()" style="cursor:pointer" title="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path id="hosp-cross" d="M8 2v12M2 8h12" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/><rect id="hosp-rect" x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="#1e4a80" stroke-width="1"/></svg>
+      </div>
+      <div>
+        <div class="hosp-name">Bangbuatong <i class="fas fa-chevron-down" style="font-size:8px;opacity:.5"></i></div>
+        <div class="hosp-dept">Emergency</div>
+      </div>
+      <div class="hosp-nav" id="hosp-nav" style="display:none">
+        <a href="minis-floor.html" class="hosp-nav-item"><i class="fas fa-clipboard-list" style="width:16px"></i> Floor</a>
+        <a href="minis-publicview.html" target="_blank" class="hosp-nav-item"><i class="fas fa-tv" style="width:16px"></i> Public View</a>
+        <a href="minis-stats.html" class="hosp-nav-item hosp-nav-active"><i class="fas fa-chart-bar" style="width:16px"></i> Stats</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ MAIN GRID ══════════════ -->
+<div class="s-grid">
+
+  <!-- ═══ LEFT COLUMN: ESI + Category + Announcements ═══ -->
+  <div class="s-left">
+
+    <!-- Case Category -->
+    <div class="s-card">
+      <div class="s-card-title"><i class="fas fa-tags" style="color:#a78bfa"></i> Visit Types</div>
+      <div style="display:flex;gap:8px" id="left-cat">
+        <div class="s-cat-card"><div class="s-cat-num" style="color:#f59e0b" id="lc-t">0</div><div class="s-cat-lbl">Trauma</div></div>
+        <div class="s-cat-card"><div class="s-cat-num" style="color:#22c55e" id="lc-nt">0</div><div class="s-cat-lbl">Non-Trauma</div></div>
+        <div class="s-cat-card"><div class="s-cat-num" style="color:#a78bfa" id="lc-p">0</div><div class="s-cat-lbl">Psych</div></div>
+      </div>
+    </div>
+
+    <!-- Fast Track -->
+    <div class="s-card">
+      <div class="s-card-title"><i class="fas fa-bolt" style="color:#f59e0b"></i> Fast Track Protocols</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="left-ft"></div>
+    </div>
+
+    <!-- Final ESI -->
+    <div class="s-card">
+      <div class="s-card-title"><i class="fas fa-clipboard-check" style="color:#0ea5e9"></i> Final ESI</div>
+      <div id="left-fesi"></div>
+    </div>
+
+    <!-- OPD Referral -->
+    <div class="s-card">
+      <div class="s-card-title"><i class="fas fa-hospital" style="color:#22c55e"></i> ส่งจาก OPD</div>
+      <div id="left-opd"></div>
+    </div>
+
+  </div>
+
+  <!-- ═══ RIGHT COLUMN: Tabs + Stats ═══ -->
+  <div class="s-right">
+
+    <!-- Tabs -->
+    <div class="s-tabs">
+      <div class="s-tab active" data-tab="daily" onclick="switchStatsTab(this)"><i class="fas fa-calendar-day" style="margin-right:4px"></i> Daily Stats</div>
+      <div class="s-tab" data-tab="shift" onclick="switchStatsTab(this)"><i class="fas fa-clock" style="margin-right:4px"></i> Current Shift</div>
+    </div>
+
+    <!-- Filter -->
+    <div class="s-filter">
+      <span class="s-filter-lbl">SHIFT</span>
+      <button class="s-chip on" data-shift="all" onclick="setShift(this)">ทั้งวัน</button>
+      <button class="s-chip" data-shift="morning" onclick="setShift(this)">เวรเช้า</button>
+      <button class="s-chip" data-shift="afternoon" onclick="setShift(this)">เวรบ่าย</button>
+      <button class="s-chip" data-shift="night" onclick="setShift(this)">เวรดึก</button>
+      <div style="width:1px;height:16px;background:var(--border)"></div>
+      <span class="s-filter-lbl">DATE</span>
+      <input type="date" class="s-date" id="f-date" onchange="applyFilters()">
+      <span style="font-size:10px;color:var(--text-dim)">—</span>
+      <input type="date" class="s-date" id="f-date-to" onchange="applyFilters()">
+      <button class="s-chip" onclick="setToday()">วันนี้</button>
+      <button class="s-chip" onclick="setWeek()">สัปดาห์</button>
+    </div>
+
+    <!-- Stats content (scrollable) -->
+    <div style="flex:1;overflow-y:auto;padding-bottom:60px">
+
+      <!-- Glance cards -->
+      <div class="s-stats-grid" id="r-glance">
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#0ea5e9"><i class="fas fa-users"></i></div><div class="s-stat-num" id="g-total">0</div><div class="s-stat-lbl">Total Visits</div></div>
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#f59e0b"><i class="fas fa-procedures"></i></div><div class="s-stat-num" id="g-admit">0</div><div class="s-stat-lbl">Admits</div></div>
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#22c55e"><i class="fas fa-person-walking-arrow-right"></i></div><div class="s-stat-num" id="g-discharge">0</div><div class="s-stat-lbl">Discharged</div></div>
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#a78bfa"><i class="fas fa-arrow-right-from-bracket"></i></div><div class="s-stat-num" id="g-refer">0</div><div class="s-stat-lbl">Refer Out</div></div>
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#6b7280"><i class="fas fa-skull-crossbones"></i></div><div class="s-stat-num" id="g-dead">0</div><div class="s-stat-lbl">Deaths</div></div>
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#ef4444"><i class="fas fa-heart-pulse"></i></div><div class="s-stat-num" id="g-cpr">0</div><div class="s-stat-lbl">CPR</div></div>
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#f59e0b"><i class="fas fa-lungs"></i></div><div class="s-stat-num" id="g-ett">0</div><div class="s-stat-lbl">ETT</div></div>
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#0ea5e9"><i class="fas fa-ambulance"></i></div><div class="s-stat-num" id="g-ems">0</div><div class="s-stat-lbl">EMS</div></div>
+        <div class="s-card s-stat"><div class="s-stat-icon" style="color:#0d9488"><i class="fas fa-arrow-right-to-bracket"></i></div><div class="s-stat-num" id="g-refin">0</div><div class="s-stat-lbl">Refer In</div></div>
+      </div>
+
+      <!-- ESI Breakdown -->
+      <div class="s-detail">
+        <div class="s-detail-title">Total Cases by ESI</div>
+        <div class="s-stats-grid" style="grid-template-columns:repeat(5,1fr)" id="r-esi-nums"></div>
+      </div>
+
+      <!-- Avg Wait by ESI -->
+      <div class="s-detail" style="border-top:1px solid var(--border)">
+        <div class="s-detail-title">Avg Wait Time by ESI</div>
+        <div class="s-stats-grid" style="grid-template-columns:repeat(5,1fr)" id="r-esi-wait"></div>
+      </div>
+
+      <!-- Ward Bottleneck -->
+      <div class="s-detail" style="border-top:1px solid var(--border)">
+        <div class="s-detail-title">Ward Accept Time (Bed Request → Admit)</div>
+        <div class="s-stats-grid" style="grid-template-columns:repeat(3,1fr)" id="r-ward"></div>
+      </div>
+
+      <!-- Top Diagnoses -->
+      <div class="s-detail" style="border-top:1px solid var(--border)">
+        <div class="s-detail-title">Top 10 Diagnoses</div>
+        <div id="r-dx"></div>
+      </div>
+
+      <!-- Arrival Mode -->
+      <div class="s-detail" style="border-top:1px solid var(--border)">
+        <div class="s-detail-title">Arrival Mode</div>
+        <div class="s-stats-grid" style="grid-template-columns:repeat(4,1fr)" id="r-arr"></div>
+      </div>
+
+      <!-- Age Cross-tab -->
+      <div class="s-detail" style="border-top:1px solid var(--border)">
+        <div class="s-detail-title">Age Group × Case Type</div>
+        <div id="r-age"></div>
+      </div>
+
+      <!-- Time Performance -->
+      <div class="s-detail" style="border-top:1px solid var(--border)">
+        <div class="s-detail-title">เกินเวลา by ESI</div>
+        <div class="s-stats-grid" style="grid-template-columns:repeat(4,1fr)" id="r-perf"></div>
+      </div>
+
+      <!-- Triage Accuracy -->
+      <div class="s-detail" style="border-top:1px solid var(--border)">
+        <div class="s-detail-title">Triage Accuracy (Over / Under Triage)</div>
+        <div class="s-stats-grid" style="grid-template-columns:repeat(3,1fr)" id="r-triage-overall"></div>
+        <div style="margin-top:12px"><div class="s-detail-title" style="font-size:11px">BY ESI</div></div>
+        <div id="r-triage-esi"></div>
+        <div style="margin-top:12px"><div class="s-detail-title" style="font-size:11px">BY CASE TYPE</div></div>
+        <div id="r-triage-case"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Export -->
+<button class="s-export" onclick="exportCSV()"><i class="fas fa-download"></i> EXPORT CSV</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/floor/data.js"></script>
+<script>
+// ══════════════════════════════════════════
+// SUPABASE + CONFIG
+// ══════════════════════════════════════════
+const SUPABASE_URL='https://djsganssutgaoztvcrbg.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqc2dhbnNzdXRnYW96dHZjcmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTgzNzQsImV4cCI6MjA4OTgzNDM3NH0.sb6Z6KQIvnrIFOzttE8d-IP-vF7dg19BcFwBtQxQweo';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const ESI_CLR={1:'#ef4444',2:'#ec4899',3:'#eab308',4:'#22c55e',5:'#3b82f6'};
+const ESI_AMB={1:0,2:10,3:180,4:240,5:Infinity};
+const ESI_RED={1:0,2:15,3:240,4:300,5:Infinity};
+const ADMIT_W=new Set(['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา']);
+const DISCH_S=new Set(['Discharge','ส่งแผนกผู้ป่วยนอก','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา','ส่งห้องผ่าตัด']);
+const REFER_S=new Set(['ส่งตัวโรงพยาบาลอื่น']);
+const SHIFTS={morning:{s:8,e:16},afternoon:{s:16,e:24},night:{s:0,e:8}};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let allVisits=[],filtered=[],shiftFilter='all',statsTab='daily';
+
+// ══════════════════════════════════════════
+// THEME + CLOCK + NAV
+// ══════════════════════════════════════════
+function toggleTheme(){const d=!document.documentElement.classList.contains('dark');document.documentElement.classList.toggle('dark',d);localStorage.setItem('darkMode',d)}
+(function(){const s=localStorage.getItem('darkMode');document.documentElement.classList.toggle('dark',s===null?true:s==='true')})();
+function toggleHospNav(){const n=document.getElementById('hosp-nav');if(n)n.style.display=n.style.display==='none'?'block':'none'}
+document.addEventListener('click',e=>{const w=document.getElementById('hosp-nav-wrap'),n=document.getElementById('hosp-nav');if(w&&n&&!w.contains(e.target))n.style.display='none'});
+function tick(){const n=new Date(),p=v=>String(v).padStart(2,'0');document.getElementById('clock').textContent=p(n.getHours())+':'+p(n.getMinutes());document.getElementById('dateD').textContent=n.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'})}
+setInterval(tick,1000);tick();
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+function fm(m){if(!m||m<=0)return'0m';const h=Math.floor(m/60),r=m%60;return h?h+'h '+r+'m':r+'m'}
+function median(a){if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:Math.round((s[m-1]+s[m])/2)}
+function thHour(d){return parseInt(new Date(d).toLocaleString('en-US',{hour:'numeric',hour12:false,timeZone:'Asia/Bangkok'}))}
+
+// ══════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════
+function switchStatsTab(el){document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');statsTab=el.dataset.tab;
+  if(statsTab==='shift'){const cs=getCurrentShift();document.querySelectorAll('.s-chip[data-shift]').forEach(c=>c.classList.toggle('on',c.dataset.shift===cs));shiftFilter=cs}
+  else{document.querySelectorAll('.s-chip[data-shift]').forEach(c=>c.classList.toggle('on',c.dataset.shift==='all'));shiftFilter='all'}
+  applyFilters()}
+function getCurrentShift(){const h=thHour(new Date());return h>=8&&h<16?'morning':h>=16?'afternoon':'night'}
+function setShift(btn){document.querySelectorAll('.s-chip[data-shift]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');shiftFilter=btn.dataset.shift;applyFilters()}
+function setToday(){const t=new Date().toISOString().split('T')[0];document.getElementById('f-date').value=t;document.getElementById('f-date-to').value='';applyFilters()}
+function setWeek(){const n=new Date(),d=n.getDay(),m=new Date(n);m.setDate(n.getDate()-(d===0?6:d-1));document.getElementById('f-date').value=m.toISOString().split('T')[0];document.getElementById('f-date-to').value=n.toISOString().split('T')[0];applyFilters()}
+
+function applyFilters(){
+  const df=document.getElementById('f-date').value,dt=document.getElementById('f-date-to').value;
+  filtered=allVisits.filter(v=>{
+    if(!v.arrived_at)return false;
+    const d=new Date(v.arrived_at),ds=d.toISOString().split('T')[0],h=thHour(d);
+    if(df&&ds<df)return false;if(dt&&ds>dt)return false;
+    if(!df&&!dt){if(ds!==new Date().toISOString().split('T')[0])return false}
+    if(shiftFilter!=='all'){const s=SHIFTS[shiftFilter];if(s){if(s.s<s.e){if(h<s.s||h>=s.e)return false}else{if(h<s.s&&h>=s.e)return false}}}
+    return true;
+  });
+  renderAll();
+}
+
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+async function loadStats(){
+  const{data,error}=await sb.from('visits').select(`id,esi,final_esi,case_category,arrival_mode,diagnosis,diagnosis_icd10,fast_track,status,tab,arrived_at,activated_at,finalized_at,bed_requested_at,bed_requested_ward,handover_ward_at,actual_move_at,treatment_outcome,department,doctor,data_complete,had_ett,had_cpr,patients(age_y,sex)`).order('arrived_at',{ascending:true});
+  if(error){console.error(error);return}
+  allVisits=data.map(r=>({...r,age_y:r.patients?.age_y||0,sex:r.patients?.sex||''}));
+  setToday();
+}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function renderAll(){
+  const v=filtered,fin=v.filter(r=>r.tab==='finalized');
+
+  // Category
+  const cat={trauma:0,non_trauma:0,psych:0};
+  v.forEach(r=>{if(cat[r.case_category]!==undefined)cat[r.case_category]++});
+  document.getElementById('lc-t').textContent=cat.trauma;
+  document.getElementById('lc-nt').textContent=cat.non_trauma;
+  document.getElementById('lc-p').textContent=cat.psych;
+
+  // Fast Track
+  const ft={};v.forEach(r=>{if(r.fast_track)ft[r.fast_track]=(ft[r.fast_track]||0)+1});
+  document.getElementById('left-ft').innerHTML=Object.entries(ft).map(([k,c])=>`<div class="s-cat-card"><div class="s-cat-num" style="font-size:18px;color:var(--text-primary)">${c}</div><div class="s-cat-lbl">${k}</div></div>`).join('')||'<div style="color:var(--text-dim);font-size:11px">ไม่มี</div>';
+
+  // Final ESI breakdown
+  const fesi={1:0,2:0,3:0,4:0,5:0};
+  fin.filter(r=>r.final_esi).forEach(r=>{if(fesi[r.final_esi]!==undefined)fesi[r.final_esi]++});
+  document.getElementById('left-fesi').innerHTML=[1,2,3,4,5].map(e=>
+    `<div class="s-esi-row"><span class="s-esi-lbl" style="color:${ESI_CLR[e]}">ESI ${e}</span><span class="s-esi-num" style="color:${ESI_CLR[e]}">${fesi[e]}</span></div>`
+  ).join('');
+
+  // OPD referral stat
+  const opdVisits=v.filter(r=>r.arrival_mode&&r.arrival_mode.includes('ส่งจาก OPD'));
+  const opdByEsi={1:0,2:0,3:0,4:0,5:0};
+  opdVisits.forEach(r=>{const e=r.final_esi||r.esi;if(opdByEsi[e]!==undefined)opdByEsi[e]++});
+  document.getElementById('left-opd').innerHTML=opdVisits.length?
+    `<div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:6px">${opdVisits.length} <span style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:500;color:var(--text-sub)">cases</span></div>` +
+    [1,2,3,4,5].filter(e=>opdByEsi[e]>0).map(e=>
+      `<div class="s-esi-row"><span class="s-esi-lbl" style="color:${ESI_CLR[e]}">ESI ${e}</span><span class="s-esi-num" style="color:${ESI_CLR[e]}">${opdByEsi[e]}</span></div>`
+    ).join('') : '<div style="color:var(--text-dim);font-size:11px">ไม่มี</div>';
+
+  // ── Right: Glance ──
+  const total=v.length;
+  const admits=fin.filter(r=>ADMIT_W.has(r.status)).length;
+  const discharges=fin.filter(r=>DISCH_S.has(r.status)).length;
+  const refers=fin.filter(r=>REFER_S.has(r.status)).length;
+  const deaths=fin.filter(r=>r.status==='เสียชีวิต').length;
+  const cpr=v.filter(r=>r.had_cpr||r.status==='กู้ชีพ').length;
+  const ett=v.filter(r=>r.had_ett).length;
+  const ems=v.filter(r=>r.arrival_mode&&(r.arrival_mode.includes('EMS')||r.arrival_mode.includes('ALS')||r.arrival_mode.includes('BLS')||r.arrival_mode.includes('FR')||r.arrival_mode.includes('อาสา'))).length;
+  const referIn=v.filter(r=>r.arrival_mode&&(r.arrival_mode==='Refer in'||r.arrival_mode.includes('ส่งจาก รพ.'))).length;
+
+  document.getElementById('g-total').textContent=total;
+  document.getElementById('g-admit').textContent=admits;
+  document.getElementById('g-discharge').textContent=discharges;
+  document.getElementById('g-refer').textContent=refers;
+  document.getElementById('g-dead').textContent=deaths;
+  document.getElementById('g-cpr').textContent=cpr;
+  document.getElementById('g-ett').textContent=ett;
+  document.getElementById('g-ems').textContent=ems;
+  document.getElementById('g-refin').textContent=referIn;
+
+  // ESI counts — number cards
+  const ec={1:0,2:0,3:0,4:0,5:0};v.forEach(r=>{if(ec[r.esi]!==undefined)ec[r.esi]++});
+  document.getElementById('r-esi-nums').innerHTML=[1,2,3,4,5].map(e=>
+    `<div class="s-card s-stat"><div class="s-stat-num" style="color:${ESI_CLR[e]}">${ec[e]}</div><div class="s-stat-lbl" style="color:${ESI_CLR[e]};font-family:'Rajdhani',sans-serif;font-weight:700">ESI ${e}</div></div>`
+  ).join('');
+
+  // Avg wait by ESI — number cards
+  document.getElementById('r-esi-wait').innerHTML=[1,2,3,4,5].map(e=>{
+    const ws=v.filter(r=>r.esi===e&&r.arrived_at&&r.activated_at).map(r=>Math.floor((new Date(r.activated_at)-new Date(r.arrived_at))/60000));
+    const avg=ws.length?Math.round(ws.reduce((a,b)=>a+b,0)/ws.length):0;
+    return`<div class="s-card s-stat"><div class="s-stat-num" style="font-size:20px;color:${ESI_CLR[e]}">${fm(avg)}</div><div class="s-stat-lbl" style="color:${ESI_CLR[e]};font-family:'Rajdhani',sans-serif;font-weight:700">ESI ${e}</div></div>`;
+  }).join('');
+
+  // Ward bottleneck — number cards
+  // Use bed_requested_at→actual_move_at if available, otherwise arrived_at→finalized_at as fallback
+  const wt={};fin.filter(r=>ADMIT_W.has(r.status)&&r.arrived_at&&r.finalized_at).forEach(r=>{
+    const w=r.bed_requested_ward||r.status;
+    const start=r.bed_requested_at?new Date(r.bed_requested_at):new Date(r.arrived_at);
+    const end=r.actual_move_at?new Date(r.actual_move_at):new Date(r.finalized_at);
+    const m=Math.floor((end-start)/60000);
+    if(!wt[w])wt[w]=[];wt[w].push(m);
+  });
+  const wr=Object.entries(wt).map(([w,a])=>({w,med:median(a),c:a.length})).sort((a,b)=>a.med-b.med);
+  document.getElementById('r-ward').innerHTML=wr.length?wr.map(r=>{
+    const cl=r.med<30?'#22c55e':r.med<60?'#f59e0b':'#ef4444';
+    return`<div class="s-card s-stat"><div class="s-stat-num" style="font-size:20px;color:${cl}">${fm(r.med)}</div><div class="s-stat-lbl">${r.w}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${r.c} cases</div></div>`;
+  }).join(''):'<div class="s-card s-stat" style="grid-column:1/-1"><div class="s-stat-lbl">ยังไม่มีข้อมูล</div></div>';
+
+  // Top Dx — table format
+  const dx={};fin.filter(r=>r.diagnosis).forEach(r=>{dx[r.diagnosis]=(dx[r.diagnosis]||0)+1});
+  const topDx=Object.entries(dx).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  document.getElementById('r-dx').innerHTML=topDx.length?`<table class="s-tbl">
+    <tr><th style="width:30px">#</th><th>DIAGNOSIS</th><th class="center">ICD-10</th><th class="center" style="width:60px">COUNT</th></tr>
+    ${topDx.map(([d,c],i)=>{
+      const icd=(typeof getIcdForDx==='function')?getIcdForDx(d):'';
+      return`<tr>
+        <td class="mono center" style="color:var(--text-dim)">${i+1}</td>
+        <td style="font-weight:600;color:var(--text-primary)">${d}</td>
+        <td class="mono center" style="color:var(--text-dim);font-size:11px">${icd||'—'}</td>
+        <td class="mono center" style="font-weight:700;font-size:14px">${c}</td>
+      </tr>`;
+    }).join('')}
+  </table>`:'<div style="color:var(--text-dim);font-size:11px">ยังไม่มีข้อมูล</div>';
+
+  // Arrival mode — number cards
+  const ar={};v.filter(r=>r.arrival_mode).forEach(r=>{ar[r.arrival_mode]=(ar[r.arrival_mode]||0)+1});
+  const arS=Object.entries(ar).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('r-arr').innerHTML=arS.length?arS.map(([m,c])=>
+    `<div class="s-card s-stat"><div class="s-stat-num" style="font-size:22px">${c}</div><div class="s-stat-lbl" style="font-size:10px">${m}</div></div>`
+  ).join(''):'<div class="s-card s-stat" style="grid-column:1/-1"><div class="s-stat-lbl">ยังไม่มีข้อมูล</div></div>';
+
+  // Age cross-tab — keep as table (clearest for cross-tab data)
+  const ag={ped:{t:0,nt:0,p:0},adult:{t:0,nt:0,p:0},eld:{t:0,nt:0,p:0}};
+  v.forEach(r=>{const g=r.age_y<=15?'ped':r.age_y>=65?'eld':'adult',c=r.case_category==='trauma'?'t':r.case_category==='psych'?'p':'nt';ag[g][c]++});
+  document.getElementById('r-age').innerHTML=`<table class="s-tbl"><tr><th></th><th class="center" style="color:#f59e0b">TRAUMA</th><th class="center" style="color:#22c55e">NON-TRAUMA</th><th class="center" style="color:#a78bfa">PSYCH</th><th class="center">TOTAL</th></tr>${[{k:'ped',l:'Ped (≤15)',c:'#ec4899'},{k:'adult',l:'Adult (16-64)',c:'var(--text-primary)'},{k:'eld',l:'Elderly (≥65)',c:'#f59e0b'}].map(r=>`<tr><td style="font-weight:600;color:${r.c}">${r.l}</td><td class="center mono">${ag[r.k].t}</td><td class="center mono">${ag[r.k].nt}</td><td class="center mono">${ag[r.k].p}</td><td class="center mono" style="font-weight:700">${ag[r.k].t+ag[r.k].nt+ag[r.k].p}</td></tr>`).join('')}</table>`;
+
+  // Perf — number cards per ESI
+  const pd=[1,2,3,4].map(e=>{const ev=v.filter(r=>r.esi===e&&r.arrived_at&&r.activated_at),ws=ev.map(r=>Math.floor((new Date(r.activated_at)-new Date(r.arrived_at))/60000)),bc=ws.filter(w=>w>=ESI_RED[e]).length,avg=ws.length?Math.round(ws.reduce((a,b)=>a+b,0)/ws.length):0;return{e,n:ev.length,b:bc,r:ev.length?Math.round(bc/ev.length*100):0,a:avg}});
+  document.getElementById('r-perf').innerHTML=pd.map(r=>
+    `<div class="s-card s-stat">
+      <div class="s-stat-lbl" style="color:${ESI_CLR[r.e]};font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;margin-bottom:4px">ESI ${r.e}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:${r.r>20?'#ef4444':r.r>10?'#f59e0b':'#22c55e'}">${r.r}%</div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:10px;color:var(--text-dim)">${r.b}/${r.n} breached</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:2px">avg ${fm(r.a)}</div>
+    </div>`
+  ).join('');
+
+  // ── Triage Accuracy (Over/Under) ──
+  // Over-triage: initial ESI < final ESI (more severe than needed, e.g. 2→3)
+  // Under-triage: initial ESI > final ESI (less severe than actual, e.g. 4→2)
+  const triaged = fin.filter(r => r.esi && r.final_esi && r.final_esi !== r.esi);
+  const overT = triaged.filter(r => r.esi < r.final_esi);
+  const underT = triaged.filter(r => r.esi > r.final_esi);
+  const accTotal = fin.filter(r => r.final_esi).length;
+  const accurate = accTotal - overT.length - underT.length;
+
+  // Overall cards
+  document.getElementById('r-triage-overall').innerHTML = [
+    {n:accurate, l:'Accurate', pct:accTotal?Math.round(accurate/accTotal*100):0, c:'#22c55e'},
+    {n:overT.length, l:'Over-Triage', pct:accTotal?Math.round(overT.length/accTotal*100):0, c:'#f59e0b'},
+    {n:underT.length, l:'Under-Triage', pct:accTotal?Math.round(underT.length/accTotal*100):0, c:'#ef4444'}
+  ].map(x => `<div class="s-card s-stat">
+    <div class="s-stat-num" style="font-size:28px;color:${x.c}">${x.pct}%</div>
+    <div class="s-stat-lbl">${x.l}</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${x.n}/${accTotal}</div>
+  </div>`).join('');
+
+  // By ESI table
+  document.getElementById('r-triage-esi').innerHTML = `<table class="s-tbl">
+    <tr><th>INITIAL ESI</th><th class="center">TOTAL</th><th class="center" style="color:#22c55e">ACCURATE</th><th class="center" style="color:#f59e0b">OVER</th><th class="center" style="color:#ef4444">UNDER</th></tr>
+    ${[1,2,3,4,5].map(e => {
+      const esiF = fin.filter(r => r.esi === e && r.final_esi);
+      const ov = esiF.filter(r => r.esi < r.final_esi).length;
+      const un = esiF.filter(r => r.esi > r.final_esi).length;
+      const ac = esiF.length - ov - un;
+      return `<tr>
+        <td style="font-family:'Rajdhani',sans-serif;font-weight:700;color:${ESI_CLR[e]}">ESI ${e}</td>
+        <td class="center mono">${esiF.length}</td>
+        <td class="center mono" style="color:#22c55e">${ac}</td>
+        <td class="center mono" style="color:${ov?'#f59e0b':'var(--text-muted)'}">${ov}</td>
+        <td class="center mono" style="color:${un?'#ef4444':'var(--text-muted)'}">${un}</td>
+      </tr>`;
+    }).join('')}
+  </table>`;
+
+  // By Case Type table (Trauma / Non-Trauma / Psych / Ped)
+  const caseGroups = [
+    {k:'trauma', l:'Trauma', c:'#f59e0b', filter: r => r.case_category === 'trauma'},
+    {k:'non_trauma', l:'Non-Trauma', c:'#22c55e', filter: r => r.case_category === 'non_trauma'},
+    {k:'psych', l:'Psych', c:'#a78bfa', filter: r => r.case_category === 'psych'},
+    {k:'ped', l:'Ped (≤15)', c:'#ec4899', filter: r => r.age_y <= 15}
+  ];
+  document.getElementById('r-triage-case').innerHTML = `<table class="s-tbl">
+    <tr><th>CASE TYPE</th><th class="center">TOTAL</th><th class="center" style="color:#22c55e">ACCURATE</th><th class="center" style="color:#f59e0b">OVER</th><th class="center" style="color:#ef4444">UNDER</th></tr>
+    ${caseGroups.map(g => {
+      const gf = fin.filter(r => g.filter(r) && r.final_esi);
+      const ov = gf.filter(r => r.esi < r.final_esi).length;
+      const un = gf.filter(r => r.esi > r.final_esi).length;
+      const ac = gf.length - ov - un;
+      return `<tr>
+        <td style="font-weight:600;color:${g.c}">${g.l}</td>
+        <td class="center mono">${gf.length}</td>
+        <td class="center mono" style="color:#22c55e">${ac}</td>
+        <td class="center mono" style="color:${ov?'#f59e0b':'var(--text-muted)'}">${ov}</td>
+        <td class="center mono" style="color:${un?'#ef4444':'var(--text-muted)'}">${un}</td>
+      </tr>`;
+    }).join('')}
+  </table>`;
+}
+
+// ══════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════
+function exportCSV(){
+  const h=['arrived_at','esi','final_esi','case_category','arrival_mode','fast_track','diagnosis','diagnosis_icd10','status','department','doctor','treatment_outcome','age_y','sex'];
+  const rows=filtered.map(r=>h.map(k=>{let v=r[k]||'';if(typeof v==='string'&&v.includes(','))v='"'+v+'"';return v}).join(','));
+  const csv='\uFEFF'+h.join(',')+'\n'+rows.join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`ESPER-Stats-${new Date().toISOString().split('T')[0]}.csv`;a.click();
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+loadStats();
+setInterval(loadStats,300000);
+</script>
+</body>
+</html>

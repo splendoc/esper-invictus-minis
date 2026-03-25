@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESPER Invictus — Disposition Flow Mockup v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --bg-body:#080e17; --bg-card:#142030; --bg-panel:#0c1520; --bg-input:#070e18;
+  --bg-elevated:#0d1826; --border:#1a2840; --border-subtle:#0d1e2e; --border-card:#0a1420;
+  --text-primary:#dde6f0; --text-sub:#7a9ab8; --text-muted:#6b8ba4; --text-dim:#4a6a88;
+  --text-detail:#5a7a90; --text-faint:#2a4a62; --accent:#0ea5e9; --accent-hover:#7dd3fc;
+  --accent-bg:#0c1e3a; --card-hover-bg:#152233; --card-hover-ring:#2a4a6a;
+  --item-hover-bg:#182838; --confirm-disabled-bg:#1a2840; --confirm-disabled-text:#5a7a90;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg-body);color:var(--text-primary);font-family:'Sarabun',sans-serif;min-height:100vh;padding:20px;max-width:800px;margin:0 auto}
+
+/* Section labels */
+.mt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+.md{font-size:11px;color:var(--text-detail);margin-bottom:14px;font-family:'IBM Plex Mono',monospace}
+.section{margin-bottom:40px}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+.note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-faint);margin-top:4px}
+
+/* ── ESI colors ── */
+.esi-1{background:#ef4444} .esi-2{background:#ec4899} .esi-3{background:#eab308}
+.esi-4{background:#22c55e} .esi-5{background:#3b82f6}
+.esi-border-1{border-left:3px solid #ef4444} .esi-border-2{border-left:3px solid #ec4899}
+.esi-border-3{border-left:3px solid #eab308} .esi-border-4{border-left:3px solid #22c55e}
+.esi-border-5{border-left:3px solid #3b82f6}
+
+/* ══════════════════════════════════════════
+   PATIENT CARD
+   ══════════════════════════════════════════ */
+.card{background:var(--bg-card);border:1px solid var(--border-card);border-radius:8px;padding:12px 16px;margin-bottom:12px;transition:background .15s}
+.card:hover{background:var(--card-hover-bg)}
+.card-top{display:flex;align-items:center;gap:10px}
+.esi-badge{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.card-name{font-weight:600;font-size:15px;color:var(--text-primary)}
+.card-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);margin-left:4px}
+.card-cc{font-size:13px;color:var(--text-sub);margin-top:2px;margin-left:38px}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px;margin-left:38px}
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-sub)}
+.status-dot{width:7px;height:7px;border-radius:50%}
+.card-times{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;gap:14px;align-items:center}
+.time-label{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.time-val{color:var(--text-muted)} .time-breach{color:#ef4444}
+
+/* จองเตียง tag on card */
+.bed-tag{display:inline-flex;align-items:center;gap:5px;margin-top:8px;margin-left:38px;font-size:12px;color:#86efac;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);padding:4px 10px;border-radius:5px}
+.bed-tag i{font-size:11px}
+.bed-tag .bt-time{font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:.7}
+.bed-tag .bt-old{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);text-decoration:line-through;margin-left:4px}
+
+/* Action buttons */
+.action-row{display:flex;gap:8px;margin-top:8px;margin-left:38px;flex-wrap:wrap}
+.btn-a{display:inline-flex;align-items:center;gap:6px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-sub);cursor:pointer;transition:all .15s}
+.btn-a:hover{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.btn-a.done{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);color:#86efac;cursor:default}
+.btn-a .bi{font-size:13px} .btn-a .bt{font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:.7}
+
+/* Ward picker */
+.ward-picker{background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px;margin-top:8px;margin-left:38px;max-width:280px}
+.wp-title{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;padding:0 4px}
+.wp-item{padding:7px 12px;border-radius:5px;font-size:13px;color:var(--text-sub);cursor:pointer}
+.wp-item:hover,.wp-item.sel{background:var(--item-hover-bg);color:var(--text-primary)}
+
+/* Completion badge */
+.badge{display:inline-flex;align-items:center;gap:4px;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:4px}
+.badge-inc{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.2)}
+.badge-ok{background:rgba(34,197,94,.1);color:#86efac;border:1px solid rgba(34,197,94,.2)}
+.timer{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)}
+
+/* ══════════════════════════════════════════
+   QV PANEL
+   ══════════════════════════════════════════ */
+.qv{background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:20px;max-width:440px;margin-top:12px}
+.qv-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.qv-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-primary)}
+.qv-x{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px}
+.qv-summary{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.qv-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border-subtle)}
+.qv-row:last-child{border-bottom:none}
+.qv-row.col{flex-direction:column;align-items:stretch;gap:6px}
+.qv-lbl{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);width:100px;flex-shrink:0}
+.qv-req{color:#ef4444;font-size:10px}
+.qv-val{font-size:14px;color:var(--text-primary);flex:1}
+.qv-val.mono{font-family:'IBM Plex Mono',monospace;font-size:13px}
+
+/* Inputs */
+.fi{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text-primary);font-family:'Sarabun',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.fi:focus{border-color:var(--accent)}
+.fi::placeholder{color:var(--text-faint)}
+.sel{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text-primary);font-family:'Sarabun',sans-serif;font-size:13px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234a6a88'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.sel:focus{border-color:var(--accent)}
+
+/* ESI selector */
+.esi-row{display:flex;gap:6px;flex:1}
+.esi-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:rgba(255,255,255,.4);border:2px solid transparent;cursor:pointer;background:var(--bg-input)}
+.esi-btn.sel{color:#fff;border-color:rgba(255,255,255,.3)}
+
+/* Search dropdown */
+.sd{position:relative}
+.sd-drop{position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;max-height:200px;overflow-y:auto;margin-top:4px;display:none}
+.sd-drop.open{display:block}
+.sd-item{padding:8px 12px;font-size:13px;color:var(--text-sub);cursor:pointer;border-bottom:1px solid var(--border-subtle)}
+.sd-item:hover{background:var(--item-hover-bg);color:var(--text-primary)}
+.sd-item:last-child{border-bottom:none}
+.sd-cat{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);padding:6px 12px;background:var(--bg-input)}
+.sd-icd{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);float:right}
+
+/* Timestamps */
+.ts{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);background:var(--bg-input);padding:4px 8px;border-radius:4px;border:1px solid var(--border)}
+.ts-lbl{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+.ts-x{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:11px;margin-left:4px}
+.ts-x:hover{color:#ef4444}
+
+/* Notes timeline */
+.notes{margin-top:8px}
+.notes-title{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+.note-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);font-size:12px}
+.note-item:last-child{border-bottom:none}
+.note-time{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);white-space:nowrap;min-width:40px}
+.note-text{color:var(--text-sub);flex:1}
+.note-del{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:10px;opacity:0;transition:opacity .15s}
+.note-item:hover .note-del{opacity:1}
+.note-del:hover{color:#ef4444}
+.note-add{display:flex;gap:6px;margin-top:6px}
+.note-add .fi{font-size:12px;padding:6px 8px}
+.note-add-btn{background:var(--accent-bg);border:1px solid var(--accent);color:var(--accent);border-radius:5px;padding:4px 10px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;cursor:pointer}
+
+/* Refer section */
+.ref-box{background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:4px}
+.ref-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.ref-row:last-child{margin-bottom:0}
+.ref-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);width:80px;flex-shrink:0}
+
+/* Refer contact log */
+.rcl{margin-top:6px}
+.rcl-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;border-bottom:1px solid var(--border-subtle)}
+.rcl-item:last-child{border-bottom:none}
+.rcl-time{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);min-width:40px}
+.rcl-name{color:var(--text-sub);flex:1}
+.rcl-ok{color:#86efac;font-size:11px} .rcl-no{color:#fca5a5;font-size:11px}
+.rcl-reason{font-size:10px;color:var(--text-dim)}
+
+/* Modal */
+.modal-wrap{position:relative;height:340px;background:var(--bg-card);border-radius:12px;overflow:hidden}
+.modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center}
+.modal{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:24px;width:340px;text-align:center}
+.modal-icon{font-size:32px;color:#ef4444;margin-bottom:12px}
+.modal-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px}
+.modal-desc{font-size:13px;color:var(--text-sub);margin-bottom:16px;line-height:1.5}
+.modal-code{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;letter-spacing:.2em;color:var(--accent);background:var(--accent-bg);padding:8px 16px;border-radius:6px;display:inline-block;margin-bottom:12px}
+.modal-fi{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:18px;letter-spacing:.15em;color:var(--text-primary);outline:none;margin-bottom:16px}
+.modal-btns{display:flex;gap:8px}
+.modal-btn{flex:1;padding:10px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.modal-btn.cancel{background:var(--bg-input);border:1px solid var(--border);color:var(--text-sub)}
+.modal-btn.danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+.modal-btn.danger:disabled{opacity:.4;cursor:not-allowed}
+
+/* Confirm button */
+.btn-confirm{width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#0d9488);border:none;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.btn-confirm:disabled{background:var(--confirm-disabled-bg);color:var(--confirm-disabled-text);border:1px solid var(--border);cursor:not-allowed}
+.btn-reactivate{width:100%;padding:10px;border-radius:8px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);color:#fde047;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:8px}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 1: ACTIVE CARD — Normal (Bed Request available)
+     Card border = ESI color always
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">1 — Active Card (Bed Request available anytime)</div>
+  <div class="md">ESI color = left border. Bed Request is free-standing button.</div>
+  <div class="card esi-border-2">
+    <div class="card-top">
+      <div class="esi-badge esi-2">2</div>
+      <span class="card-name">นาย สมชาย ใจดี</span>
+      <span class="card-meta">HN 123-456-789 · M · 58y</span>
+    </div>
+    <div class="card-cc">แน่นหน้าอก เหงื่อออก 2 ชั่วโมง</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#60a5fa"></span> รอผลตรวจ</div>
+      <div class="card-times">
+        <div><span class="time-label">TRIAGE</span> <span class="time-val">14:28</span></div>
+        <div><span class="time-label">WAIT</span> <span class="time-breach">1h 32m</span></div>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn-a"><i class="fas fa-bed bi"></i> BED REQUEST</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 2: Ward Picker (Bed Request clicked)
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">2 — Ward Picker (after Bed Request click)</div>
+  <div class="card esi-border-2">
+    <div class="card-top">
+      <div class="esi-badge esi-2">2</div>
+      <span class="card-name">นาย สมชาย ใจดี</span>
+      <span class="card-meta">HN 123-456-789 · M · 58y</span>
+    </div>
+    <div class="card-cc">แน่นหน้าอก เหงื่อออก 2 ชั่วโมง</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#60a5fa"></span> รอผลตรวจ</div>
+    </div>
+    <div class="ward-picker">
+      <div class="wp-title">เลือกวอร์ด</div>
+      <div class="wp-item">ICU</div>
+      <div class="wp-item sel">วอร์ดชาย ←</div>
+      <div class="wp-item">วอร์ดหญิง</div>
+      <div class="wp-item">วอร์ดพิเศษชั้น 6</div>
+      <div class="wp-item">วอร์ดพิเศษชั้น 7</div>
+      <div class="wp-item">วอร์ดตา</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 3: จองเตียง tag visible on card
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">3 — จองเตียง confirmed (visible on card)</div>
+  <div class="md">Everyone on the board sees bed reservation. Click again to change ward.</div>
+  <div class="card esi-border-2">
+    <div class="card-top">
+      <div class="esi-badge esi-2">2</div>
+      <span class="card-name">นาย สมชาย ใจดี</span>
+      <span class="card-meta">HN 123-456-789 · M · 58y</span>
+    </div>
+    <div class="card-cc">แน่นหน้าอก เหงื่อออก 2 ชั่วโมง</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#60a5fa"></span> รอผลตรวจ</div>
+      <div class="card-times">
+        <div><span class="time-label">TRIAGE</span> <span class="time-val">14:28</span></div>
+      </div>
+    </div>
+    <div class="bed-tag">
+      <i class="fas fa-bed"></i> จองเตียง วอร์ดชาย <span class="bt-time">14:55</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 4: Ward Changed (patient deteriorated → ICU)
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">4 — Ward Changed (intubated → ICU)</div>
+  <div class="md">Old ward shown with strikethrough. History preserved.</div>
+  <div class="card esi-border-1">
+    <div class="card-top">
+      <div class="esi-badge esi-1">1</div>
+      <span class="card-name">นาย สมชาย ใจดี</span>
+      <span class="card-meta">HN 123-456-789 · M · 58y</span>
+    </div>
+    <div class="card-cc">NSTEMI → intubated, respiratory failure</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#f472b6"></span> กำลังรักษา</div>
+    </div>
+    <div class="bed-tag">
+      <i class="fas fa-bed"></i> จองเตียง ICU <span class="bt-time">15:45</span>
+      <span class="bt-old">วอร์ดชาย 14:55</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 5: รอ Admit — ส่งเวร button appears
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">5 — รอ Admit (ส่งเวร button appears)</div>
+  <div class="card esi-border-1">
+    <div class="card-top">
+      <div class="esi-badge esi-1">1</div>
+      <span class="card-name">นาย สมชาย ใจดี</span>
+      <span class="card-meta">HN 123-456-789 · M · 58y</span>
+    </div>
+    <div class="card-cc">NSTEMI → intubated, respiratory failure</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#a78bfa"></span> รอ Admit</div>
+    </div>
+    <div class="bed-tag">
+      <i class="fas fa-bed"></i> จองเตียง ICU <span class="bt-time">15:45</span>
+    </div>
+    <div class="action-row">
+      <button class="btn-a"><i class="fas fa-people-arrows bi"></i> ส่งเวร</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 6: ส่งเวร done → ย้ายผู้ป่วย button appears
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">6 — ส่งเวร done → ย้ายผู้ป่วย button appears</div>
+  <div class="md">Patient waiting for transport/stretcher.</div>
+  <div class="card esi-border-1">
+    <div class="card-top">
+      <div class="esi-badge esi-1">1</div>
+      <span class="card-name">นาย สมชาย ใจดี</span>
+      <span class="card-meta">HN 123-456-789 · M · 58y</span>
+    </div>
+    <div class="card-cc">NSTEMI → intubated, respiratory failure</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#a78bfa"></span> รอ Admit</div>
+    </div>
+    <div class="bed-tag">
+      <i class="fas fa-bed"></i> จองเตียง ICU <span class="bt-time">15:45</span>
+    </div>
+    <div class="action-row">
+      <button class="btn-a done"><i class="fas fa-people-arrows bi"></i> ส่งเวร <span class="bt">16:20</span></button>
+      <button class="btn-a"><i class="fas fa-person-walking-arrow-right bi"></i> ย้ายผู้ป่วย</button>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 7: REFER — ติดต่อ Refer + Contact Log + Hospital picker
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">7 — Refer Flow (ติดต่อส่งตัว + Contact Log)</div>
+  <div class="md">Multiple hospitals contacted. Last accepted = ปลายทาง. Referring EP shown.</div>
+  <div class="card esi-border-2">
+    <div class="card-top">
+      <div class="esi-badge esi-2">2</div>
+      <span class="card-name">นาง สุดา มั่นคง</span>
+      <span class="card-meta">HN 345-678-901 · F · 72y</span>
+    </div>
+    <div class="card-cc">STEMI anterior wall</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#60a5fa"></span> ติดต่อ Refer</div>
+      <div class="card-times">
+        <div><span class="time-label">TRIAGE</span> <span class="time-val">13:10</span></div>
+        <div><span class="time-label">REFER</span> <span class="time-val">14:05</span></div>
+      </div>
+    </div>
+    <div style="margin-left:38px;margin-top:10px">
+      <div class="ref-box">
+        <!-- Contact log -->
+        <div class="notes-title">CONTACT LOG</div>
+        <div class="rcl">
+          <div class="rcl-item">
+            <span class="rcl-time">14:05</span>
+            <span class="rcl-name">โรงพยาบาลศิริราช</span>
+            <span class="rcl-no"><i class="fas fa-times-circle"></i> ไม่รับ</span>
+            <span class="rcl-reason">เตียงเต็ม</span>
+          </div>
+          <div class="rcl-item">
+            <span class="rcl-time">14:20</span>
+            <span class="rcl-name">โรงพยาบาลธรรมศาสตร์ฯ</span>
+            <span class="rcl-no"><i class="fas fa-times-circle"></i> ไม่รับ</span>
+            <span class="rcl-reason">ไม่มี cardiologist</span>
+          </div>
+          <div class="rcl-item">
+            <span class="rcl-time">14:35</span>
+            <span class="rcl-name">โรงพยาบาลราชวิถี</span>
+            <span class="rcl-ok"><i class="fas fa-check-circle"></i> รับ</span>
+          </div>
+        </div>
+        <div style="margin-top:8px;border-top:1px solid var(--border-subtle);padding-top:8px">
+          <div class="ref-row">
+            <span class="ref-lbl">เหตุผล</span>
+            <span class="qv-val" style="font-size:13px">Emergency PCI</span>
+          </div>
+          <div class="ref-row">
+            <span class="ref-lbl">แพทย์ Refer</span>
+            <span class="qv-val" style="font-size:13px">พญ.เฌอมาลย์ จันทนโรจ (ว.62947)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn-a"><i class="fas fa-people-arrows bi"></i> ส่งเวร</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 8: Psych Refer (auto ศรีธัญญา, locked เกินศักยภาพ)
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">8 — Psych Emergency Refer (auto ศรีธัญญา)</div>
+  <div class="md">ศรีธัญญา auto-selected + reason locked to เกินศักยภาพ.</div>
+  <div class="card esi-border-3">
+    <div class="card-top">
+      <div class="esi-badge esi-3">3</div>
+      <span class="card-name">นาย วิชัย สมบูรณ์</span>
+      <span class="card-meta">HN 567-890-123 · M · 34y</span>
+    </div>
+    <div class="card-cc">Acute psychosis, ก้าวร้าว ประสาทหลอน</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#60a5fa"></span> ติดต่อ Refer</div>
+    </div>
+    <div style="margin-left:38px;margin-top:10px">
+      <div class="ref-box">
+        <div class="ref-row">
+          <span class="ref-lbl">รพ.ปลายทาง</span>
+          <div style="flex:1;display:flex;align-items:center;gap:6px">
+            <span class="qv-val" style="font-size:13px">โรงพยาบาลศรีธัญญา</span>
+            <span style="font-family:'Rajdhani',sans-serif;font-size:9px;color:#a78bfa;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap">AUTO · PSYCH</span>
+          </div>
+        </div>
+        <div class="ref-row">
+          <span class="ref-lbl">เหตุผล</span>
+          <div style="flex:1;display:flex;align-items:center;gap:6px">
+            <span class="qv-val" style="font-size:13px">เกินศักยภาพ</span>
+            <i class="fas fa-lock" style="font-size:9px;color:var(--text-faint)"></i>
+          </div>
+        </div>
+        <div class="ref-row">
+          <span class="ref-lbl">แพทย์ Refer</span>
+          <select class="sel" style="flex:1;font-size:12px;padding:5px 8px">
+            <option>พญ.เฌอมาลย์ จันทนโรจ (ว.62947)</option>
+            <option>พญ.ดิฏฐาพร ธรรมมะ (ว.50965)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn-a"><i class="fas fa-people-arrows bi"></i> ส่งเวร</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 9: Refer — ส่งเวร done → ส่งแล้ว button
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">9 — Refer: ส่งเวร done → ส่งแล้ว</div>
+  <div class="card esi-border-2">
+    <div class="card-top">
+      <div class="esi-badge esi-2">2</div>
+      <span class="card-name">นาง สุดา มั่นคง</span>
+      <span class="card-meta">HN 345-678-901 · F · 72y</span>
+    </div>
+    <div class="card-cc">STEMI anterior wall → Refer โรงพยาบาลราชวิถี</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#a78bfa"></span> รอ Refer</div>
+    </div>
+    <div class="action-row">
+      <button class="btn-a done"><i class="fas fa-people-arrows bi"></i> ส่งเวร <span class="bt">15:10</span></button>
+      <button class="btn-a"><i class="fas fa-ambulance bi"></i> ส่งแล้ว</button>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 10: FINALIZED — Incomplete (Admit, ESI border)
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">10 — Finalized: Incomplete (Admit case)</div>
+  <div class="md">ESI color border (always). Badge shows incomplete. Won't auto-remove.</div>
+  <div class="card esi-border-1">
+    <div class="card-top">
+      <div class="esi-badge esi-1">1</div>
+      <span class="card-name">นาย สมชาย ใจดี</span>
+      <span class="card-meta">HN 123-456-789 · M · 58y</span>
+      <div style="margin-left:auto">
+        <span class="badge badge-inc"><i class="fas fa-exclamation-circle"></i> ข้อมูลไม่ครบ</span>
+      </div>
+    </div>
+    <div class="card-cc">NSTEMI → intubated, respiratory failure</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#a78bfa"></span> Admit ICU</div>
+      <div class="card-times">
+        <div><span class="time-label">BED REQ</span> <span class="time-val">15:45</span></div>
+        <div><span class="time-label">ส่งเวร</span> <span class="time-val">16:20</span></div>
+        <div><span class="time-label">ย้าย</span> <span class="time-val">16:55</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 11: QV — Data Completion (Admit) + Notes
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">11 — QV Panel: Admit Case (data completion + notes)</div>
+  <div class="qv">
+    <div class="qv-hdr">
+      <div class="qv-t"><i class="fas fa-clipboard-check" style="color:var(--accent);margin-right:6px"></i> Finalize Case</div>
+      <button class="qv-x"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="qv-summary">
+      <div class="esi-badge esi-1" style="width:24px;height:24px;font-size:12px">1</div>
+      <div>
+        <div style="font-weight:600;font-size:14px">นาย สมชาย ใจดี</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted)">HN 123-456-789 · M · 58y · Admit ICU</div>
+      </div>
+    </div>
+
+    <!-- Timestamps -->
+    <div class="qv-row col">
+      <div class="qv-lbl">TIMESTAMPS</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <div class="ts"><span class="ts-lbl">BED REQ</span> 15:45 <button class="ts-x"><i class="fas fa-times"></i></button></div>
+        <div class="ts"><span class="ts-lbl">ส่งเวร</span> 16:20 <button class="ts-x"><i class="fas fa-times"></i></button></div>
+        <div class="ts"><span class="ts-lbl">ย้าย</span> 16:55</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <div class="ts"><span class="ts-lbl">WARD</span> ICU</div>
+        <div class="ts" style="text-decoration:line-through;opacity:.5"><span class="ts-lbl">PREV</span> วอร์ดชาย 14:55</div>
+      </div>
+    </div>
+
+    <!-- Final ESI -->
+    <div class="qv-row">
+      <div class="qv-lbl">FINAL ESI <span class="qv-req">*</span></div>
+      <div class="esi-row">
+        <div class="esi-btn esi-1 sel">1</div>
+        <div class="esi-btn">2</div>
+        <div class="esi-btn">3</div>
+        <div class="esi-btn">4</div>
+        <div class="esi-btn">5</div>
+      </div>
+    </div>
+
+    <!-- Diagnosis (searchable) -->
+    <div class="qv-row col">
+      <div class="qv-lbl">DIAGNOSIS <span class="qv-req">*</span></div>
+      <div class="sd">
+        <input class="fi" placeholder="พิมพ์เพื่อค้นหา Dx..." value="NSTEMI">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px">ICD-10: I21.4</div>
+      </div>
+    </div>
+
+    <!-- Department -->
+    <div class="qv-row col">
+      <div class="qv-lbl">DEPARTMENT <span class="qv-req">*</span></div>
+      <select class="sel">
+        <option value="">— เลือกแผนก —</option>
+        <option>GP (เวชปฏิบัติทั่วไป)</option>
+        <option selected>GEN MED (อายุรกรรม)</option>
+        <option>GEN SX (ศัลยกรรม)</option>
+        <option>Ortho (กระดูก)</option>
+        <option>OB-GYN (สูติ-นรี)</option>
+        <option>PED (กุมาร)</option>
+        <option>EYE (จักษุ)</option>
+        <option>Psych (จิตเวช)</option>
+        <option>Maxillofacial (ศัลยกรรมช่องปาก)</option>
+      </select>
+    </div>
+
+    <!-- Doctor (filtered by dept) -->
+    <div class="qv-row col">
+      <div class="qv-lbl">DOCTOR <span class="qv-req">*</span></div>
+      <select class="sel">
+        <option value="">— เลือกแพทย์ —</option>
+        <option>นพ.มนัส</option>
+        <option selected>นพ.พงศกร</option>
+        <option>นพ.จีรัฏฐ์</option>
+      </select>
+      <div class="note">แสดงเฉพาะแพทย์ในแผนก GEN MED</div>
+    </div>
+
+    <!-- Notes timeline (oldest on top) -->
+    <div class="qv-row col">
+      <div class="qv-lbl">NOTES</div>
+      <div class="notes">
+        <div class="note-item">
+          <span class="note-time">14:30</span>
+          <span class="note-text">เริ่มให้ Heparin drip</span>
+          <button class="note-del"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="note-item">
+          <span class="note-time">15:00</span>
+          <span class="note-text">โทรวอร์ดชาย — เตียงยังไม่ว่าง รอ 30 นาที</span>
+          <button class="note-del"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="note-item">
+          <span class="note-time">15:40</span>
+          <span class="note-text">Patient intubated, เปลี่ยน ward request เป็น ICU</span>
+          <button class="note-del"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="note-item">
+          <span class="note-time">16:20</span>
+          <span class="note-text">ส่งเวร ICU — RN ปิยะ รับเวร, IV ขวดที่ 2</span>
+          <button class="note-del"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="note-add">
+          <input class="fi" placeholder="เพิ่มบันทึก..." style="font-size:12px;padding:6px 8px;flex:1">
+          <button class="note-add-btn"><i class="fas fa-plus" style="margin-right:3px"></i> เพิ่ม</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn-confirm"><i class="fas fa-check-circle" style="margin-right:6px"></i> COMPLETE FINALIZATION</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 12: QV — Data Completion (Refer Out) + Treatment outcome
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">12 — QV Panel: Refer Out (+ treatment outcome + referring EP)</div>
+  <div class="qv">
+    <div class="qv-hdr">
+      <div class="qv-t"><i class="fas fa-clipboard-check" style="color:var(--accent);margin-right:6px"></i> Finalize Case</div>
+      <button class="qv-x"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="qv-summary">
+      <div class="esi-badge esi-2" style="width:24px;height:24px;font-size:12px">2</div>
+      <div>
+        <div style="font-weight:600;font-size:14px">นาง สุดา มั่นคง</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted)">HN 345-678-901 · F · 72y · Refer Out</div>
+      </div>
+    </div>
+
+    <!-- Timestamps -->
+    <div class="qv-row col">
+      <div class="qv-lbl">TIMESTAMPS</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <div class="ts"><span class="ts-lbl">REFER</span> 14:05</div>
+        <div class="ts"><span class="ts-lbl">ส่งเวร</span> 15:10 <button class="ts-x"><i class="fas fa-times"></i></button></div>
+        <div class="ts"><span class="ts-lbl">ส่งแล้ว</span> 15:40</div>
+      </div>
+    </div>
+
+    <!-- Referral info (pre-filled) -->
+    <div class="qv-row col">
+      <div class="qv-lbl">REFERRAL INFO</div>
+      <div class="ref-box">
+        <div class="ref-row">
+          <span class="ref-lbl">รพ.ปลายทาง</span>
+          <span class="qv-val" style="font-size:13px">โรงพยาบาลราชวิถี</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-lbl">เหตุผล</span>
+          <span class="qv-val" style="font-size:13px">Emergency PCI</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-lbl">แพทย์ Refer</span>
+          <span class="qv-val" style="font-size:13px">พญ.เฌอมาลย์ จันทนโรจ (ว.62947)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final ESI -->
+    <div class="qv-row">
+      <div class="qv-lbl">FINAL ESI <span class="qv-req">*</span></div>
+      <div class="esi-row">
+        <div class="esi-btn">1</div>
+        <div class="esi-btn esi-2 sel">2</div>
+        <div class="esi-btn">3</div>
+        <div class="esi-btn">4</div>
+        <div class="esi-btn">5</div>
+      </div>
+    </div>
+
+    <!-- Diagnosis -->
+    <div class="qv-row col">
+      <div class="qv-lbl">DIAGNOSIS <span class="qv-req">*</span></div>
+      <div class="sd">
+        <input class="fi" value="STEMI">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px">ICD-10: I21.3</div>
+      </div>
+    </div>
+
+    <!-- Treatment outcome (Refer + Discharge only) -->
+    <div class="qv-row">
+      <div class="qv-lbl">OUTCOME <span class="qv-req">*</span></div>
+      <select class="sel" style="flex:1">
+        <option value="">— เลือก —</option>
+        <option>ดีขึ้น</option>
+        <option selected>คงเดิม</option>
+        <option>ไม่ดีขึ้น</option>
+      </select>
+    </div>
+
+    <!-- Notes -->
+    <div class="qv-row col">
+      <div class="qv-lbl">NOTES</div>
+      <div class="notes">
+        <div class="note-item">
+          <span class="note-time">14:05</span>
+          <span class="note-text">ติดต่อ ศิริราช — เตียงเต็ม</span>
+          <button class="note-del"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="note-item">
+          <span class="note-time">14:20</span>
+          <span class="note-text">ติดต่อ ธรรมศาสตร์ — ไม่มี cardiologist เวร</span>
+          <button class="note-del"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="note-item">
+          <span class="note-time">14:35</span>
+          <span class="note-text">ราชวิถี รับ — นัดส่ง PCI</span>
+          <button class="note-del"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="note-add">
+          <input class="fi" placeholder="เพิ่มบันทึก..." style="font-size:12px;padding:6px 8px;flex:1">
+          <button class="note-add-btn"><i class="fas fa-plus" style="margin-right:3px"></i> เพิ่ม</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn-confirm"><i class="fas fa-check-circle" style="margin-right:6px"></i> COMPLETE FINALIZATION</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 13: QV — Discharge (simpler + Dx dropdown open)
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">13 — QV Panel: Discharge (Final ESI + Dx + Outcome only)</div>
+  <div class="qv">
+    <div class="qv-hdr">
+      <div class="qv-t"><i class="fas fa-clipboard-check" style="color:var(--accent);margin-right:6px"></i> Finalize Case</div>
+      <button class="qv-x"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="qv-summary">
+      <div class="esi-badge esi-4" style="width:24px;height:24px;font-size:12px">4</div>
+      <div>
+        <div style="font-weight:600;font-size:14px">นางสาว มาลี สวยงาม</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted)">HN 789-012-345 · F · 28y · Discharge</div>
+      </div>
+    </div>
+
+    <div class="qv-row">
+      <div class="qv-lbl">FINAL ESI <span class="qv-req">*</span></div>
+      <div class="esi-row">
+        <div class="esi-btn">1</div>
+        <div class="esi-btn">2</div>
+        <div class="esi-btn">3</div>
+        <div class="esi-btn esi-4 sel">4</div>
+        <div class="esi-btn">5</div>
+      </div>
+    </div>
+
+    <div class="qv-row col">
+      <div class="qv-lbl">DIAGNOSIS <span class="qv-req">*</span></div>
+      <div class="sd">
+        <input class="fi" placeholder="พิมพ์เพื่อค้นหา Dx...">
+        <div class="sd-drop open">
+          <div class="sd-cat">COMMON</div>
+          <div class="sd-item">Low back pain <span class="sd-icd">M54.5</span></div>
+          <div class="sd-item">Abdominal pain <span class="sd-icd">R10.4</span></div>
+          <div class="sd-item">Dizziness <span class="sd-icd">R42</span></div>
+          <div class="sd-item">Vertigo <span class="sd-icd">H81.3</span></div>
+          <div class="sd-item">Common cold <span class="sd-icd">J00</span></div>
+          <div class="sd-item">Dyspepsia <span class="sd-icd">K30</span></div>
+          <div class="sd-item">AGE <span class="sd-icd">A09</span></div>
+          <div class="sd-cat">TRAUMA</div>
+          <div class="sd-item">Open wound at leg <span class="sd-icd">S81.9</span></div>
+          <div class="sd-item">Open wound at arm <span class="sd-icd">S51.9</span></div>
+          <div class="sd-cat">พิมพ์เพิ่มเติม</div>
+          <div class="sd-item" style="color:var(--accent)"><i class="fas fa-plus" style="margin-right:4px"></i> ใช้ข้อความที่พิมพ์ (ไม่มี ICD-10)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qv-row">
+      <div class="qv-lbl">OUTCOME <span class="qv-req">*</span></div>
+      <select class="sel" style="flex:1">
+        <option value="">— เลือก —</option>
+        <option selected>ดีขึ้น</option>
+        <option>คงเดิม</option>
+        <option>ไม่ดีขึ้น</option>
+      </select>
+    </div>
+
+    <!-- Notes -->
+    <div class="qv-row col">
+      <div class="qv-lbl">NOTES</div>
+      <div class="notes">
+        <div class="note-add">
+          <input class="fi" placeholder="เพิ่มบันทึก..." style="font-size:12px;padding:6px 8px;flex:1">
+          <button class="note-add-btn"><i class="fas fa-plus" style="margin-right:3px"></i> เพิ่ม</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn-confirm" disabled><i class="fas fa-check-circle" style="margin-right:6px"></i> COMPLETE FINALIZATION</button>
+      <div class="note" style="text-align:center;margin-top:6px">กรุณากรอก Diagnosis ก่อนยืนยัน</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 14: FINALIZED — Complete (auto-remove 90min)
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">14 — Finalized: Complete (90min countdown)</div>
+  <div class="card esi-border-1">
+    <div class="card-top">
+      <div class="esi-badge esi-1">1</div>
+      <span class="card-name">นาย สมชาย ใจดี</span>
+      <span class="card-meta">HN 123-456-789 · M · 58y</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <span class="badge badge-ok"><i class="fas fa-check-circle"></i> ข้อมูลครบ</span>
+        <span class="timer"><i class="fas fa-clock"></i> 87m</span>
+      </div>
+    </div>
+    <div class="card-cc">Dx: NSTEMI (I21.4) · Admit ICU · GEN MED · นพ.พงศกร</div>
+    <div class="card-bottom">
+      <div class="status-pill"><span class="status-dot" style="background:#22c55e"></span> Admit ICU</div>
+      <div class="card-times">
+        <div><span class="time-label">BED REQ</span> <span class="time-val">15:45</span></div>
+        <div><span class="time-label">ส่งเวร</span> <span class="time-val">16:20</span></div>
+        <div><span class="time-label">ย้าย</span> <span class="time-val">16:55</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 15: REACTIVATE button on finalized card
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">15 — Reactivate (in QV of finalized card)</div>
+  <div class="md">PIN confirmation required. Returns card to Active tab.</div>
+  <div class="qv" style="max-width:340px">
+    <div style="text-align:center;padding:12px 0">
+      <i class="fas fa-undo" style="font-size:24px;color:#fde047;margin-bottom:8px"></i>
+      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px">REACTIVATE CASE</div>
+      <div style="font-size:12px;color:var(--text-sub);margin-bottom:12px">ย้ายกลับไปหน้า Active — ต้องใส่รหัสยืนยัน</div>
+      <button class="btn-reactivate"><i class="fas fa-undo" style="margin-right:6px"></i> REACTIVATE</button>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 16: DELETE CONFIRM MODAL (Supabase-style)
+     ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="mt">16 — Delete Confirm (Supabase-style PIN)</div>
+  <div class="md">Random 4-digit code. For deleting timestamps, notes, or reactivating.</div>
+  <div class="modal-wrap">
+    <div class="modal-bg">
+      <div class="modal">
+        <div class="modal-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="modal-title">ยืนยันการลบ</div>
+        <div class="modal-desc">คุณกำลังจะลบเวลา <strong>ส่งเวร 16:20</strong><br>กรุณาพิมพ์รหัสด้านล่างเพื่อยืนยัน</div>
+        <div class="modal-code">4 8 2 9</div>
+        <input class="modal-fi" placeholder="พิมพ์รหัส 4 หลัก" maxlength="4" value="48">
+        <div class="modal-btns">
+          <button class="modal-btn cancel">ยกเลิก</button>
+          <button class="modal-btn danger" disabled>ยืนยันการลบ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
