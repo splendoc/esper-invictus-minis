@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCR Test — Typhoon AI HIS Reader</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0f1a; color: #dde6f0; padding: 20px; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; color: #7dd3fc; }
+  .subtitle { font-size: 0.8rem; color: #4a6a88; margin-bottom: 16px; }
+  h2 { font-size: 1.1rem; margin: 16px 0 8px; color: #0ea5e9; }
+
+  .drop-zone {
+    border: 2px dashed #1a2840; border-radius: 12px; padding: 40px; text-align: center;
+    cursor: pointer; margin-bottom: 20px; transition: border-color 0.2s;
+  }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: #0ea5e9; }
+  .drop-zone input { display: none; }
+
+  #preview { max-width: 100%; max-height: 300px; border-radius: 8px; display: none; margin: 12px 0; }
+
+  .results { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .results.vitals-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .field-card {
+    background: #0f1a27; border: 1px solid #1a2840; border-radius: 8px; padding: 12px;
+  }
+  .field-card.highlight { border-color: #0ea5e9; }
+  .field-card label { font-size: 0.75rem; color: #6b8ba4; text-transform: uppercase; letter-spacing: 0.1em; display: block; }
+  .field-card .value { font-size: 1.1rem; margin-top: 4px; font-family: 'IBM Plex Mono', monospace; min-height: 1.4em; word-break: break-word; }
+
+  .status { padding: 12px; border-radius: 8px; margin: 12px 0; }
+  .status.loading { background: #1a2840; color: #7dd3fc; }
+  .status.done { background: #0f2a1a; color: #22c55e; }
+  .status.error { background: #2a0f0f; color: #ef4444; }
+
+  .raw-section { background: #0f1a27; border: 1px solid #1a2840; border-radius: 8px; padding: 12px; margin-top: 16px; white-space: pre-wrap; font-family: monospace; font-size: 0.8rem; color: #4a6a88; max-height: 200px; overflow-y: auto; }
+  .raw-toggle { font-size: 0.8rem; color: #4a6a88; cursor: pointer; margin-top: 12px; }
+  .raw-toggle:hover { color: #7dd3fc; }
+
+  .cc-box { grid-column: 1 / -1; }
+  .cc-box .value { font-size: 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Typhoon AI — HIS Screen Reader</h1>
+<p class="subtitle">วางภาพหน้าจอ HIS → AI อ่านข้อมูล → กรอกฟอร์มอัตโนมัติ</p>
+
+<div class="drop-zone" id="dropZone">
+  <p style="font-size:1.1rem;">วางภาพ HIS ที่นี่</p>
+  <p style="font-size:0.85rem; color:#6b8ba4; margin-top:8px;">Ctrl+V (paste), ลากวาง, หรือคลิกเลือกไฟล์</p>
+  <input type="file" id="fileInput" accept="image/*">
+</div>
+
+<img id="preview">
+<div id="status" class="status loading" style="display:none;"></div>
+
+<div id="resultSection" style="display:none;">
+  <h2>ข้อมูลผู้ป่วย (Patient Info)</h2>
+  <div class="results" id="patientResults"></div>
+
+  <h2>Vitals</h2>
+  <div class="results vitals-grid" id="vitalsResults"></div>
+
+  <div class="raw-toggle" onclick="document.getElementById('rawJson').style.display = document.getElementById('rawJson').style.display === 'none' ? 'block' : 'none';">
+    ▶ แสดง Raw JSON Response
+  </div>
+  <div class="raw-section" id="rawJson" style="display:none;"></div>
+</div>
+
+<script>
+// ============================================================
+// Config
+// ============================================================
+const TYPHOON_API_KEY = 'sk-kyt5dWKjCxhylN97TSBPwcl1Qa4etIgbHeMHXld8GxLBBinT';
+const TYPHOON_URL = 'https://api.opentyphoon.ai/v1/chat/completions';
+const MODEL = 'typhoon-ocr';
+
+const PROMPT = `Extract all text from the image.
+
+Instructions:
+- Only return the clean Markdown.
+- Do not include any explanation or extra text.
+- You must include all information on the page.
+
+Formatting Rules:
+- Tables: Render tables using <table>...</table> in clean HTML format.
+- Page Numbers: Wrap page numbers in <page_number>...</page_number>.
+- Checkboxes: Use ☐ for unchecked and ☑ for checked boxes.`;
+
+// ============================================================
+// DOM
+// ============================================================
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const preview = document.getElementById('preview');
+const statusEl = document.getElementById('status');
+const resultSection = document.getElementById('resultSection');
+const patientResults = document.getElementById('patientResults');
+const vitalsResults = document.getElementById('vitalsResults');
+const rawJson = document.getElementById('rawJson');
+
+// ============================================================
+// Image loading — drop, click, paste
+// ============================================================
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) loadImage(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) loadImage(e.target.files[0]); });
+
+document.addEventListener('paste', e => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) { loadImage(item.getAsFile()); return; }
+  }
+});
+
+// ============================================================
+// Convert image file to base64 data URL
+// ============================================================
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ============================================================
+// Main flow
+// ============================================================
+async function loadImage(file) {
+  const dataUrl = await fileToBase64(file);
+  preview.src = dataUrl;
+  preview.style.display = 'block';
+  resultSection.style.display = 'none';
+  runOCR(dataUrl);
+}
+
+async function runOCR(base64DataUrl) {
+  showStatus('loading', 'กำลังส่งภาพไปยัง Typhoon AI... (2-5 วินาที)');
+
+  try {
+    const response = await fetch(TYPHOON_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${TYPHOON_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: PROMPT },
+              { type: 'image_url', image_url: { url: base64DataUrl } }
+            ]
+          }
+        ],
+        max_tokens: 16384,
+        temperature: 0.1,
+        top_p: 0.6,
+        repetition_penalty: 1.1
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`API ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+
+    // Typhoon OCR returns raw text — parse it with JS
+    const parsed = parseHISText(content);
+    rawJson.textContent = '=== RAW OCR TEXT ===\n' + content + '\n\n=== PARSED ===\n' + JSON.stringify(parsed, null, 2);
+    displayResults(parsed);
+    showStatus('done', 'อ่านสำเร็จ!');
+
+  } catch (err) {
+    showStatus('error', 'Error: ' + err.message);
+    console.error(err);
+  }
+}
+
+// ============================================================
+// Display extracted data
+// ============================================================
+function displayResults(d) {
+  resultSection.style.display = 'block';
+  patientResults.innerHTML = '';
+  vitalsResults.innerHTML = '';
+
+  // Patient info cards
+  const patientFields = [
+    { label: 'HN', value: d.hn, highlight: true },
+    { label: 'คำนำหน้า', value: d.title },
+    { label: 'ชื่อ-สกุล', value: d.name, highlight: true },
+    { label: 'เพศ', value: d.sex === 'M' ? 'ชาย (M)' : d.sex === 'F' ? 'หญิง (F)' : d.sex },
+    { label: 'อายุ', value: d.age_text || (d.age_years ? d.age_years + ' ปี' : null) },
+    { label: 'CC', value: d.cc, wide: true, highlight: true },
+  ];
+
+  for (const f of patientFields) {
+    if (f.value == null) continue;
+    const card = document.createElement('div');
+    card.className = 'field-card' + (f.highlight ? ' highlight' : '') + (f.wide ? ' cc-box' : '');
+    card.innerHTML = `<label>${f.label}</label><div class="value">${f.value || '—'}</div>`;
+    patientResults.appendChild(card);
+  }
+
+  // Vitals cards
+  const vitalFields = [
+    { label: 'BT', value: d.bt, unit: '°C' },
+    { label: 'HR', value: d.hr, unit: '/min' },
+    { label: 'RR', value: d.rr, unit: '/min' },
+    { label: 'BP', value: d.sbp && d.dbp ? d.sbp + '/' + d.dbp : null, unit: 'mmHg' },
+    { label: 'SpO2', value: d.spo2, unit: '%' },
+    { label: 'Pain', value: d.pain_score, unit: '/10' },
+    { label: 'Weight', value: d.weight_kg, unit: 'kg' },
+    { label: 'Height', value: d.height_cm, unit: 'cm' },
+    { label: 'BMI', value: d.bmi, unit: '' },
+    { label: 'FBS', value: d.fbs, unit: 'mg/dL' },
+    { label: 'DTX', value: d.dtx, unit: 'mg/dL' },
+  ];
+
+  for (const f of vitalFields) {
+    const card = document.createElement('div');
+    card.className = 'field-card';
+    const display = f.value != null ? f.value + ' ' + f.unit : '—';
+    card.innerHTML = `<label>${f.label}</label><div class="value">${display}</div>`;
+    vitalsResults.appendChild(card);
+  }
+}
+
+// ============================================================
+// Parse raw OCR text from HIS screen
+// ============================================================
+function parseHISText(raw) {
+  const d = {
+    hn: null, title: null, name: null, sex: null,
+    age_years: null, age_text: null, cc: null,
+    bt: null, hr: null, rr: null, sbp: null, dbp: null,
+    spo2: null, pain_score: null, bmi: null,
+    weight_kg: null, height_cm: null, fbs: null, dtx: null
+  };
+
+  const t = raw.replace(/\r/g, '');
+
+  // ============================================================
+  // Strategy: try multiple patterns since Typhoon OCR output
+  // can be JSON-like, markdown table, or plain text
+  // ============================================================
+
+  // --- Attempt 1: If Typhoon returned JSON-like structure, try parsing it ---
+  try {
+    // Wrap in braces if needed, fix trailing commas
+    let jsonStr = t.trim();
+    if (!jsonStr.startsWith('{')) {
+      const braceStart = jsonStr.indexOf('{');
+      if (braceStart >= 0) jsonStr = jsonStr.substring(braceStart);
+    }
+    // Find the last closing brace
+    const lastBrace = jsonStr.lastIndexOf('}');
+    if (lastBrace > 0) jsonStr = jsonStr.substring(0, lastBrace + 1);
+    const obj = JSON.parse(jsonStr);
+    // If we got here, it's JSON — extract known keys
+    const flat = JSON.stringify(obj);
+    // Continue to regex below using flattened text
+  } catch(e) { /* not JSON, continue with regex */ }
+
+  // --- HN: any 7-10 digit number near HN ---
+  const hnPatterns = [
+    /HN[\s"':]*(\d{7,10})/i,
+    /"HN"[\s:]*"?(\d{7,10})/i,
+    /\bHN\b[^0-9]*(\d{7,10})/i,
+  ];
+  for (const p of hnPatterns) {
+    const m = t.match(p);
+    if (m) { d.hn = m[1]; break; }
+  }
+
+  // --- Name: look for Thai title + name ---
+  const TITLES = 'นาย|นาง(?:สาว)?|น\\.ส\\.|ด\\.ช\\.|ด\\.ญ\\.|เด็กชาย|เด็กหญิง|ค\\.อ\\.|พ\\.ต\\.|ร\\.ต\\.';
+  const titleRe = new RegExp('(' + TITLES + ')\\.?\\s*([ก-๙a-zA-Z][ก-๙a-zA-Zา-์\\s]+?)(?=\\s+อา[ยุ]|\\s*")', 'u');
+  const nameM = t.match(titleRe);
+  if (nameM) {
+    d.title = nameM[1].trim();
+    d.name = nameM[2].trim();
+    const maleTitles = ['นาย', 'ด.ช.', 'เด็กชาย', 'พ.ต.', 'ร.ต.'];
+    d.sex = maleTitles.some(mt => d.title.includes(mt)) ? 'M' : 'F';
+  }
+
+  // Fallback: "ชื่อ" / "เชื้อ" key (OCR misread)
+  if (!d.name) {
+    const nameAlt = t.match(/(?:ชื่อ|เชื้อ)[\s"':]+(?:"|)((?:นาย|นาง(?:สาว)?|น\.ส\.|ด\.ช\.|ด\.ญ\.|ค\.อ\.)\.?\s*[ก-๙a-zA-Zา-์\s]+?)(?=\s*"|อา[ยุ]|\n)/u);
+    if (nameAlt) {
+      const full = nameAlt[1].trim();
+      const tM = full.match(new RegExp('^(' + TITLES + ')\\.?\\s*'));
+      if (tM) {
+        d.title = tM[1];
+        d.name = full.replace(tM[0], '').trim();
+        const maleTitles = ['นาย', 'ด.ช.', 'เด็กชาย'];
+        d.sex = maleTitles.some(mt => d.title.includes(mt)) ? 'M' : 'F';
+      } else {
+        d.name = full;
+      }
+    }
+  }
+
+  // --- Age ---
+  const agePatterns = [
+    /(?:อายุ|อาย)[^\d]*(\d+)\s*ปี?\s*(\d+\s*เดือน)?\s*(\d+\s*(?:วัน|ว(?:น|ัน)))?/,
+    /(\d+)\s*ปี\s*(\d+\s*เดือน)?\s*(\d+\s*วัน)?/,
+  ];
+  for (const p of agePatterns) {
+    const m = t.match(p);
+    if (m) {
+      d.age_years = parseInt(m[1]);
+      const parts = [m[1] + ' ปี'];
+      if (m[2]) parts.push(m[2].trim());
+      if (m[3]) parts.push(m[3].trim());
+      d.age_text = parts.join(' ');
+      break;
+    }
+  }
+
+  // --- CC ---
+  const ccPatterns = [
+    /\bCC\b[\s"':]*\n?\s*([ก-๙].+?)(?=\n\s*(?:การแพ้|แผนก|สถานะ|New\s*row|CCC|$))/s,
+    /\bCC\b[\s"':]*([ก-๙][^\n"]+)/,
+    /"cc"[\s:]*"([^"]+)"/i,
+  ];
+  for (const p of ccPatterns) {
+    const m = t.match(p);
+    if (m) { d.cc = m[1].replace(/[\n\r]+/g, ' ').trim(); break; }
+  }
+
+  // --- Vitals (multiple pattern attempts for each) ---
+  function findNum(patterns) {
+    for (const p of patterns) {
+      const m = t.match(p);
+      if (m) return parseFloat(m[1]);
+    }
+    return null;
+  }
+
+  d.bt = findNum([/อุณหภูมิ[^\d]*([\d.]+)/, /BT[^\d]*(3[4-9]\.?\d*|4[0-2]\.?\d*)/i]);
+  d.hr = findNum([/(?:อัตราเต้นชีพจร|เต้นชีพจร|ชีพจร)[^\d]*(\d{2,3})/, /HR[^\d]*(\d{2,3})/i]);
+  d.rr = findNum([/(?:อัตราหายใจ|หายใจ)[^\d]*(\d{1,2})/, /RR[^\d]*(\d{1,2})/i]);
+  d.spo2 = findNum([/(?:SpO2|Sp02|SPO2)[^\d]*([\d.]+)/i, /O2\s*sat[^\d]*([\d.]+)/i]);
+  d.pain_score = findNum([/Pain\s*(?:Score)?[^\d]*(\d+)/i]);
+  d.bmi = findNum([/BMI[^\d]*([\d.]+)/i]);
+  d.fbs = findNum([/FBS[^\d]*([\d.]+)/i]);
+  d.dtx = findNum([/DTX[^\d]*([\d.]+)/i]);
+  d.weight_kg = findNum([/น้ำหนัก[^\d]*([\d.]+)/, /([\d.]+)\s*Kg/i]);
+  d.height_cm = findNum([/ส่วนสูง[^\d]*([\d.]+)/, /height[^\d]*([\d.]+)/i]);
+
+  // BP (special: two numbers)
+  const bpPatterns = [
+    /(?:ความดัน(?:โลหิต)?)[^\d]*(\d{2,3})\s*[\/\|,]\s*(\d{2,3})/,
+    /(\d{2,3})\s*[\/\|]\s*(\d{2,3})\s*(?:BP|mmHg)/i,
+    /BP[^\d]*(\d{2,3})\s*[\/\|]\s*(\d{2,3})/i,
+  ];
+  for (const p of bpPatterns) {
+    const m = t.match(p);
+    if (m) { d.sbp = parseInt(m[1]); d.dbp = parseInt(m[2]); break; }
+  }
+
+  // Fallback for BP from the HIS layout: "XXX / XX BP"
+  if (!d.sbp) {
+    const bpAlt = t.match(/(\d{2,3})\s*\/\s*(\d{2,3})\s*(?:\[?BP|ีp)/i);
+    if (bpAlt) { d.sbp = parseInt(bpAlt[1]); d.dbp = parseInt(bpAlt[2]); }
+  }
+
+  return d;
+}
+
+function showStatus(type, msg) {
+  statusEl.style.display = 'block';
+  statusEl.className = 'status ' + type;
+  statusEl.textContent = msg;
+}
+</script>
+
+</body>
+</html>
