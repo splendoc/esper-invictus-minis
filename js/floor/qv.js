@@ -168,6 +168,7 @@ async function confirmStatus(){
 
   // ปฏิเสธการรักษา needs no finalization data — auto-complete immediately
   if(qvSel==='ปฏิเสธการรักษา' && p.tab==='finalized'){
+    p.dataComplete = true;
     await sb.from('visits').update({ data_complete:true, data_completed_at:new Date().toISOString() }).eq('id',p.id);
   }
 

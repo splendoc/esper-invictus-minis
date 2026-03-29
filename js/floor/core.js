@@ -123,9 +123,11 @@ function dbToPatient(row) {
     upd: row.updated_at ? new Date(row.updated_at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'}) : '—',
     arrivedAt: row.arrived_at,
     activatedAt: row.activated_at,
+    finalizedAt: row.finalized_at ? new Date(row.finalized_at).getTime() : null,
     fastTrack: row.fast_track,
     caseCat: row.case_category || null,
-    arrivalMode: row.arrival_mode || null
+    arrivalMode: row.arrival_mode || null,
+    dataComplete: row.data_complete || false
   };
 }
 
@@ -197,7 +199,9 @@ async function loadPatients() {
       arrival_mode: row.arrival_mode,
       arrived_at: row.arrived_at,
       activated_at: row.activated_at,
-      updated_at: row.updated_at
+      updated_at: row.updated_at,
+      finalized_at: row.finalized_at,
+      data_complete: row.data_complete
     });
   });
 }
@@ -279,9 +283,9 @@ const ESI_RED  = {1:0,  2:15,  3:240, 4:300, 5:Infinity};  // red: ESI3=4h, ESI4
 // status definitions — pub: what PublicView displays (omit = use label)
 const SC = {
   // ── ACTIVE ──
-  'กู้ชีพ'                        :{label:'กู้ชีพ',                       dot:'#ef4444', pill:'sp-resus'},
+  'กู้ชีพ'                        :{label:'Resuscitate',                   dot:'#ef4444', pill:'sp-resus'},
   'เข้าห้องตรวจ'                  :{label:'เข้าห้องตรวจ',                 dot:'#22c55e', pill:'sp-active'},
-  'สังเกตอาการ'                   :{label:'สังเกตอาการ',                   dot:'#f59e0b', pill:'sp-observe'},
+  'สังเกตอาการ'                   :{label:'Observe',                       dot:'#f59e0b', pill:'sp-observe'},
   'ส่งเอ็กซ์เรย์'                 :{label:'ส่ง X-Rays',                   dot:'#60a5fa', pill:'sp-lab',     pub:'ส่งเอ็กซ์เรย์ (X-Rays)'},
   'ส่งเอ็กซ์เรย์คอมพิวเตอร์'     :{label:'ส่ง CT',                       dot:'#818cf8', pill:'sp-lab',     pub:'ส่งเอ็กซ์เรย์คอมพิวเตอร์ (CT)'},
   'ทำหัตถการ'                     :{label:'ทำหัตถการ',                     dot:'#f59e0b', pill:'sp-observe'},
@@ -326,14 +330,41 @@ const OPT = {
   ],
   active:[
     {g:'Active',                items:['กู้ชีพ','สังเกตอาการ','เข้าห้องตรวจ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์','ทำหัตถการ']},
-    {g:'Consult',               items:['ปรึกษาแพทย์เฉพาะทาง','ติดต่อส่งตัวโรงพยาบาลอื่น']},
-    {g:'Wait',                  items:['รอผลตรวจ','รอขึ้นหอผู้ป่วย','รอส่งตัวโรงพยาบาลอื่น','รอทำหัตถการ','รอรับยา','รอเอกสาร','รอชำระเงิน']},
-    {g:'Admit → Finalized',     items:['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา']},
-    {g:'Discharge → Finalized', items:['Discharge','ส่งแผนกผู้ป่วยนอก','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา','ส่งตัวโรงพยาบาลอื่น','ส่งห้องผ่าตัด','ปฏิเสธการรักษา','เสียชีวิต','เรียกไม่พบ']},
+    {g:'Consult',               items:['ปรึกษาแพทย์เฉพาะทาง']},
+    // ติดต่อส่งตัวโรงพยาบาลอื่น removed — must go through Plan Refer flow
+    {g:'Wait',                  items:['รอผลตรวจ','รอทำหัตถการ','รอรับยา','รอเอกสาร','รอชำระเงิน']},
+    // Admit wards removed — must go through dispo flow (Decision to Admit → จองเตียง → ส่งเวร → ย้าย)
+    {g:'Discharge → Finalized', items:['Discharge','ส่งแผนกผู้ป่วยนอก','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา','ส่งห้องผ่าตัด','ปฏิเสธการรักษา','เสียชีวิต','เรียกไม่พบ']},
   ],
   disposition:[],
   finalized:[]
 };
+
+// ── Kanban Lanes (Active tab only) ──
+const LANES = [
+  { id:'treatment', label:'ตรวจ',       labelEn:'Treatment',  icon:'fa-stethoscope',
+    statuses:['กู้ชีพ','เข้าห้องตรวจ','สังเกตอาการ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์'] },
+  { id:'pending',   label:'รอผล',       labelEn:'Pending',    icon:'fa-hourglass-half',
+    statuses:['รอผลตรวจ','ปรึกษาแพทย์เฉพาะทาง','ติดต่อส่งตัวโรงพยาบาลอื่น','รอทำหัตถการ','ทำหัตถการ'] },
+  { id:'boarding',  label:'รอจำหน่าย',  labelEn:'Boarding',   icon:'fa-clock',
+    statuses:['รอขึ้นหอผู้ป่วย','รอส่งตัวโรงพยาบาลอื่น','รอรับยา','รอเอกสาร','รอชำระเงิน'] },
+  { id:'dispo',     label:'จำหน่าย',    labelEn:'Dispo',      icon:'fa-right-from-bracket',
+    statuses:['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา',
+              'Discharge','ส่งแผนกผู้ป่วยนอก','ส่งห้องผ่าตัด','ส่งคลินิกโรคเรื้อรัง','ส่งแผนกตา',
+              'ส่งตัวโรงพยาบาลอื่น','ปฏิเสธการรักษา','เสียชีวิต','เรียกไม่พบ'] },
+];
+// Reverse lookup: status → lane id
+const STATUS_TO_LANE = {};
+LANES.forEach(l => l.statuses.forEach(s => STATUS_TO_LANE[s] = l.id));
+
+// ── ESI Lanes (Waiting tab) — collapse when empty ──
+const ESI_LANES = [
+  { esi:1, label:'ESI 1', labelTh:'กู้ชีพ',        color:'#ef4444', icon:'fa-heart-pulse' },
+  { esi:2, label:'ESI 2', labelTh:'ฉุกเฉินวิกฤต',   color:'#ec4899', icon:'fa-bolt' },
+  { esi:3, label:'ESI 3', labelTh:'กึ่งฉุกเฉิน',    color:'#eab308', icon:'fa-triangle-exclamation' },
+  { esi:4, label:'ESI 4', labelTh:'ไม่ฉุกเฉิน',     color:'#22c55e', icon:'fa-clipboard' },
+  { esi:5, label:'ESI 5', labelTh:'ทั่วไป',         color:'#3b82f6', icon:'fa-user' },
+];
 
 const WAITING_STATUSES   = new Set(['รอตรวจ','เรียกไม่พบ','ปฏิเสธการรักษา']);
 const FINAL_FROM_WAITING = new Set(['เรียกไม่พบ','ปฏิเสธการรักษา']);
@@ -401,26 +432,8 @@ function renderSFilter(){
     return;
   }
 
-  if(activeTab !== 'active' && activeTab !== 'waiting'){ bar.style.display='none'; statusFilter='all'; return; }
-
-  const list = patients.filter(p=>p.tab===activeTab);
-  const counts = {};
-  list.forEach(p=>{ counts[p.status]=(counts[p.status]||0)+1; });
-  const statuses = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
-
-  if(statuses.length < 1){ bar.style.display='none'; return; }
-
-  bar.style.display='flex';
-  let html = `<button class="sf-chip${statusFilter==='all'?' on':''}" onclick="setSFilter('all')">All <span class="sf-cnt">${list.length}</span></button>`;
-  statuses.forEach(s=>{
-    const cfg=sc(s);
-    const on = statusFilter===s;
-    html+=`<button class="sf-chip${on?' on':''}" onclick="setSFilter('${s.replace(/'/g,"\\'")}')">
-      <span style="width:6px;height:6px;border-radius:50%;background:${cfg.dot};flex-shrink:0;display:inline-block"></span>
-      ${cfg.label} <span class="sf-cnt" style="background:${cfg.dot};color:#fff">${counts[s]}</span>
-    </button>`;
-  });
-  bar.innerHTML=html;
+  // Active + Waiting tabs use kanban lanes — no filter chips needed
+  bar.style.display='none'; statusFilter='all'; return;
 }
 
 function setFinalizedSort(dir){
@@ -645,7 +658,7 @@ function goToPatient(id, tab){
 // ══════════════════════════════════════════
 // CARDS  — uniform size, all tabs
 // ══════════════════════════════════════════
-function buildCard(p){
+function buildCard(p, kanban){
   const cfg     = sc(p.status);
   const editable = p.tab !== 'finalized';
 
@@ -683,11 +696,11 @@ function buildCard(p){
 
     <!-- Time -->
     <div style="flex-shrink:0;display:flex;align-items:center;gap:8px">
-      <div style="text-align:right;min-width:40px">
+      ${isWaiting ? `<div style="text-align:right;min-width:40px">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--text-dim);line-height:1">${p.arrivedAt ? new Date(p.arrivedAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'}) : p.upd||''}</div>
         <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:var(--text-dim);opacity:.8;margin-top:2px;letter-spacing:.12em">TRIAGE</div>
       </div>
-      <div style="width:1px;height:24px;background:var(--border);flex-shrink:0"></div>
+      <div style="width:1px;height:24px;background:var(--border);flex-shrink:0"></div>` : ''}
       <div style="text-align:right;min-width:50px">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:${timeColor};line-height:1;${isWaiting && timeMin>=ESI_RED[p.esi]?'animation:blink 1.4s ease-in-out infinite':''}">${fm(timeMin)}</div>
         <div style="font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:${timeColor};opacity:.8;margin-top:2px;letter-spacing:.12em">${isWaiting?'WAIT':'STAY'}</div>
@@ -720,7 +733,8 @@ function buildCard(p){
   const Z3 = (typeof buildDispoZone === 'function') ? buildDispoZone(p) : '';
 
   const finalClass = p.tab === 'finalized' ? ' pcard-final' : '';
-  return `<div class="pcard esi-b-${p.esi}${finalClass}" id="card-${p.id}"
+  const dragAttr = kanban && editable ? ` draggable="true" ondragstart="kbDragStart(event,'${p.id}')" ondragend="kbDragEnd(event)"` : '';
+  return `<div class="pcard esi-b-${p.esi}${finalClass}" id="card-${p.id}"${dragAttr}
     onclick="${editable ? `openQV('${p.id}')` : `openFinalizedQV('${p.id}')`}" style="cursor:pointer">
     ${Z1}${Z2}${Z3}
   </div>`;
@@ -750,20 +764,135 @@ function renderCards(){
     p.hn.toLowerCase().includes(q)||
     p.cc.toLowerCase().includes(q)
   );
-  if(activeTab==='finalized'){
-    list=[...list].sort((a,b)=> finalizedSort==='asc'
-      ? (a.finalizedAt||0)-(b.finalizedAt||0)
-      : (b.finalizedAt||0)-(a.finalizedAt||0));
-  } else if(sortOn){
-    list=[...list].sort((a,b)=>a.esi-b.esi||(b.waitMin-a.waitMin));
-  }
 
-  document.getElementById('cards').innerHTML = list.length
-    ? list.map(buildCard).join('')
-    : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:60px 0;color:var(--text-muted)">
+  const container = document.getElementById('cards');
+
+  // ── KANBAN MODE for Active tab ──
+  if(activeTab==='active'){
+    container.classList.add('kanban');
+    if(sortOn) list=[...list].sort((a,b)=>a.esi-b.esi||(b.stayMin-a.stayMin));
+
+    // Bucket patients into lanes
+    const buckets = {};
+    LANES.forEach(l => buckets[l.id] = []);
+    list.forEach(p => {
+      const lane = STATUS_TO_LANE[p.status] || 'treatment';
+      buckets[lane].push(p);
+    });
+
+    let html = '';
+    LANES.forEach(lane => {
+      const cards = buckets[lane.id];
+      const body = cards.length
+        ? cards.map(p => buildCard(p, true)).join('')
+        : '<div class="kb-empty">ไม่มีผู้ป่วย</div>';
+      html += `<div class="kb-lane" data-lane="${lane.id}">
+        <div class="kb-hdr">
+          <i class="fas ${lane.icon} kb-hdr-icon"></i>
+          <div>
+            <div class="kb-hdr-label">${lane.label}</div>
+            <div class="kb-hdr-en">${lane.labelEn}</div>
+          </div>
+          <div class="kb-hdr-cnt">${cards.length}</div>
+        </div>
+        <div class="kb-body" data-lane="${lane.id}"
+          ondragover="kbDragOver(event)" ondragleave="kbDragLeave(event)" ondrop="kbDrop(event)">
+          ${body}
+        </div>
+      </div>`;
+    });
+    container.innerHTML = html;
+
+  } else if(activeTab==='waiting'){
+    // ── ESI KANBAN for Waiting tab — collapse empty lanes ──
+    container.classList.add('kanban');
+    if(sortOn) list=[...list].sort((a,b)=>b.waitMin-a.waitMin); // longest wait first within each lane
+
+    const buckets = {};
+    ESI_LANES.forEach(l => buckets[l.esi] = []);
+    list.forEach(p => {
+      if(buckets[p.esi]) buckets[p.esi].push(p);
+      else buckets[5].push(p); // fallback
+    });
+
+    // Only show lanes that have patients (collapse empty)
+    const visibleLanes = ESI_LANES.filter(l => buckets[l.esi].length > 0);
+
+    if(!visibleLanes.length){
+      container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:60px 0;color:var(--text-muted)">
+        <i class="fas fa-inbox" style="font-size:28px"></i>
+        <span class="raj font-600" style="font-size:14px;letter-spacing:.06em">No patients waiting</span>
+       </div>`;
+    } else {
+      let html = '';
+      visibleLanes.forEach(lane => {
+        const cards = buckets[lane.esi];
+        html += `<div class="kb-lane" data-lane="esi-${lane.esi}" style="border-top:2px solid ${lane.color}">
+          <div class="kb-hdr">
+            <i class="fas ${lane.icon} kb-hdr-icon" style="color:${lane.color}"></i>
+            <div>
+              <div class="kb-hdr-label" style="color:${lane.color}">${lane.label}</div>
+              <div class="kb-hdr-en">${lane.labelTh}</div>
+            </div>
+            <div class="kb-hdr-cnt" style="color:${lane.color}">${cards.length}</div>
+          </div>
+          <div class="kb-body">
+            ${cards.map(p => buildCard(p, false)).join('')}
+          </div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+  } else if(activeTab==='finalized'){
+    // ── 2-COLUMN KANBAN for Finalized ──
+    container.classList.add('kanban');
+    const sortFn = (a,b) => finalizedSort==='asc'
+      ? (a.finalizedAt||0)-(b.finalizedAt||0)
+      : (b.finalizedAt||0)-(a.finalizedAt||0);
+
+    const pending  = list.filter(p => !p.dataComplete).sort(sortFn);
+    const complete = list.filter(p => p.dataComplete).sort(sortFn);
+
+    let html = '';
+    // Left — รอบันทึกข้อมูล
+    html += `<div class="kb-lane" data-lane="fin-pending" style="border-top:2px solid #f59e0b">
+      <div class="kb-hdr">
+        <i class="fas fa-file-pen kb-hdr-icon" style="color:#f59e0b"></i>
+        <div>
+          <div class="kb-hdr-label" style="color:#f59e0b">รอบันทึกข้อมูล</div>
+          <div class="kb-hdr-en">Pending</div>
+        </div>
+        <div class="kb-hdr-cnt" style="color:#f59e0b">${pending.length}</div>
+      </div>
+      <div class="kb-body">
+        ${pending.length ? pending.map(p => buildCard(p, false)).join('') : '<div class="kb-empty">ไม่มีผู้ป่วย</div>'}
+      </div>
+    </div>`;
+    // Right — บันทึกครบแล้ว
+    html += `<div class="kb-lane" data-lane="fin-complete" style="border-top:2px solid #22c55e">
+      <div class="kb-hdr">
+        <i class="fas fa-circle-check kb-hdr-icon" style="color:#22c55e"></i>
+        <div>
+          <div class="kb-hdr-label" style="color:#22c55e">บันทึกครบแล้ว</div>
+          <div class="kb-hdr-en">Complete</div>
+        </div>
+        <div class="kb-hdr-cnt" style="color:#22c55e">${complete.length}</div>
+      </div>
+      <div class="kb-body">
+        ${complete.length ? complete.map(p => buildCard(p, false)).join('') : '<div class="kb-empty">ไม่มีผู้ป่วย</div>'}
+      </div>
+    </div>`;
+    container.innerHTML = html;
+
+  } else {
+    // ── FLAT LIST fallback ──
+    container.classList.remove('kanban');
+    container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:60px 0;color:var(--text-muted)">
         <i class="fas fa-inbox" style="font-size:28px"></i>
         <span class="raj font-600" style="font-size:14px;letter-spacing:.06em">No patients</span>
        </div>`;
+  }
 
   // Re-apply highlight to cards that are still within their glow duration
   const now = Date.now();
@@ -775,6 +904,161 @@ function renderCards(){
       delete _highlightedCards[id];
     }
   }
+}
+
+// ══════════════════════════════════════════
+// KANBAN DRAG & DROP
+// ══════════════════════════════════════════
+let _kbDragId = null;
+
+function kbDragStart(e, id){
+  _kbDragId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', id);
+  requestAnimationFrame(() => {
+    const card = document.getElementById('card-'+id);
+    if(card) card.classList.add('dragging');
+  });
+}
+
+function kbDragEnd(e){
+  const card = document.getElementById('card-'+_kbDragId);
+  if(card) card.classList.remove('dragging');
+  _kbDragId = null;
+  document.querySelectorAll('.kb-body.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
+function kbDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function kbDragLeave(e){
+  // Only remove if leaving the lane body itself, not a child
+  if(!e.currentTarget.contains(e.relatedTarget)){
+    e.currentTarget.classList.remove('drag-over');
+  }
+}
+
+function kbDrop(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const id = e.dataTransfer.getData('text/plain') || _kbDragId;
+  const targetLaneId = e.currentTarget.dataset.lane;
+  if(!id || !targetLaneId) return;
+
+  const p = patients.find(x=>x.id===id);
+  if(!p) return;
+
+  const currentLane = STATUS_TO_LANE[p.status];
+  if(currentLane === targetLaneId) return; // same lane, no-op
+
+  // Show mini-picker with target lane's statuses
+  const lane = LANES.find(l=>l.id===targetLaneId);
+  if(!lane) return;
+
+  showDropPicker(e.clientX, e.clientY, id, lane);
+}
+
+function showDropPicker(x, y, patientId, lane){
+  closeDropPicker(); // close any existing
+  const div = document.createElement('div');
+  div.className = 'kb-drop-picker';
+  div.id = 'kb-drop-picker';
+
+  // Filter out statuses that must go through their own flow
+  const FLOW_LOCKED = new Set(['ICU','วอร์ดชาย','วอร์ดหญิง','วอร์ดพิเศษชั้น 6','วอร์ดพิเศษชั้น 7','วอร์ดตา',
+    'รอขึ้นหอผู้ป่วย','รอส่งตัวโรงพยาบาลอื่น','ส่งตัวโรงพยาบาลอื่น','ติดต่อส่งตัวโรงพยาบาลอื่น']);
+  const filtered = lane.statuses.filter(s => !FLOW_LOCKED.has(s));
+
+  if(!filtered.length){ closeDropPicker(); return; }
+
+  let html = `<div class="dp-hdr">${lane.label} — ${lane.labelEn}</div>`;
+  filtered.forEach(s => {
+    const cfg = sc(s);
+    html += `<div class="dp-item" data-status="${s}" onclick="pickDropStatus('${patientId}','${s.replace(/'/g,"\\'")}')">
+      <span class="dp-dot" style="background:${cfg.dot}"></span>
+      <span class="dp-label">${cfg.label}</span>
+    </div>`;
+  });
+  div.innerHTML = html;
+
+  // Position near cursor, keep on-screen (zoom-aware)
+  div.style.visibility = 'hidden';
+  document.body.appendChild(div);
+  requestAnimationFrame(() => {
+    const z = parseFloat(getComputedStyle(document.body).zoom) || 1;
+    const rect = div.getBoundingClientRect();
+    const vw = window.innerWidth / z, vh = window.innerHeight / z;
+    const cx = x / z, cy = y / z;
+    let left = cx - rect.width/2;
+    let top = cy + 8;
+    if(left < 8) left = 8;
+    if(left + rect.width > vw - 8) left = vw - rect.width - 8;
+    if(top + rect.height > vh - 8) top = cy - rect.height - 8;
+    if(top < 8) top = 8;
+    div.style.left = left+'px';
+    div.style.top = top+'px';
+    div.style.visibility = '';
+  });
+
+  // Click outside to close
+  setTimeout(() => document.addEventListener('click', _dropPickerOutside), 0);
+}
+
+function _dropPickerOutside(e){
+  const picker = document.getElementById('kb-drop-picker');
+  if(picker && !picker.contains(e.target)) closeDropPicker();
+}
+
+function closeDropPicker(){
+  const el = document.getElementById('kb-drop-picker');
+  if(el) el.remove();
+  document.removeEventListener('click', _dropPickerOutside);
+}
+
+async function pickDropStatus(patientId, status){
+  closeDropPicker();
+  const p = patients.find(x=>x.id===patientId);
+  if(!p) return;
+
+  p.status = status;
+
+  // Check if this status finalizes the patient
+  if(FINAL_FROM_ACTIVE.has(status)){
+    p.tab = 'finalized';
+    p.finalizedAt = Date.now();
+  }
+
+  // Auto data_complete for ปฏิเสธการรักษา
+  if(status==='ปฏิเสธการรักษา' && p.tab==='finalized'){
+    p.dataComplete = true;
+    await sb.from('visits').update({ data_complete:true, data_completed_at:new Date().toISOString() }).eq('id',p.id);
+  }
+
+  await updateVisitStatus(p.id, p.status, p.tab, p.activatedAt);
+
+  const movedTo = p.tab;
+  renderSit();
+  renderSFilter();
+
+  if(movedTo !== activeTab){
+    const targetBtn = document.querySelector(`.tab-btn[data-tab="${movedTo}"]`);
+    if(targetBtn) switchTab(targetBtn);
+  } else {
+    renderCards();
+  }
+
+  requestAnimationFrame(()=>{
+    const card = document.getElementById('card-'+patientId);
+    if(card){
+      card.scrollIntoView({behavior:'smooth',block:'nearest'});
+      highlightCard(patientId, 5000);
+    }
+  });
+
+  showToast(`<div style="line-height:1.3"><div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div><div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#22c55e;margin-top:3px">→ ${sc(status).label}</div></div>`, '#22c55e', 'fa-arrows-alt');
 }
 
 // ══════════════════════════════════════════
@@ -881,4 +1165,4 @@ async function recordGedwinSnapshot(type) {
   }
 }
 
-initApp();
+// initApp() is called from inline <script> in HTML after all modules load

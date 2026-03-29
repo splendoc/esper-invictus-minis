@@ -503,29 +503,55 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 /* ══════════════════════════════════════════
    DISPOSITION ZONE (จองเตียง, ส่งเวร, etc.)
    ══════════════════════════════════════════ */
-.dispo-zone{padding:0 12px 8px}
+.dispo-zone{padding:0 12px 8px;display:flex;flex-direction:column;gap:4px}
 
-/* จองเตียง tag */
-.dispo-bed-tag{
-  display:inline-flex;align-items:center;gap:5px;
-  font-family:'Sarabun',sans-serif;font-size:12px;color:#86efac;
-  background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);
-  padding:4px 10px;border-radius:5px;cursor:pointer;transition:background .15s;
-  margin-bottom:6px
+/* Expandable — collapsed shows max 6 rows */
+.dispo-zone.dispo-collapsed > .dispo-row:nth-child(n+7),
+.dispo-zone.dispo-collapsed > .dispo-actions:nth-child(n+7){display:none}
+.dispo-zone.dispo-collapsed > .dispo-expand-btn .dispo-expand-less{display:none}
+.dispo-zone:not(.dispo-collapsed) > .dispo-expand-btn .dispo-expand-more{display:none}
+.dispo-expand-btn{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  background:none;border:1px solid var(--border);border-radius:4px;
+  font-family:'Sarabun',sans-serif;font-size:11px;font-weight:600;
+  color:var(--text-muted);cursor:pointer;padding:3px 8px;transition:color .15s,border-color .15s
 }
-.dispo-bed-tag:hover{background:rgba(34,197,94,.15)}
-:root:not(.dark) .dispo-bed-tag{color:#16a34a;background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.2)}
-:root:not(.dark) .dispo-bed-tag:hover{background:rgba(22,163,74,.15)}
+.dispo-expand-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+/* Dispo rows — bed requests, handover, etc. */
+.dispo-row{
+  display:flex;align-items:center;gap:6px;
+  padding:3px 8px;border-radius:4px;
+  background:rgba(255,255,255,.02);transition:background .1s
+}
+.dispo-row-hl{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12)}
+.dispo-row-cancel{opacity:.4}
+.dispo-row-x{
+  background:none;border:none;cursor:pointer;color:var(--text-dim);
+  font-size:10px;padding:2px 4px;transition:color .15s;flex-shrink:0
+}
+.dispo-row-x:hover{color:#ef4444}
+:root:not(.dark) .dispo-row-hl{background:rgba(22,163,74,.06);border-color:rgba(22,163,74,.12)}
 
 /* Action buttons row */
-.dispo-actions{display:flex;gap:6px;flex-wrap:wrap}
+.dispo-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
 .dispo-btn{
   display:inline-flex;align-items:center;gap:5px;
-  font-family:'Rajdhani',sans-serif;font-weight:600;font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+  font-family:'Sarabun',sans-serif;font-weight:600;font-size:11px;
   padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:var(--bg-elevated);
   color:var(--text-sub);cursor:pointer;transition:all .15s
 }
 .dispo-btn:hover{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.dispo-btn.dispo-admit{
+  background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.3);color:#93c5fd
+}
+.dispo-btn.dispo-admit:hover{background:rgba(96,165,250,.15);border-color:rgba(96,165,250,.5)}
+:root:not(.dark) .dispo-btn.dispo-admit{color:#2563eb;background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.25)}
+.dispo-btn.dispo-refer{
+  background:rgba(192,132,252,.08);border-color:rgba(192,132,252,.3);color:#d8b4fe
+}
+.dispo-btn.dispo-refer:hover{background:rgba(192,132,252,.15);border-color:rgba(192,132,252,.5)}
+:root:not(.dark) .dispo-btn.dispo-refer{color:#7c3aed;background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.25)}
 .dispo-btn i{font-size:11px}
 .dispo-btn.dispo-done{
   background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);color:#86efac;cursor:default
@@ -541,17 +567,19 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 /* Ward picker dropdown */
 .dispo-ward-picker{
   background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;
-  padding:6px;margin-top:6px;max-width:260px
+  padding:6px;margin-top:2px;max-width:260px
 }
 .dispo-wp-title{
-  font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;padding:0 6px
+  font-family:'Sarabun',sans-serif;font-size:11px;font-weight:700;
+  color:var(--text-dim);margin-bottom:4px;padding:0 6px
 }
 .dispo-wp-item{
   padding:7px 12px;border-radius:5px;font-family:'Sarabun',sans-serif;font-size:13px;
   color:var(--text-sub);cursor:pointer;transition:background .1s
 }
 .dispo-wp-item:hover{background:var(--item-hover-bg);color:var(--text-primary)}
+.dispo-wp-item.dispo-wp-done{color:var(--text-dim);cursor:default}
+.dispo-wp-item.dispo-wp-done:hover{background:transparent;color:var(--text-dim)}
 :root:not(.dark) .dispo-wp-item:hover{background:#e8e8ec}
 
 /* Completion badges */
@@ -797,3 +825,86 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
   background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#fca5a5
 }
 .note-confirm-delete:disabled{opacity:.4;cursor:not-allowed}
+
+/* ══════════════════════════════════════════
+   KANBAN LANES — Active tab swim lanes
+   ══════════════════════════════════════════ */
+#cards.kanban{
+  flex-direction:row;gap:8px;padding:8px;overflow-x:auto;overflow-y:hidden
+}
+.kb-lane{
+  flex:1 1 0;min-width:220px;display:flex;flex-direction:column;
+  background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;min-height:0
+}
+.kb-hdr{
+  flex:0 0 auto;padding:8px 10px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;background:var(--bg-body)
+}
+.kb-hdr-icon{
+  font-size:12px;color:var(--text-dim);width:16px;text-align:center
+}
+.kb-hdr-label{
+  font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;color:var(--text-primary);line-height:1
+}
+.kb-hdr-en{
+  font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-dim);line-height:1
+}
+.kb-hdr-cnt{
+  margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;
+  color:var(--accent);min-width:20px;text-align:center
+}
+.kb-body{
+  flex:1 1 0;overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:5px;min-height:60px
+}
+.kb-body::-webkit-scrollbar{width:3px}
+.kb-body::-webkit-scrollbar-track{background:transparent}
+.kb-body::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px}
+
+/* Drag feedback */
+.kb-body.drag-over{
+  background:rgba(14,165,233,.06);outline:2px dashed var(--accent);outline-offset:-2px;border-radius:6px
+}
+.pcard.dragging{opacity:.4;transform:scale(.97)}
+.pcard[draggable="true"]{cursor:grab}
+.pcard[draggable="true"]:active{cursor:grabbing}
+
+/* Kanban cards — more compact */
+#cards.kanban .pcard{font-size:12px}
+
+/* Empty lane placeholder */
+.kb-empty{
+  display:flex;align-items:center;justify-content:center;flex:1;
+  color:var(--text-dim);font-family:'Sarabun',sans-serif;font-size:12px;
+  font-weight:500;opacity:.5;min-height:40px
+}
+
+/* Drop picker (mini status picker on drag-drop) */
+.kb-drop-picker{
+  position:fixed;z-index:300;background:var(--bg-elevated);border:1px solid var(--border);
+  border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,.8);min-width:180px;max-width:260px;
+  overflow:hidden;animation:kb-pop .12s ease-out
+}
+@keyframes kb-pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.kb-drop-picker .dp-hdr{
+  padding:8px 14px 6px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;
+  color:var(--text-dim);border-bottom:1px solid var(--border)
+}
+.kb-drop-picker .dp-item{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;transition:background .1s
+}
+.kb-drop-picker .dp-item:hover{background:var(--pop-hover-bg)}
+.kb-drop-picker .dp-item .dp-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0
+}
+.kb-drop-picker .dp-item .dp-label{
+  font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;color:var(--text-sub)
+}
+.kb-drop-picker .dp-item:hover .dp-label{color:var(--text-primary)}
+
+/* Light theme overrides */
+:root:not(.dark) .kb-lane{background:#ffffff;border-color:#d0dbe8}
+:root:not(.dark) .kb-hdr{background:#f0f4f8}
+:root:not(.dark) .kb-body.drag-over{background:rgba(2,132,199,.06);outline-color:#0284c7}
+:root:not(.dark) .kb-drop-picker{background:#fff;border-color:#d0dbe8;box-shadow:0 12px 40px rgba(0,0,0,.15)}

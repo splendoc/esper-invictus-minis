@@ -197,15 +197,6 @@
 <!-- ══════════════ SITUATION BAR ══════════════ -->
 <section id="sit" class="flex items-center justify-center gap-4 px-4 py-3" style="border-bottom:1px solid var(--border);background:var(--bg-body)">
 
-  <!-- Active panel -->
-  <div class="sit-tbl-wrap" style="display:flex;align-items:stretch;gap:0">
-    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid var(--border)">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--sit-active-label);text-transform:uppercase;margin-bottom:2px">Active</div>
-      <div id="cnt-a" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:var(--sit-active-count);line-height:1">0</div>
-    </div>
-    <div id="sit-active" style="padding:4px 8px;display:flex;align-items:center"></div>
-  </div>
-
   <!-- Waiting panel -->
   <div class="sit-tbl-wrap" style="display:flex;align-items:stretch;gap:0">
     <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid var(--border)">
@@ -213,6 +204,15 @@
       <div id="cnt-w" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:var(--sit-waiting-count);line-height:1">0</div>
     </div>
     <div id="sit-waiting" style="padding:4px 8px;display:flex;align-items:center"></div>
+  </div>
+
+  <!-- Active panel -->
+  <div class="sit-tbl-wrap" style="display:flex;align-items:stretch;gap:0">
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 20px;border-right:1px solid var(--border)">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--sit-active-label);text-transform:uppercase;margin-bottom:2px">Active</div>
+      <div id="cnt-a" style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:var(--sit-active-count);line-height:1">0</div>
+    </div>
+    <div id="sit-active" style="padding:4px 8px;display:flex;align-items:center"></div>
   </div>
 
 </section>
@@ -510,5 +510,6 @@
 <script src="js/floor/refer.js"></script>
 <script src="js/floor/consult.js"></script>
 <script src="js/floor/notes.js"></script>
+<script>initApp();</script>
 </body>
 </html>

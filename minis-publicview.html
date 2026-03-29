@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const FLOOR_AVG_WAIT     = { 3:90,  4:150, 5:180 }; // replace with live floor data
 
     const esiLabels = {
-        1:{ th:'กู้ชีพ',      en:'Resuscitation' },
+        1:{ th:'วิกฤต',      en:'Resuscitation' },
         2:{ th:'เร่งด่วน',    en:'Emergent'      },
         3:{ th:'กึ่งฉุกเฉิน', en:'Urgent'        },
         4:{ th:'ไม่ฉุกเฉิน', en:'Less Urgent'   },
@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Status config — mirrors Floor SC; pub = what the public board shows ──
     const SC = {
-        'กู้ชีพ':                      {dot:'#ef4444', pub:'กู้ชีพ'},
+        'กู้ชีพ':                      {dot:'#ef4444', pub:'วิกฤต'},
         'เข้าห้องตรวจ':                {dot:'#22c55e', pub:'เข้าห้องตรวจ'},
         'สังเกตอาการ':                 {dot:'#f59e0b', pub:'สังเกตอาการ'},
         'ส่งเอ็กซ์เรย์':              {dot:'#60a5fa', pub:'ส่งเอ็กซ์เรย์ (X-Rays)'},
