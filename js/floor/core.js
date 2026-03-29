@@ -819,9 +819,10 @@ function renderCards(){
     const visibleLanes = ESI_LANES.filter(l => buckets[l.esi].length > 0);
 
     if(!visibleLanes.length){
-      container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:60px 0;color:var(--text-muted)">
+      container.classList.remove('kanban');
+      container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;flex:1;color:var(--text-muted)">
         <i class="fas fa-inbox" style="font-size:28px"></i>
-        <span class="raj font-600" style="font-size:14px;letter-spacing:.06em">No patients waiting</span>
+        <span style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600">ไม่มีผู้ป่วยรอตรวจ</span>
        </div>`;
     } else {
       let html = '';

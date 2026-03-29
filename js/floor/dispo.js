@@ -482,18 +482,8 @@ function cancelBed(visitId, bedIndex) {
 // HANDOVER (ส่งเวร) — pick from bed requests
 // ══════════════════════════════════════════
 function openHandoverPicker(visitId, evt) {
-  const btn = evt ? evt.currentTarget : document.getElementById('card-'+visitId);
-  const d = getDispoState(visitId);
-  const activeBeds = d.beds.filter(b => !b.cancelled);
-
-  const items = activeBeds.map(b => ({
-    label: b.ward,
-    dot: '#a78bfa',
-    done: false,
-    onclick: `dispoHandoverWard('${visitId}','${b.ward}')`
-  }));
-
-  showFloatingPicker(btn, visitId, 'ส่งเวร — เลือกวอร์ด', items);
+  // Open the admission detail modal instead of just a ward picker
+  openAdmModal(visitId);
 }
 
 async function dispoHandoverWard(visitId, ward) {
@@ -608,4 +598,271 @@ async function dispoMoveRefer(visitId) {
     <div style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
     <div style="font-family:'Sarabun',sans-serif;font-size:12px;color:#a78bfa;margin-top:2px"><i class="fas fa-ambulance" style="margin-right:4px"></i>ส่งผู้ป่วยแล้ว</div>
   </div>`, '#a78bfa', 'fa-ambulance');
+}
+
+// ══════════════════════════════════════════
+// ADMISSION DETAIL MODAL
+// ══════════════════════════════════════════
+let _admVisitId = null;
+const _admData = {}; // { visitId: { doctor, doctorLicense, department, ward, consults:[{doctor,dept,license}] } }
+
+function getAdmData(id) {
+  if (!_admData[id]) _admData[id] = { doctor:'', doctorLicense:'', department:'', ward:'', consults:[] };
+  return _admData[id];
+}
+
+function openAdmModal(visitId) {
+  _admVisitId = visitId;
+  const p = patients.find(x => x.id === visitId);
+  if (!p) return;
+  const d = getDispoState(visitId);
+  const a = getAdmData(visitId);
+  const activeBeds = d.beds.filter(b => !b.cancelled);
+
+  // Pre-select ward if only one bed
+  if (activeBeds.length === 1 && !a.ward) a.ward = activeBeds[0].ward;
+
+  // Patient info
+  document.getElementById('adm-pt').innerHTML = `
+    <div style="display:flex;gap:10px;align-items:center">
+      <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px" class="esi-c-${p.esi}">${p.esi}</div>
+      <div>
+        <div style="font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:var(--text-primary)">${fullName(p)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-detail)">${fmtHN(p.hn)} · ${p.sex} · ${fmtAge(p.age)}</div>
+      </div>
+    </div>`;
+
+  // Form body
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  const deptDisplay = a.department ? (deptLabels[a.department] || a.department) : '';
+
+  let html = '';
+
+  // Ward selector (if multiple beds)
+  if (activeBeds.length > 1) {
+    html += `<div class="adm-field">
+      <div class="adm-lbl">WARD <span class="adm-req">*</span></div>
+      <select class="fin-input" id="adm-ward" onchange="getAdmData('${visitId}').ward=this.value" style="cursor:pointer">
+        <option value="">— เลือกวอร์ด —</option>
+        ${activeBeds.map(b => `<option value="${b.ward}"${a.ward===b.ward?' selected':''}>${b.ward}</option>`).join('')}
+      </select>
+    </div>`;
+  } else {
+    html += `<div class="adm-field">
+      <div class="adm-lbl">WARD</div>
+      <div style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--text-primary);padding:8px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px">${a.ward}</div>
+    </div>`;
+  }
+
+  // Attending Physician
+  html += `<div class="adm-field">
+    <div class="adm-lbl">Attending Physician <span class="adm-req">*</span></div>
+    <div style="position:relative">
+      <input class="fin-input${a.doctor ? ' fin-input-selected' : ''}" id="adm-doc"
+        placeholder="พิมพ์ชื่อแพทย์..." value="${a.doctor || ''}"
+        oninput="admDocSearch(this.value)" onfocus="admDocSearch(this.value)"
+        onkeydown="admDocKeydown(event)"
+        onblur="setTimeout(()=>{const d=document.getElementById('adm-doc-drop');if(d)d.style.display='none'},150)">
+      <div class="fin-dx-drop" id="adm-doc-drop"></div>
+      ${a.doctorLicense ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px">${a.doctorLicense}</div>` : ''}
+    </div>
+  </div>`;
+
+  // Department
+  html += `<div class="adm-field">
+    <div class="adm-lbl">Department <span class="adm-req">*</span></div>
+    <div style="position:relative">
+      <input class="fin-input${a.department ? ' fin-input-selected' : ''}" id="adm-dept"
+        placeholder="พิมพ์ชื่อแผนก..." value="${deptDisplay}"
+        ${a.department && a.doctor ? 'readonly' : ''}
+        oninput="admDeptSearch(this.value)" onfocus="admDeptSearch(this.value)"
+        onkeydown="admDeptKeydown(event)"
+        onblur="setTimeout(()=>{const d=document.getElementById('adm-dept-drop');if(d)d.style.display='none'},150)">
+      <div class="fin-dx-drop" id="adm-dept-drop"></div>
+    </div>
+  </div>`;
+
+  // สาขาดูร่วม
+  html += `<div class="adm-field">
+    <div class="adm-lbl" style="font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;letter-spacing:0;text-transform:none">สาขาดูร่วม</div>`;
+  if (a.consults.length) {
+    a.consults.forEach((c, i) => {
+      html += `<div class="adm-consult-row">
+        <span style="font-family:'Sarabun',sans-serif;font-size:12px;color:var(--text-primary);flex:1">${c.doctor}</span>
+        <span style="font-family:'Sarabun',sans-serif;font-size:11px;color:var(--text-dim)">${deptLabels[c.dept]||c.dept}</span>
+        <button class="dispo-row-x" onclick="admConsultRemove(${i})" style="flex-shrink:0"><i class="fas fa-times"></i></button>
+      </div>`;
+    });
+  }
+  html += `<div style="display:flex;gap:6px;margin-top:4px">
+    <div style="flex:1;position:relative">
+      <input class="fin-input" id="adm-cdoc" placeholder="พิมพ์ชื่อแพทย์..."
+        oninput="admConsultDocSearch(this.value)" onfocus="admConsultDocSearch(this.value)"
+        onkeydown="admCDocKeydown(event)"
+        onblur="setTimeout(()=>{const d=document.getElementById('adm-cdoc-drop');if(d)d.style.display='none'},150)">
+      <div class="fin-dx-drop" id="adm-cdoc-drop"></div>
+    </div>
+    <input class="fin-input" id="adm-cdept" placeholder="แผนก..." readonly style="flex:0 0 120px;color:var(--text-dim)">
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-top:4px">
+    <button class="dispo-btn" onclick="admConsultAdd()" style="font-size:11px">
+      <i class="fas fa-plus"></i> เพิ่ม
+    </button>
+  </div>`;
+  html += `</div>`;
+
+  document.getElementById('adm-body').innerHTML = html;
+  document.getElementById('adm-bd').style.display = 'block';
+  document.getElementById('adm-modal').style.display = 'flex';
+}
+
+function closeAdmModal() {
+  document.getElementById('adm-bd').style.display = 'none';
+  document.getElementById('adm-modal').style.display = 'none';
+  _admVisitId = null;
+}
+
+// ── Doctor search (all doctors, auto-lock dept) ──
+function admDocSearch(query) {
+  const drop = document.getElementById('adm-doc-drop');
+  if (!drop) return;
+  const a = getAdmData(_admVisitId);
+  a.doctor = query;
+  a.doctorLicense = '';
+
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const deptDocs = [];
+  if (typeof DEPT_DOCTORS !== 'undefined') {
+    for (const [dept, docs] of Object.entries(DEPT_DOCTORS)) {
+      for (const d of docs) deptDocs.push({ name:d.name, license:d.license, dept });
+    }
+  }
+  const matches = deptDocs.filter(d => d.name.toLowerCase().includes(query.toLowerCase())).slice(0,10);
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  drop.innerHTML = matches.map(d =>
+    `<div class="fin-dx-item" onmousedown="admDocPick('${d.name.replace(/'/g,"\\'")}','${(d.license||'').replace(/'/g,"\\'")}','${d.dept.replace(/'/g,"\\'")}')">${d.name}${d.license ? ` <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${d.license}</span>` : ''} <span style="font-size:10px;color:var(--text-dim)">${deptLabels[d.dept]||d.dept}</span></div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function admDocPick(name, license, dept) {
+  const a = getAdmData(_admVisitId);
+  a.doctor = name;
+  a.doctorLicense = license;
+  a.department = dept;
+  // Refresh modal to show locked dept
+  openAdmModal(_admVisitId);
+}
+
+function admDocKeydown(e) { finDropKeydown(e, 'adm-doc-drop'); }
+
+// ── Department search ──
+function admDeptSearch(query) {
+  const drop = document.getElementById('adm-dept-drop');
+  if (!drop) return;
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  const depts = typeof DEPT_DOCTORS !== 'undefined' ? Object.keys(DEPT_DOCTORS) : [];
+  const matches = depts.filter(d => {
+    const label = deptLabels[d] || d;
+    return label.toLowerCase().includes(query.toLowerCase());
+  }).slice(0,10);
+
+  if (!matches.length) { drop.style.display = 'none'; return; }
+  drop.innerHTML = matches.map(d =>
+    `<div class="fin-dx-item" onmousedown="admDeptPick('${d.replace(/'/g,"\\'")}')">${deptLabels[d]||d}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function admDeptPick(dept) {
+  const a = getAdmData(_admVisitId);
+  a.department = dept;
+  openAdmModal(_admVisitId);
+}
+
+function admDeptKeydown(e) { finDropKeydown(e, 'adm-dept-drop'); }
+
+// ── สาขาดูร่วม search ──
+let _admConsultPick = null;
+
+function admConsultDocSearch(query) {
+  const drop = document.getElementById('adm-cdoc-drop');
+  if (!drop) return;
+  _admConsultPick = null;
+  const deptInput = document.getElementById('adm-cdept');
+  if (deptInput) deptInput.value = '';
+
+  if (!query || query.length < 1) { drop.style.display = 'none'; return; }
+
+  const deptDocs = [];
+  if (typeof DEPT_DOCTORS !== 'undefined') {
+    for (const [dept, docs] of Object.entries(DEPT_DOCTORS)) {
+      for (const d of docs) deptDocs.push({ name:d.name, license:d.license, dept });
+    }
+  }
+  const matches = deptDocs.filter(d => d.name.toLowerCase().includes(query.toLowerCase())).slice(0,10);
+  if (!matches.length) { drop.style.display = 'none'; return; }
+
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  drop.innerHTML = matches.map(d =>
+    `<div class="fin-dx-item" onmousedown="admConsultDocPick('${d.name.replace(/'/g,"\\'")}','${(d.license||'').replace(/'/g,"\\'")}','${d.dept.replace(/'/g,"\\'")}')">${d.name} <span style="font-size:10px;color:var(--text-dim)">${deptLabels[d.dept]||d.dept}</span></div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+function admConsultDocPick(name, license, dept) {
+  _admConsultPick = { name, license, dept };
+  const input = document.getElementById('adm-cdoc');
+  if (input) { input.value = name; input.classList.add('fin-input-selected'); }
+  const drop = document.getElementById('adm-cdoc-drop');
+  if (drop) drop.style.display = 'none';
+  const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  const deptInput = document.getElementById('adm-cdept');
+  if (deptInput) deptInput.value = deptLabels[dept] || dept;
+}
+
+function admCDocKeydown(e) { finDropKeydown(e, 'adm-cdoc-drop'); }
+
+function admConsultAdd() {
+  if (!_admConsultPick || !_admConsultPick.name) return;
+  const a = getAdmData(_admVisitId);
+  a.consults.push({ doctor:_admConsultPick.name, dept:_admConsultPick.dept, license:_admConsultPick.license||'' });
+  _admConsultPick = null;
+  openAdmModal(_admVisitId);
+}
+
+function admConsultRemove(idx) {
+  const a = getAdmData(_admVisitId);
+  a.consults.splice(idx, 1);
+  openAdmModal(_admVisitId);
+}
+
+// ── Submit: complete handover ──
+async function submitAdmModal() {
+  const id = _admVisitId;
+  if (!id) return;
+  const a = getAdmData(id);
+
+  if (!a.ward) { showToast('เลือกวอร์ดก่อน','#f59e0b','fa-exclamation-triangle'); return; }
+  if (!a.doctor) { showToast('ระบุ Attending Physician','#f59e0b','fa-exclamation-triangle'); return; }
+  if (!a.department) { showToast('ระบุ Department','#f59e0b','fa-exclamation-triangle'); return; }
+
+  closeAdmModal();
+
+  // Store admission detail in finalize data for later
+  const f = getFinalData(id);
+  f.doctor = a.doctor;
+  f.doctorLicense = a.doctorLicense;
+  f.department = a.department;
+  if (a.consults.length) {
+    f.consults = [...a.consults];
+  }
+
+  // Complete handover with selected ward
+  await dispoHandoverWard(id, a.ward);
 }
