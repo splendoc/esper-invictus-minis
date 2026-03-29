@@ -1026,6 +1026,14 @@ async function pickDropStatus(patientId, status){
 
   p.status = status;
 
+  // Resuscitate → auto-override ESI to 1
+  if(status==='กู้ชีพ' && p.esi!==1){
+    const oldEsi = p.esi;
+    p.esi = 1;
+    sb.from('visits').update({ esi:1 }).eq('id',p.id);
+    console.log(`[AUDIT] ESI override: ${oldEsi}→1 (Resuscitate) visit=${p.id} at=${new Date().toISOString()}`);
+  }
+
   // Check if this status finalizes the patient
   if(FINAL_FROM_ACTIVE.has(status)){
     p.tab = 'finalized';
