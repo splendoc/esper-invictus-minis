@@ -380,7 +380,7 @@ function renderAll(){
   const discharges=fin.filter(r=>DISCH_S.has(r.status)).length;
   const refers=fin.filter(r=>REFER_S.has(r.status)).length;
   const deaths=fin.filter(r=>r.status==='เสียชีวิต').length;
-  const cpr=v.filter(r=>r.had_cpr||r.status==='กู้ชีพ').length;
+  const cpr=v.filter(r=>r.had_cpr||r.status==='Resuscitate').length;
   const ett=v.filter(r=>r.had_ett).length;
   const ems=v.filter(r=>r.arrival_mode&&(r.arrival_mode.includes('EMS')||r.arrival_mode.includes('ALS')||r.arrival_mode.includes('BLS')||r.arrival_mode.includes('FR')||r.arrival_mode.includes('อาสา'))).length;
   const referIn=v.filter(r=>r.arrival_mode&&(r.arrival_mode==='Refer in'||r.arrival_mode.includes('ส่งจาก รพ.'))).length;

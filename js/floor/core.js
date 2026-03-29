@@ -283,7 +283,7 @@ const ESI_RED  = {1:0,  2:15,  3:240, 4:300, 5:Infinity};  // red: ESI3=4h, ESI4
 // status definitions — pub: what PublicView displays (omit = use label)
 const SC = {
   // ── ACTIVE ──
-  'กู้ชีพ'                        :{label:'Resuscitate',                   dot:'#ef4444', pill:'sp-resus'},
+  'Resuscitate'                   :{label:'Resuscitate',                   dot:'#ef4444', pill:'sp-resus'},
   'เข้าห้องตรวจ'                  :{label:'เข้าห้องตรวจ',                 dot:'#22c55e', pill:'sp-active'},
   'สังเกตอาการ'                   :{label:'Observe',                       dot:'#f59e0b', pill:'sp-observe'},
   'ส่งเอ็กซ์เรย์'                 :{label:'ส่ง X-Rays',                   dot:'#60a5fa', pill:'sp-lab',     pub:'ส่งเอ็กซ์เรย์ (X-Rays)'},
@@ -325,11 +325,11 @@ function sc(s){return SC[s]||{label:s||'—',dot:'#6b8ba4',pill:'sp-default'};}
 const OPT = {
   waiting:[
     {g:'สถานะรอ',            items:['รอตรวจ','เรียกไม่พบ','ปฏิเสธการรักษา']},
-    {g:'ย้ายไป Active',      items:['กู้ชีพ','ส่งเอ็กซ์เรย์','รอผลตรวจ','เข้าห้องตรวจ']},
+    {g:'ย้ายไป Active',      items:['Resuscitate','ส่งเอ็กซ์เรย์','รอผลตรวจ','เข้าห้องตรวจ']},
     {g:'ปิดเคส → Finalized', items:['เรียกไม่พบ']},
   ],
   active:[
-    {g:'Active',                items:['กู้ชีพ','สังเกตอาการ','เข้าห้องตรวจ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์','ทำหัตถการ']},
+    {g:'Active',                items:['Resuscitate','สังเกตอาการ','เข้าห้องตรวจ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์','ทำหัตถการ']},
     {g:'Consult',               items:['ปรึกษาแพทย์เฉพาะทาง']},
     // ติดต่อส่งตัวโรงพยาบาลอื่น removed — must go through Plan Refer flow
     {g:'Wait',                  items:['รอผลตรวจ','รอทำหัตถการ','รอรับยา','รอเอกสาร','รอชำระเงิน']},
@@ -343,7 +343,7 @@ const OPT = {
 // ── Kanban Lanes (Active tab only) ──
 const LANES = [
   { id:'treatment', label:'ตรวจ',       labelEn:'Treatment',  icon:'fa-stethoscope',
-    statuses:['กู้ชีพ','เข้าห้องตรวจ','สังเกตอาการ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์'] },
+    statuses:['Resuscitate','เข้าห้องตรวจ','สังเกตอาการ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์'] },
   { id:'pending',   label:'รอผล',       labelEn:'Pending',    icon:'fa-hourglass-half',
     statuses:['รอผลตรวจ','ปรึกษาแพทย์เฉพาะทาง','ติดต่อส่งตัวโรงพยาบาลอื่น','รอทำหัตถการ','ทำหัตถการ'] },
   { id:'boarding',  label:'รอจำหน่าย',  labelEn:'Boarding',   icon:'fa-clock',
@@ -359,7 +359,7 @@ LANES.forEach(l => l.statuses.forEach(s => STATUS_TO_LANE[s] = l.id));
 
 // ── ESI Lanes (Waiting tab) — collapse when empty ──
 const ESI_LANES = [
-  { esi:1, label:'ESI 1', labelTh:'กู้ชีพ',        color:'#ef4444', icon:'fa-heart-pulse' },
+  { esi:1, label:'ESI 1', labelTh:'Resuscitate',    color:'#ef4444', icon:'fa-heart-pulse' },
   { esi:2, label:'ESI 2', labelTh:'ฉุกเฉินวิกฤต',   color:'#ec4899', icon:'fa-bolt' },
   { esi:3, label:'ESI 3', labelTh:'กึ่งฉุกเฉิน',    color:'#eab308', icon:'fa-triangle-exclamation' },
   { esi:4, label:'ESI 4', labelTh:'ไม่ฉุกเฉิน',     color:'#22c55e', icon:'fa-clipboard' },
@@ -1027,7 +1027,7 @@ async function pickDropStatus(patientId, status){
   p.status = status;
 
   // Resuscitate → auto-override ESI to 1
-  if(status==='กู้ชีพ' && p.esi!==1){
+  if(status==='Resuscitate' && p.esi!==1){
     const oldEsi = p.esi;
     p.esi = 1;
     sb.from('visits').update({ esi:1 }).eq('id',p.id);

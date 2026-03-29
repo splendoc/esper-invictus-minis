@@ -436,9 +436,9 @@ async function submitReg(){
   const hn = fp ? fp.hn : (hnRaw.startsWith('GEN') ? hnRaw : (hnRaw ? 'HN'+hnRaw.replace(/\D/g,'').slice(0,9) : 'GEN'+String(++_regHnCounter).padStart(6,'0')));
   if(!hnRaw && !fp) localStorage.setItem('hn_gen_counter',_regHnCounter);
 
-  // Determine initial status — ESI 1 always กู้ชีพ regardless of fast track
+  // Determine initial status — ESI 1 always Resuscitate regardless of fast track
   let status, tab;
-  if(esi===1){ status='กู้ชีพ'; tab='active'; }
+  if(esi===1){ status='Resuscitate'; tab='active'; }
   else if(_regFtActive){ status='เข้าห้องตรวจ'; tab='active'; }
   else { status='รอตรวจ'; tab='waiting'; }
 

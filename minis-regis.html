@@ -621,8 +621,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const setStatus = (s) => {
         statusBadge.style.display = 'inline-block';
         statusBadge.className = 'status-badge';
-        if (s === 'กู้ชีพ') {
-            statusBadge.textContent = 'Status: กู้ชีพ (Resuscitation)';
+        if (s === 'Resuscitate') {
+            statusBadge.textContent = 'Status: Resuscitate';
             statusBadge.classList.add('status-resuscitation');
         } else if (s === 'เข้าห้องตรวจ') {
             statusBadge.textContent = 'Status: เข้าห้องตรวจ (In Examination)';
@@ -715,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lockHN();
         const esiLevel = esiSelect.value;
         if (ftActive)           setStatus('เข้าห้องตรวจ');
-        else if (esiLevel == 1) setStatus('กู้ชีพ');
+        else if (esiLevel == 1) setStatus('Resuscitate');
         else                    setStatus('รอตรวจ');
 
         // Collect phones (same {num,lbl} shape as FLOOR view)

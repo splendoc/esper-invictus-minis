@@ -33,7 +33,7 @@ function openQV(id,evt){
     html+=`<div class="qv-grp">${grp.g}</div>`;
     grp.items.forEach(s=>{
       const sg=sc(s), isSel=s===p.status;
-      const isResus = s==='กู้ชีพ';
+      const isResus = s==='Resuscitate';
       const itemStyle = isResus ? 'border-left:2px solid rgba(239,68,68,0.3)' : '';
       html+=`<div class="qv-item${isSel?' sel':''}" data-s="${s}" data-g="${grp.g}" onclick="selStatus('${s}','${grp.g}')" style="${itemStyle}">
         <span class="qv-dot" style="background:${sg.dot}"></span>
@@ -148,7 +148,7 @@ async function confirmStatus(){
   p.status=qvSel;
 
   // Resuscitate → auto-override ESI to 1
-  if(qvSel==='กู้ชีพ' && p.esi!==1){
+  if(qvSel==='Resuscitate' && p.esi!==1){
     const oldEsi = p.esi;
     p.esi = 1;
     sb.from('visits').update({ esi:1 }).eq('id',p.id);
