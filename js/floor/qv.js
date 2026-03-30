@@ -151,7 +151,7 @@ async function confirmStatus(){
   if(qvSel==='Resuscitate' && p.esi!==1){
     const oldEsi = p.esi;
     p.esi = 1;
-    sb.from('visits').update({ esi:1 }).eq('id',p.id);
+    await sb.from('visits').update({ esi:1 }).eq('id',p.id);
     console.log(`[AUDIT] ESI override: ${oldEsi}→1 (Resuscitate) visit=${p.id} at=${new Date().toISOString()}`);
   }
 

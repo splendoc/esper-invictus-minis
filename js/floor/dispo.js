@@ -114,6 +114,12 @@ function buildDispoZone(p) {
       </button>`;
     }
   }
+  // Show Plan Admit button if not yet decided
+  if (!d.admitAt) {
+    buttons += `<button class="dispo-btn dispo-admit" onclick="event.stopPropagation();dispoDecideAdmit('${p.id}')">
+      <i class="fas fa-file-medical"></i> Plan Admit
+    </button>`;
+  }
 
   // ══════ REFER FLOW ══════
   if (d.referAt) {
@@ -165,6 +171,12 @@ function buildDispoZone(p) {
       </button>`;
     }
   }
+  // Show Plan Refer button if not yet decided
+  if (!d.referAt) {
+    buttons += `<button class="dispo-btn dispo-refer" onclick="event.stopPropagation();dispoDecideRefer('${p.id}')">
+      <i class="fas fa-ambulance"></i> Plan Refer
+    </button>`;
+  }
 
   if (buttons) {
     rows.push(`<div class="dispo-actions">${buttons}</div>`);
@@ -189,18 +201,81 @@ function buildDispoZone(p) {
   return html;
 }
 
-// ── Finalized card: show completion badge ──
+// ── Finalized card: timeline + completion badge ──
 function buildFinalizedDispoZone(p) {
+  const d = getDispoState(p.id);
+  const tl = []; // timeline entries: { icon, color, label, time }
+
+  function tf(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+  }
+
+  // Arrived
+  if (p.arrivedAt) tl.push({ icon:'fa-right-to-bracket', color:'var(--text-dim)', label:'Triage', time:tf(p.arrivedAt) });
+
+  // Activated
+  if (p.activatedAt) tl.push({ icon:'fa-play', color:'#60a5fa', label:'Active', time:tf(p.activatedAt) });
+
+  // Plan Admit
+  if (d.admitAt) tl.push({ icon:'fa-file-medical', color:'#93c5fd', label:'Plan Admit', time:tf(d.admitAt) });
+
+  // Bed requests
+  d.beds.filter(b => !b.cancelled).forEach(b => {
+    tl.push({ icon:'fa-bed', color:'#86efac', label:'จองเตียง ' + b.ward, time:tf(b.at) });
+  });
+
+  // Plan Refer
+  if (d.referAt) tl.push({ icon:'fa-ambulance', color:'#d8b4fe', label:'Plan Refer', time:tf(d.referAt) });
+
+  // Refer accepted
+  const referLog = (typeof getReferLog === 'function') ? getReferLog(p.id) : [];
+  const accepted = referLog.find(e => e.result === 'รับ');
+  if (accepted) tl.push({ icon:'fa-check-circle', color:'#86efac', label:'รับ — ' + accepted.hospital, time:tf(accepted.at) });
+
+  // Handover ward
+  if (d.handoverWard) tl.push({ icon:'fa-people-arrows', color:'#86efac', label:'ส่งเวร ' + d.handoverWard.ward, time:tf(d.handoverWard.at) });
+
+  // Handover refer
+  if (d.handoverReferAt) tl.push({ icon:'fa-people-arrows', color:'#d8b4fe', label:'ส่งเวร Refer', time:tf(d.handoverReferAt) });
+
+  // Move
+  if (d.moveAt) tl.push({ icon:'fa-person-walking-arrow-right', color:'#a78bfa', label:'ย้ายผู้ป่วย', time:tf(d.moveAt) });
+
+  // Finalized
+  if (p.finalizedAt) tl.push({ icon:'fa-flag-checkered', color:'var(--text-muted)', label:sc(p.status).label, time:tf(new Date(p.finalizedAt).toISOString()) });
+
+  // Build timeline HTML
+  let html = '<div class="dispo-zone">';
+
+  if (tl.length) {
+    html += '<div class="dispo-tl">';
+    tl.forEach((e, i) => {
+      const last = i === tl.length - 1;
+      html += `<div class="dispo-tl-row">
+        <div class="dispo-tl-dot" style="color:${e.color}"><i class="fas ${e.icon}" style="font-size:10px"></i></div>
+        ${!last ? '<div class="dispo-tl-line"></div>' : ''}
+        <span class="dispo-tl-label">${e.label}</span>
+        <span class="dispo-tl-time">${e.time}</span>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // Completion badge
   if (p.dataComplete) {
-    return `<div class="dispo-zone" style="padding:2px 12px 6px;display:flex;align-items:center;gap:6px">
+    html += `<div style="display:flex;align-items:center;gap:6px;margin-top:4px">
       <span class="dispo-badge-ok"><i class="fas fa-check-circle"></i> ข้อมูลครบ</span>
       <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)"><i class="fas fa-clock"></i> auto-remove</span>
     </div>`;
   } else {
-    return `<div class="dispo-zone" style="padding:2px 12px 6px;display:flex;align-items:center;gap:6px">
+    html += `<div style="display:flex;align-items:center;gap:6px;margin-top:4px">
       <span class="dispo-badge-inc"><i class="fas fa-exclamation-circle"></i> ข้อมูลไม่ครบ</span>
     </div>`;
   }
+
+  html += '</div>';
+  return html;
 }
 
 // ══════════════════════════════════════════
