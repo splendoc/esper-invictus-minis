@@ -2,7 +2,7 @@
 // Flow: Decision to admit → Bed Request(s) → ส่งเวร (pick from beds) → auto รอขึ้นหอผู้ป่วย → ย้าย → finalized
 
 // ══════════════════════════════════════════
-// IN-MEMORY DISPOSITION STATE
+// IN-MEMORY DISPOSITION STATE (hydrated from DB)
 // ══════════════════════════════════════════
 const _dispo = {};
 
@@ -10,12 +10,50 @@ function getDispoState(id) {
   if (!_dispo[id]) _dispo[id] = {
     admitAt: null,       // Plan Admit timestamp — gate for admit flow
     referAt: null,       // Plan Refer timestamp — gate for refer flow
-    beds: [],            // [{ ward, at, cancelled }]  — multiple bed requests
-    handoverWard: null,  // { ward, at }  — which bed was handed over
+    beds: [],            // [{ ward, at, cancelled, cancelReason, dbId }]
+    handoverWard: null,  // { ward, at }
     handoverReferAt: null,
     moveAt: null
   };
   return _dispo[id];
+}
+
+// Load dispo state from DB columns + bed_request_log for a patient list
+async function loadDispoState(patientList) {
+  // Hydrate from visits columns
+  for (const p of patientList) {
+    const d = getDispoState(p.id);
+    if (p.admit_decided_at) d.admitAt = p.admit_decided_at;
+    if (p.refer_decided_at) d.referAt = p.refer_decided_at;
+    if (p.handover_ward_at && p.bed_requested_ward) {
+      d.handoverWard = { ward: p.bed_requested_ward, at: p.handover_ward_at };
+    }
+    if (p.handover_refer_at) d.handoverReferAt = p.handover_refer_at;
+    if (p.actual_move_at) d.moveAt = p.actual_move_at;
+  }
+
+  // Load bed requests from bed_request_log
+  const visitIds = patientList.map(p => p.id);
+  if (!visitIds.length) return;
+
+  const { data: beds } = await sb
+    .from('bed_request_log')
+    .select('id, visit_id, ward, requested_at, cancelled, cancel_reason')
+    .in('visit_id', visitIds)
+    .order('requested_at', { ascending: true });
+
+  if (beds) {
+    beds.forEach(b => {
+      const d = getDispoState(b.visit_id);
+      d.beds.push({
+        ward: b.ward,
+        at: b.requested_at,
+        cancelled: b.cancelled || false,
+        cancelReason: b.cancel_reason || '',
+        dbId: b.id
+      });
+    });
+  }
 }
 
 // ══════════════════════════════════════════
@@ -281,9 +319,10 @@ function buildFinalizedDispoZone(p) {
 // ══════════════════════════════════════════
 // DECISION TO ADMIT
 // ══════════════════════════════════════════
-function dispoDecideAdmit(visitId) {
+async function dispoDecideAdmit(visitId) {
   const d = getDispoState(visitId);
   d.admitAt = new Date().toISOString();
+  await sb.from('visits').update({ admit_decided_at: d.admitAt }).eq('id', visitId);
   renderCards();
 
   const p = patients.find(x => x.id === visitId);
@@ -298,6 +337,7 @@ function dispoDecideAdmit(visitId) {
 async function dispoDecideRefer(visitId) {
   const d = getDispoState(visitId);
   d.referAt = new Date().toISOString();
+  await sb.from('visits').update({ refer_decided_at: d.referAt }).eq('id', visitId);
 
   const p = patients.find(x => x.id === visitId);
   if (p && p.tab === 'active') {
@@ -323,6 +363,7 @@ function dispoUndoRefer(visitId) {
     d.referAt = null;
     d.handoverReferAt = null;
     d.lastReferCancelReason = reason;
+    await sb.from('visits').update({ refer_decided_at:null, handover_refer_at:null }).eq('id', visitId);
 
     const p = patients.find(x => x.id === visitId);
     if (p && (p.status === 'ติดต่อส่งตัวโรงพยาบาลอื่น' || p.status === 'รอส่งตัวโรงพยาบาลอื่น')) {
@@ -340,18 +381,26 @@ function cancelHandoverRefer(visitId) {
     const d = getDispoState(visitId);
     d.handoverReferAt = null;
     d.handoverReferCancelReason = reason;
+    await sb.from('visits').update({ handover_refer_at:null }).eq('id', visitId);
     renderCards();
   });
 }
 
 function dispoUndoAdmit(visitId) {
-  showCancelReason(visitId, 'admit', (reason) => {
+  showCancelReason(visitId, 'admit', async (reason) => {
     const d = getDispoState(visitId);
     d.admitAt = null;
-    d.beds = [];
     d.handoverWard = null;
     d.moveAt = null;
     d.lastCancelReason = reason;
+    await sb.from('visits').update({ admit_decided_at:null, handover_ward_at:null, actual_move_at:null, bed_requested_ward:null }).eq('id', visitId);
+    // Cancel all bed requests in DB
+    for (const b of d.beds) {
+      if (b.dbId && !b.cancelled) {
+        await sb.from('bed_request_log').update({ cancelled:true, cancel_reason:reason }).eq('id', b.dbId);
+      }
+    }
+    d.beds = [];
     renderCards();
   });
 }
@@ -362,6 +411,7 @@ async function cancelHandover(visitId) {
     const p = patients.find(x => x.id === visitId);
     d.handoverWard = null;
     d.handoverCancelReason = reason;
+    await sb.from('visits').update({ handover_ward_at:null, bed_requested_ward:null }).eq('id', visitId);
 
     // Move patient back from รอขึ้นหอผู้ป่วย to previous active status
     if (p && p.status === 'รอขึ้นหอผู้ป่วย') {
@@ -524,10 +574,12 @@ function openBedPicker(visitId, evt) {
   showFloatingPicker(btn, visitId, 'จองเตียง — เลือกวอร์ด', items);
 }
 
-function selectBedWard(visitId, ward) {
+async function selectBedWard(visitId, ward) {
   closeFloatingPicker();
   const d = getDispoState(visitId);
-  d.beds.push({ ward, at: new Date().toISOString(), cancelled: false });
+  const at = new Date().toISOString();
+  const { data } = await sb.from('bed_request_log').insert({ visit_id:visitId, ward, requested_at:at }).select('id').single();
+  d.beds.push({ ward, at, cancelled:false, dbId: data?.id || null });
   renderCards();
 
   const p = patients.find(x => x.id === visitId);
@@ -540,13 +592,17 @@ function selectBedWard(visitId, ward) {
 }
 
 function cancelBed(visitId, bedIndex) {
-  showCancelReason(visitId, 'bed', (reason) => {
+  showCancelReason(visitId, 'bed', async (reason) => {
     const d = getDispoState(visitId);
     if (d.beds[bedIndex]) {
       d.beds[bedIndex].cancelled = true;
       d.beds[bedIndex].cancelReason = reason;
+      if (d.beds[bedIndex].dbId) {
+        await sb.from('bed_request_log').update({ cancelled:true, cancel_reason:reason }).eq('id', d.beds[bedIndex].dbId);
+      }
       if (d.handoverWard && d.handoverWard.ward === d.beds[bedIndex].ward) {
         d.handoverWard = null;
+        await sb.from('visits').update({ handover_ward_at:null, bed_requested_ward:null }).eq('id', visitId);
       }
     }
     renderCards();
@@ -567,15 +623,20 @@ async function dispoHandoverWard(visitId, ward) {
   const p = patients.find(x => x.id === visitId);
   if (!p) return;
 
-  d.handoverWard = { ward, at: new Date().toISOString() };
+  const hwAt = new Date().toISOString();
+  d.handoverWard = { ward, at: hwAt };
 
   // Auto-cancel all other bed requests
-  d.beds.forEach(b => {
+  for (const b of d.beds) {
     if (!b.cancelled && b.ward !== ward) {
       b.cancelled = true;
       b.cancelReason = 'ส่งเวร ' + ward;
+      if (b.dbId) await sb.from('bed_request_log').update({ cancelled:true, cancel_reason:b.cancelReason }).eq('id', b.dbId);
     }
-  });
+  }
+
+  // Persist handover
+  await sb.from('visits').update({ handover_ward_at:hwAt, bed_requested_ward:ward }).eq('id', visitId);
 
   // Auto-move to รอขึ้นหอผู้ป่วย (Boarding lane)
   p.status = 'รอขึ้นหอผู้ป่วย';
@@ -599,9 +660,10 @@ async function dispoHandoverWard(visitId, ward) {
   </div>`, '#22c55e', 'fa-people-arrows');
 }
 
-function dispoHandoverRefer(visitId) {
+async function dispoHandoverRefer(visitId) {
   const d = getDispoState(visitId);
   d.handoverReferAt = new Date().toISOString();
+  await sb.from('visits').update({ handover_refer_at: d.handoverReferAt }).eq('id', visitId);
 
   renderCards();
 
@@ -624,6 +686,7 @@ async function dispoMoveAdmit(visitId) {
 
   const ward = d.handoverWard.ward;
   d.moveAt = new Date().toISOString();
+  await sb.from('visits').update({ actual_move_at: d.moveAt }).eq('id', visitId);
 
   // Update status to the admit ward → finalized
   p.status = ward;
@@ -654,6 +717,7 @@ async function dispoMoveRefer(visitId) {
 
   d.moveAt = new Date().toISOString();
   d.handoverWard = null;
+  await sb.from('visits').update({ actual_move_at: d.moveAt }).eq('id', visitId);
 
   p.status = 'ส่งตัวโรงพยาบาลอื่น';
   p.tab = 'finalized';

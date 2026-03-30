@@ -151,6 +151,12 @@ async function loadPatients() {
       arrival_mode,
       data_complete,
       data_completed_at,
+      admit_decided_at,
+      refer_decided_at,
+      handover_ward_at,
+      handover_refer_at,
+      actual_move_at,
+      bed_requested_ward,
       patients (
         id, hn, title, first_name, last_name, sex,
         age_y, age_m, age_d,
@@ -201,7 +207,13 @@ async function loadPatients() {
       activated_at: row.activated_at,
       updated_at: row.updated_at,
       finalized_at: row.finalized_at,
-      data_complete: row.data_complete
+      data_complete: row.data_complete,
+      admit_decided_at: row.admit_decided_at,
+      refer_decided_at: row.refer_decided_at,
+      handover_ward_at: row.handover_ward_at,
+      handover_refer_at: row.handover_refer_at,
+      actual_move_at: row.actual_move_at,
+      bed_requested_ward: row.bed_requested_ward
     });
   });
 }
@@ -1098,6 +1110,12 @@ async function initApp() {
   const dbPatients = await loadPatients();
   patients.length = 0;
   dbPatients.forEach(p => patients.push(p));
+
+  // Hydrate dispo + refer state from DB
+  const visitIds = patients.map(p => p.id);
+  if (typeof loadDispoState === 'function') await loadDispoState(patients);
+  if (typeof loadReferLogs === 'function') await loadReferLogs(visitIds);
+
   renderSit();
   renderSFilter();
   renderCards();

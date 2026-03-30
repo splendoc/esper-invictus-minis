@@ -3,11 +3,35 @@
 // REFER CONTACT LOG
 // Multiple hospital contacts per visit
 // ══════════════════════════════════════════
-const _referLogs = {};  // { visitId: [{ hospital, type, result, reason, at }] }
+const _referLogs = {};  // { visitId: [{ hospital, type, result, reason, at, dbId }] }
 
 function getReferLog(id) {
   if (!_referLogs[id]) _referLogs[id] = [];
   return _referLogs[id];
+}
+
+// Load refer contact logs from Supabase
+async function loadReferLogs(visitIds) {
+  if (!visitIds.length) return;
+  const { data } = await sb
+    .from('refer_contact_log')
+    .select('id, visit_id, hospital_name, hospital_type, result, reason, contacted_at')
+    .in('visit_id', visitIds)
+    .order('contacted_at', { ascending: true });
+
+  if (data) {
+    data.forEach(r => {
+      if (!_referLogs[r.visit_id]) _referLogs[r.visit_id] = [];
+      _referLogs[r.visit_id].push({
+        hospital: r.hospital_name,
+        type: r.hospital_type,
+        result: r.result,
+        reason: r.reason || '',
+        at: r.contacted_at,
+        dbId: r.id
+      });
+    });
+  }
 }
 
 function buildReferContactSection(p) {
@@ -116,15 +140,27 @@ async function rclAddEntry(visitId) {
   const hospitals = typeof HOSPITAL_LIST !== 'undefined' ? HOSPITAL_LIST : [];
   const match = hospitals.find(h => h.name === hospital);
 
+  const at = new Date().toISOString();
+  const reasonVal = reasonSelect?.value || '';
+  const typeVal = match?.type || 'unknown';
+
+  const { data: inserted } = await sb.from('refer_contact_log').insert({
+    visit_id: visitId,
+    hospital_name: hospital,
+    hospital_type: typeVal,
+    result,
+    reason: reasonVal,
+    contacted_at: at
+  }).select('id').single();
+
   log.push({
     hospital,
-    type: match?.type || 'unknown',
+    type: typeVal,
     result,
-    reason: reasonSelect?.value || '',
-    at: new Date().toISOString()
+    reason: reasonVal,
+    at,
+    dbId: inserted?.id || null
   });
-
-  // TODO: persist to refer_contact_log table
 
   // Clear inputs
   if (hospInput) hospInput.value = '';
@@ -160,11 +196,12 @@ async function rclUpdateResult(visitId, entryIndex, newResult) {
     }
 
     // Auto-cancel all other รอตอบ entries
-    log.forEach((entry, i) => {
-      if (i !== entryIndex && entry.result === 'รอตอบ') {
-        entry.result = 'ยกเลิก';
+    for (let i = 0; i < log.length; i++) {
+      if (i !== entryIndex && log[i].result === 'รอตอบ') {
+        log[i].result = 'ยกเลิก';
+        if (log[i].dbId) await sb.from('refer_contact_log').update({ result:'ยกเลิก' }).eq('id', log[i].dbId);
       }
-    });
+    }
 
     // Change status to รอ Refer
     const p = patients.find(x => x.id === visitId);
@@ -178,7 +215,8 @@ async function rclUpdateResult(visitId, entryIndex, newResult) {
     }
   }
 
-  // TODO: persist to refer_contact_log table
+  // Persist result update
+  if (log[entryIndex].dbId) await sb.from('refer_contact_log').update({ result:newResult }).eq('id', log[entryIndex].dbId);
 
   // Re-open QV to refresh
   const p = patients.find(x => x.id === visitId);
@@ -193,13 +231,14 @@ async function rclUpdateResult(visitId, entryIndex, newResult) {
 }
 
 // Delete a contact log entry
-function rclDeleteEntry(visitId, entryIndex) {
+async function rclDeleteEntry(visitId, entryIndex) {
   const log = getReferLog(visitId);
   if (!log[entryIndex]) return;
   const name = log[entryIndex].hospital;
+  const dbId = log[entryIndex].dbId;
   log.splice(entryIndex, 1);
 
-  // TODO: persist deletion to refer_contact_log table
+  if (dbId) await sb.from('refer_contact_log').delete().eq('id', dbId);
 
   const p = patients.find(x => x.id === visitId);
   if (p) openQV(p.id);
