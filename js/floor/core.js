@@ -355,9 +355,9 @@ const OPT = {
 // ── Kanban Lanes (Active tab only) ──
 const LANES = [
   { id:'treatment', label:'ตรวจ',       labelEn:'Treatment',  icon:'fa-stethoscope',
-    statuses:['Resuscitate','เข้าห้องตรวจ','สังเกตอาการ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์'] },
+    statuses:['Resuscitate','เข้าห้องตรวจ','สังเกตอาการ','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์','ทำหัตถการ'] },
   { id:'pending',   label:'รอผล',       labelEn:'Pending',    icon:'fa-hourglass-half',
-    statuses:['รอผลตรวจ','ปรึกษาแพทย์เฉพาะทาง','ติดต่อส่งตัวโรงพยาบาลอื่น','รอทำหัตถการ','ทำหัตถการ'] },
+    statuses:['รอผลตรวจ','ปรึกษาแพทย์เฉพาะทาง','ติดต่อส่งตัวโรงพยาบาลอื่น','รอทำหัตถการ'] },
   { id:'boarding',  label:'รอจำหน่าย',  labelEn:'Boarding',   icon:'fa-clock',
     statuses:['รอขึ้นหอผู้ป่วย','รอส่งตัวโรงพยาบาลอื่น','รอรับยา','รอเอกสาร','รอชำระเงิน'] },
   { id:'dispo',     label:'จำหน่าย',    labelEn:'Dispo',      icon:'fa-right-from-bracket',
