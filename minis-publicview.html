@@ -153,9 +153,9 @@
         .wcard-lbl { font-family:'Sarabun',sans-serif; font-weight:700; font-size:0.95rem; }
 
         /* ── Count badges ── */
-        .cnt-wait { font-family:'IBM Plex Mono',monospace; background:#fef3c7; color:#92400e; }
+        .cnt-wait { font-family:'IBM Plex Mono',monospace; background:#fef3c7; color:#92400e; font-size:1.1rem; }
         .dark .cnt-wait { background:#0c1e3a; color:#93c5fd; }
-        .cnt-active { font-family:'IBM Plex Mono',monospace; background:#dcfce7; color:#166534; }
+        .cnt-active { font-family:'IBM Plex Mono',monospace; background:#dcfce7; color:#166534; font-size:1.1rem; }
         .dark .cnt-active { background:#052e16; color:#86efac; }
 
         /* ── Banner text ── */
@@ -165,8 +165,9 @@
         .dark .banner-sub { color:#6b8ba4; }
 
         /* ── Section titles ── */
-        .sec-title-th { font-family:'Sarabun',sans-serif; font-weight:700; }
-        .sec-title-en { font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.06em; }
+        .sec-title-th { font-family:'Sarabun',sans-serif; font-weight:700; font-size:1.4rem; }
+        .sec-title-en { font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.06em; font-size:1.1rem; }
+        .sec-companion { font-family:'Sarabun',sans-serif; font-size:18px; font-weight:700; }
 
         /* ── Portrait TV (1080×1920) ── */
         @media (orientation: portrait) and (min-height: 1400px) {
@@ -190,12 +191,13 @@
             #gedwin-banner { padding: 16px 24px !important; }
 
             /* Section headers */
-            .sec-title-th { font-size: 1.8rem; }
-            .sec-title-en { font-size: 1.3rem; }
+            .sec-title-th { font-size: 2rem; }
+            .sec-title-en { font-size: 1.4rem; }
+            .sec-companion { font-size: 22px; }
             .wcard-lbl { font-size: 1.3rem; }
             .wcard-val { font-size: 1.8rem; }
             .wcard { padding: 10px 8px; }
-            .cnt-wait, .cnt-active { font-size: 1.3rem; padding: 6px 16px; }
+            .cnt-wait, .cnt-active { font-size: 1.5rem; padding: 8px 18px; }
             .active-note { font-size: 20px; }
 
             /* Patient cards — keep height so pagination fits */
@@ -301,7 +303,7 @@
                     <h2 class="sec-title-th text-xl pv-text">
                         กำลังรับการรักษา <span class="sec-title-en text-base pv-sub-text">· Active</span>
                     </h2>
-                    <span class="pv-sub-text" style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;margin-left:8px">เรียงตามความเร่งด่วนทางการแพทย์</span>
+                    <span class="pv-sub-text sec-companion" style="margin-left:8px">เรียงตามความเร่งด่วนทางการแพทย์</span>
                     <span id="active-count" class="ml-auto text-lg font-bold px-3 py-1 rounded-full cnt-active">0</span>
                 </div>
                 <div class="active-note">
@@ -323,7 +325,7 @@
                     <h2 class="sec-title-th text-xl pv-text">
                         รอรับการรักษา <span class="sec-title-en text-base pv-sub-text">· Waiting</span>
                     </h2>
-                    <span class="pv-sub-text" style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;margin-left:8px">ทีมแพทย์จะดูแลท่านตามความเร่งด่วนทางการแพทย์</span>
+                    <span class="pv-sub-text sec-companion" style="margin-left:8px">ทีมแพทย์จะดูแลท่านตามความเร่งด่วนทางการแพทย์</span>
                     <span id="wait-count" class="ml-auto text-lg font-bold px-3 py-1 rounded-full cnt-wait">0</span>
                 </div>
                 <div style="display:flex;gap:8px">
