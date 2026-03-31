@@ -501,7 +501,7 @@ function finDropKeydown(e, dropId) {
   if (!drop || drop.style.display === 'none') return;
   const items = drop.querySelectorAll('.fin-dx-item');
   if (!items.length) return;
-  if (!_finDropIdx[dropId]) _finDropIdx[dropId] = -1;
+  if (_finDropIdx[dropId] == null) _finDropIdx[dropId] = -1;
 
   if (e.key === 'ArrowDown') {
     e.preventDefault();
