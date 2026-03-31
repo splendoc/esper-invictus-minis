@@ -75,7 +75,7 @@
         .section-wrap { display:flex; flex-direction:column; overflow:hidden; }
 
         /* ── Fixed section header height ── */
-        .sec-hdr { height:175px; flex-shrink:0; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; gap:8px; }
+        .sec-hdr { height:175px; flex-shrink:0; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; gap:4px; }
 
         /* ── Patient card ── */
         .patient-card-fixed {
@@ -153,21 +153,21 @@
         .wcard-lbl { font-family:'Sarabun',sans-serif; font-weight:700; font-size:0.95rem; }
 
         /* ── Count badges ── */
-        .cnt-wait { font-family:'IBM Plex Mono',monospace; background:#fef3c7; color:#92400e; font-size:1.5rem; }
+        .cnt-wait { font-family:'IBM Plex Mono',monospace; background:#fef3c7; color:#92400e; font-size:1.7rem; padding:6px 14px; }
         .dark .cnt-wait { background:#0c1e3a; color:#93c5fd; }
-        .cnt-active { font-family:'IBM Plex Mono',monospace; background:#dcfce7; color:#166534; font-size:1.5rem; }
+        .cnt-active { font-family:'IBM Plex Mono',monospace; background:#dcfce7; color:#166534; font-size:1.7rem; padding:6px 14px; }
         .dark .cnt-active { background:#052e16; color:#86efac; }
 
         /* ── Banner text ── */
-        .banner-title { font-family:'Sarabun',sans-serif; font-weight:700; font-size:24px; color:#15803d; }
+        .banner-title { font-family:'Sarabun',sans-serif; font-weight:700; font-size:24px; color:#15803d; word-break:keep-all; }
         .dark .banner-title { color:#dde6f0; }
         .banner-sub { font-family:'Sarabun',sans-serif; font-size:16px; color:#4a6a88; }
         .dark .banner-sub { color:#6b8ba4; }
 
         /* ── Section titles ── */
-        .sec-title-th { font-family:'Sarabun',sans-serif; font-weight:700; font-size:2rem; }
-        .sec-title-en { font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.06em; font-size:1.4rem; }
-        .sec-companion { font-family:'Sarabun',sans-serif; font-size:20px; font-weight:700; }
+        .sec-title-th { font-family:'Sarabun',sans-serif; font-weight:700; font-size:2.4rem; }
+        .sec-title-en { font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.06em; font-size:1.6rem; }
+        .sec-companion { font-family:'Sarabun',sans-serif; font-size:22px; font-weight:700; }
 
         /* ── Portrait TV (1080×1920) ── */
         @media (min-height: 1200px) {
@@ -426,13 +426,13 @@ document.addEventListener('DOMContentLoaded', function () {
           th:'ห้องฉุกเฉินมีผู้ป่วยในระดับปานกลาง',                                mult:1.3 },
         { max:0.9,      bdr:'#ea580c', bgl:'#ffedd5', bgd:'rgba(90,30,0,0.35)',  icon:'⚠️', pill:'หนาแน่น',      pillEn:'Crowded',
           pillDark:{bg:'#ea580c',c:'#fff',bdr:'#ea580c'}, pillLight:{bg:'#ffedd5',c:'#c2410c',bdr:'#ea580c'}, blink:true,
-          th:'ห้องฉุกเฉินมีผู้ป่วยค่อนข้างมาก  เวลารออาจนานกว่าปกติ',             mult:1.6 },
+          th:'ห้องฉุกเฉินมีผู้ป่วยค่อนข้างมาก\u2003เวลารออาจนานกว่าปกติ',          mult:1.6 },
         { max:1.2,      bdr:'#dc2626', bgl:'#fee2e2', bgd:'rgba(100,10,10,0.35)',icon:'⚠️', pill:'หนาแน่นมาก',   pillEn:'Very Crowded',
           pillDark:{bg:'#dc2626',c:'#fff',bdr:'#dc2626'}, pillLight:{bg:'#fee2e2',c:'#991b1b',bdr:'#dc2626'}, blink:true,
-          th:'ห้องฉุกเฉินมีผู้ป่วยหนาแน่น  กรุณาเตรียมใจรอนานกว่าปกติ',          mult:2.0 },
+          th:'ห้องฉุกเฉินมีผู้ป่วยหนาแน่น\u2003กรุณาเตรียมใจรอนานกว่าปกติ',       mult:2.0 },
         { max:Infinity, bdr:'#991b1b', bgl:'#fecaca', bgd:'rgba(120,10,10,0.4)', icon:'🚨', pill:'วิกฤต',         pillEn:'Critical',
           pillDark:{bg:'#dc2626',c:'#fff',bdr:'#dc2626'}, pillLight:{bg:'#fecaca',c:'#991b1b',bdr:'#991b1b'}, blink:true,
-          th:'ขณะนี้มีผู้ป่วยสาหัสและกู้ชีพ  กรุณาเตรียมใจรอนานมากกว่าปกติ', mult:2.5 }
+          th:'ขณะนี้มีผู้ป่วยสาหัสและกู้ชีพ\u2003กรุณาเตรียมใจรอนานมากกว่าปกติ', mult:2.5 }
     ];
 
     function minsToRange(m) {
