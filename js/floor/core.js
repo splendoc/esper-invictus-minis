@@ -337,7 +337,7 @@ function sc(s){return SC[s]||{label:s||'—',dot:'#6b8ba4',pill:'sp-default'};}
 const OPT = {
   waiting:[
     {g:'สถานะรอ',            items:['รอตรวจ','เรียกไม่พบ','ปฏิเสธการรักษา']},
-    {g:'ย้ายไป Active',      items:['Resuscitate','ส่งเอ็กซ์เรย์','รอผลตรวจ','เข้าห้องตรวจ']},
+    {g:'ย้ายไป Active',      items:['Resuscitate','ส่งเอ็กซ์เรย์','ส่งเอ็กซ์เรย์คอมพิวเตอร์','รอผลตรวจ','รอทำหัตถการ','เข้าห้องตรวจ']},
     {g:'ปิดเคส → Finalized', items:['เรียกไม่พบ']},
   ],
   active:[

@@ -79,7 +79,8 @@ function buildReferContactSection(p) {
       <div class="rcl-add-row">
         <input class="fin-input" id="rcl-hosp-${p.id}" placeholder="ชื่อโรงพยาบาล..."
           style="flex:1;font-size:12px;padding:5px 8px"
-          oninput="rclHospSearch('${p.id}',this.value)" onfocus="rclHospSearch('${p.id}',this.value)">
+          oninput="rclHospSearch('${p.id}',this.value)" onfocus="rclHospSearch('${p.id}',this.value)"
+          onkeydown="if(typeof finDropKeydown==='function')finDropKeydown(event,'rcl-hosp-drop-${p.id}')">
         <div class="rcl-hosp-drop" id="rcl-hosp-drop-${p.id}"></div>
       </div>
       <select class="fin-select" id="rcl-reason-${p.id}" style="font-size:12px;padding:5px 8px;margin-top:4px">
@@ -113,7 +114,7 @@ function rclHospSearch(visitId, query) {
   if (!matches.length) { drop.style.display = 'none'; return; }
 
   drop.innerHTML = matches.map(h =>
-    `<div class="rcl-hosp-item" onmousedown="rclHospPick('${visitId}','${h.name.replace(/'/g,"\\'")}')">${h.name}</div>`
+    `<div class="fin-dx-item" onmousedown="rclHospPick('${visitId}','${h.name.replace(/'/g,"\\'")}')">${h.name}</div>`
   ).join('');
   drop.style.display = 'block';
 }

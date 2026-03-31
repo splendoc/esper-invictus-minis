@@ -203,6 +203,7 @@ function buildFinalizationPanel(p) {
       <input class="fin-input" id="fin-arr-hosp-${p.id}" placeholder="จากโรงพยาบาล..."
         value="${f.arrivalModeSub||''}" style="font-size:12px;padding:5px 8px"
         oninput="finArrHospSearch('${p.id}',this.value)" onfocus="finArrHospSearch('${p.id}',this.value)"
+        onkeydown="finDropKeydown(event,'fin-arr-hosp-drop-${p.id}')"
         onblur="setTimeout(()=>{const d=document.getElementById('fin-arr-hosp-drop-${p.id}');if(d)d.style.display='none'},150)">
       <div class="fin-dx-drop" id="fin-arr-hosp-drop-${p.id}"></div>
     </div>` : ''}
