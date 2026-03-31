@@ -376,6 +376,7 @@ document.addEventListener('DOMContentLoaded', function () {
         4:{ th:'ไม่ฉุกเฉิน', en:'Less Urgent'   },
         5:{ th:'ทั่วไป',      en:'Non-Urgent'    }
     };
+    const esiColor = {1:'#ef4444',2:'#ec4899',3:'#eab308',4:'#22c55e',5:'#3b82f6'};
 
     // ── Status config — mirrors Floor SC; pub = what the public board shows ──
     const SC = {
@@ -529,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="esi-${patient.esi} rounded-lg px-2 py-1 mb-1 text-center w-full">
                         <div class="pv-esi-th" style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;line-height:1.2">${label.th}</div>
                     </div>
-                    <div class="pv-esi-en pv-muted" style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em">${label.en}</div>
+                    <div class="pv-esi-en" style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;color:${esiColor[patient.esi]}">${label.en}</div>
                 </div>
                 <div class="pv-name-area flex-grow min-w-0 pl-1">
                     <p class="font-bold text-2xl truncate pv-text" style="font-family:'Sarabun',sans-serif">${maskedName(patient)}</p>
