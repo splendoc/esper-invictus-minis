@@ -7,6 +7,37 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ══════════════════════════════════════════
+// AUDIT LOG
+// ══════════════════════════════════════════
+const _sessionId = 'ses_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+
+function logAudit(visitId, action, category, opts = {}) {
+  const { field, prev, next, reason, detail, severity, patientId } = opts;
+  try {
+    sb.from('audit_log').insert({
+      visit_id: visitId,
+      patient_id: patientId || null,
+      actor_pin: APP_PIN || null,
+      actor_role: APP_ROLE || null,
+      action,
+      category,
+      severity: severity || 'info',
+      field: field || null,
+      prev_value: prev != null ? String(prev) : null,
+      new_value: next != null ? String(next) : null,
+      reason: reason || null,
+      detail: detail || null,
+      client_ts: new Date().toISOString(),
+      session_id: _sessionId
+    }).then(({ error }) => {
+      if (error) console.error('Audit log error:', error);
+    });
+  } catch (e) {
+    console.error('Audit log error:', e);
+  }
+}
+
+// ══════════════════════════════════════════
 // LOCK SCREEN
 // ══════════════════════════════════════════
 const lockEl = document.getElementById('lockscreen');
@@ -250,6 +281,10 @@ async function registerPatient(patientData, visitData) {
 async function updateVisitStatus(visitId, newStatus, newTab, activatedAt) {
   if (!APP_PIN) { lockApp(); return; }
 
+  // Capture prev status for audit
+  const _prevP = patients.find(x => x.id === visitId);
+  const _prevStatus = _prevP ? _prevP.status : null;
+
   const { data, error } = await sb.rpc('rpc_update_visit', {
     pin: APP_PIN,
     visit_id: visitId,
@@ -259,6 +294,11 @@ async function updateVisitStatus(visitId, newStatus, newTab, activatedAt) {
 
   if (error) console.error('Update status error:', error);
   if (data?.error === 'invalid_pin') lockApp();
+
+  // Audit: status change
+  if (!error && _prevStatus !== newStatus) {
+    logAudit(visitId, 'status_change', 'status', { field:'status', prev:_prevStatus, next:newStatus, patientId:_prevP?.patientId });
+  }
 }
 
 // Update patient info (name, age, title, HN, phones)
@@ -744,11 +784,14 @@ function buildCard(p, kanban){
   // Zone 3 — disposition actions (จองเตียง, ส่งเวร, etc.) — from dispo.js
   const Z3 = (typeof buildDispoZone === 'function') ? buildDispoZone(p) : '';
 
+  // Zone 4 — compact notes (active patients only, not waiting, not finalized)
+  const Z4 = (p.tab === 'active' && typeof buildCompactNotes === 'function') ? buildCompactNotes(p.id) : '';
+
   const finalClass = p.tab === 'finalized' ? ' pcard-final' : '';
   const dragAttr = kanban && editable ? ` draggable="true" ondragstart="kbDragStart(event,'${p.id}')" ondragend="kbDragEnd(event)"` : '';
   return `<div class="pcard esi-b-${p.esi}${finalClass}" id="card-${p.id}"${dragAttr}
     onclick="${editable ? `openQV('${p.id}')` : `openFinalizedQV('${p.id}')`}" style="cursor:pointer">
-    ${Z1}${Z2}${Z3}
+    ${Z1}${Z2}${Z3}${Z4}
   </div>`;
 }
 
@@ -1043,7 +1086,7 @@ async function pickDropStatus(patientId, status){
     const oldEsi = p.esi;
     p.esi = 1;
     await sb.from('visits').update({ esi:1 }).eq('id',p.id);
-    console.log(`[AUDIT] ESI override: ${oldEsi}→1 (Resuscitate) visit=${p.id} at=${new Date().toISOString()}`);
+    logAudit(p.id, 'esi_override', 'triage', { field:'esi', prev:String(oldEsi), next:'1', reason:'Resuscitate auto-override', severity:'warning', patientId:p.patientId });
   }
 
   // Check if this status finalizes the patient

@@ -844,6 +844,8 @@ async function completeFinalization(visitId) {
     return;
   }
 
+  logAudit(visitId, 'data_complete', 'finalize', { next:'complete', detail:{ type, diagnosis:f.diagnosis, finalEsi:f.finalEsi }, patientId:p.patientId });
+
   // Save สาขาดูร่วม entries to consult_log
   if (f.consults && f.consults.length) {
     for (const c of f.consults) {

@@ -177,8 +177,9 @@ async function rclAddEntry(visitId) {
     </div>`, color, icon);
   }
 
-  // Re-open QV to refresh the contact log
-  if (p) openQV(p.id);
+  // Re-render cards to refresh the contact log in dispo zone
+  renderCards();
+  logAudit(visitId, 'refer_contact_add', 'refer', { next:hospital, detail:{ reason:reasonVal, type:typeVal } });
 }
 
 // Update a รอตอบ entry to รับ or ไม่รับ
@@ -219,9 +220,11 @@ async function rclUpdateResult(visitId, entryIndex, newResult) {
   // Persist result update
   if (log[entryIndex].dbId) await sb.from('refer_contact_log').update({ result:newResult }).eq('id', log[entryIndex].dbId);
 
-  // Re-open QV to refresh
-  const p = patients.find(x => x.id === visitId);
-  if (p) openQV(p.id);
+  // Re-render cards to refresh dispo zone
+  renderCards();
+
+  const auditAction = newResult === 'รับ' ? 'refer_accepted' : 'refer_rejected';
+  logAudit(visitId, auditAction, 'refer', { next:log[entryIndex].hospital, detail:{ result:newResult } });
 
   const color = newResult === 'รับ' ? '#22c55e' : '#ef4444';
   const icon = newResult === 'รับ' ? 'fa-check-circle' : 'fa-times-circle';
@@ -241,8 +244,9 @@ async function rclDeleteEntry(visitId, entryIndex) {
 
   if (dbId) await sb.from('refer_contact_log').delete().eq('id', dbId);
 
-  const p = patients.find(x => x.id === visitId);
-  if (p) openQV(p.id);
+  // Re-render cards to refresh dispo zone
+  renderCards();
+  logAudit(visitId, 'refer_delete', 'refer', { prev:name });
   showToast(`ลบ ${name}`, '#ef4444', 'fa-trash');
 }
 
@@ -252,19 +256,19 @@ function rclEditEntry(visitId, entryIndex) {
   if (!log[entryIndex]) return;
   const entry = log[entryIndex];
 
-  // Remove old entry
+  // Remove old entry from DB if it has one
+  if (entry.dbId) sb.from('refer_contact_log').delete().eq('id', entry.dbId);
+
+  // Remove from memory
   log.splice(entryIndex, 1);
 
-  // Re-open QV — the add form will be empty, populate it
-  const p = patients.find(x => x.id === visitId);
-  if (p) {
-    openQV(p.id);
-    // Fill in the form with old values after render
-    setTimeout(() => {
-      const hospInput = document.getElementById('rcl-hosp-' + visitId);
-      const reasonSelect = document.getElementById('rcl-reason-' + visitId);
-      if (hospInput) hospInput.value = entry.hospital;
-      if (reasonSelect) reasonSelect.value = entry.reason || '';
-    }, 50);
-  }
+  // Re-render cards — the inline form will be empty, populate it
+  renderCards();
+  // Fill in the form with old values after render
+  setTimeout(() => {
+    const hospInput = document.getElementById('rcl-hosp-' + visitId);
+    const reasonSelect = document.getElementById('rcl-reason-' + visitId);
+    if (hospInput) hospInput.value = entry.hospital;
+    if (reasonSelect) reasonSelect.value = entry.reason || '';
+  }, 50);
 }

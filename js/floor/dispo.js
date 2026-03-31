@@ -169,18 +169,52 @@ function buildDispoZone(p) {
       <button class="dispo-row-x" onclick="event.stopPropagation();dispoUndoRefer('${p.id}')" title="ยกเลิก"><i class="fas fa-times"></i></button>
     </div>`);
 
-    // Show contact log entries as compact rows
-    referLog.forEach(entry => {
+    // Show contact log entries as compact rows WITH action buttons (inline in dispo zone)
+    referLog.forEach((entry, i) => {
       const timeStr = new Date(entry.at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
       const icon = entry.result === 'รับ' ? 'fa-check-circle' : entry.result === 'ไม่รับ' ? 'fa-times-circle' : entry.result === 'ยกเลิก' ? 'fa-ban' : 'fa-clock';
       const color = entry.result === 'รับ' ? '#86efac' : entry.result === 'ไม่รับ' ? '#fca5a5' : entry.result === 'ยกเลิก' ? 'var(--text-faint)' : '#fde047';
       const isCancelled = entry.result === 'ไม่รับ' || entry.result === 'ยกเลิก';
+      let actionBtns = '';
+      if (entry.result === 'รอตอบ') {
+        actionBtns = `<button class="rcl-change-btn rcl-res-ok" onclick="event.stopPropagation();rclUpdateResult('${p.id}',${i},'รับ')" title="รับ"><i class="fas fa-check"></i></button>
+          <button class="rcl-change-btn rcl-res-no" onclick="event.stopPropagation();rclUpdateResult('${p.id}',${i},'ไม่รับ')" title="ไม่รับ"><i class="fas fa-times"></i></button>
+          <button class="rcl-change-btn" onclick="event.stopPropagation();rclEditEntry('${p.id}',${i})" title="แก้ไข"><i class="fas fa-pen" style="font-size:8px"></i></button>
+          <button class="rcl-change-btn" onclick="event.stopPropagation();rclDeleteEntry('${p.id}',${i})" title="ลบ"><i class="fas fa-trash" style="font-size:8px"></i></button>`;
+      } else if (entry.result === 'ไม่รับ') {
+        actionBtns = `<button class="rcl-change-btn" onclick="event.stopPropagation();rclDeleteEntry('${p.id}',${i})" title="ลบ"><i class="fas fa-trash" style="font-size:8px"></i></button>`;
+      }
       rows.push(`<div class="dispo-row${entry.result === 'รับ' ? ' dispo-row-hl' : ''}${isCancelled ? ' dispo-row-cancel' : ''}">
         <i class="fas ${icon}" style="font-size:11px;color:${color};width:16px;text-align:center"></i>
         <span style="font-family:'Sarabun',sans-serif;font-size:12px;${isCancelled ? 'text-decoration:line-through;' : ''}flex:1">${entry.hospital}</span>
+        ${entry.reason ? `<span style="font-size:10px;color:var(--text-dim)">${entry.reason}</span>` : ''}
         <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim)">${timeStr}</span>
+        ${actionBtns ? `<div style="display:flex;align-items:center;gap:2px;margin-left:4px">${actionBtns}</div>` : ''}
       </div>`);
     });
+
+    // Inline contact form (if no hospital accepted yet)
+    if (!hasAccepted) {
+      const reasons = typeof REFERRAL_REASONS !== 'undefined' ? REFERRAL_REASONS : ['เกินศักยภาพ','ตามสิทธิ์','ตามความประสงค์ของผู้ป่วย','Emergency PCI'];
+      rows.push(`<div class="dispo-refer-inline" onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px;align-items:center">
+          <div style="flex:1;position:relative">
+            <input class="fin-input" id="rcl-hosp-${p.id}" placeholder="ชื่อโรงพยาบาล..."
+              style="font-size:11px;padding:4px 8px;width:100%"
+              oninput="rclHospSearch('${p.id}',this.value)" onfocus="rclHospSearch('${p.id}',this.value)"
+              onkeydown="if(typeof finDropKeydown==='function')finDropKeydown(event,'rcl-hosp-drop-${p.id}')">
+            <div class="rcl-hosp-drop" id="rcl-hosp-drop-${p.id}"></div>
+          </div>
+          <select class="fin-select" id="rcl-reason-${p.id}" style="font-size:11px;padding:4px 6px;flex:0 0 auto;max-width:120px">
+            <option value="">เหตุผล</option>
+            ${reasons.map(r => `<option value="${r}">${r}</option>`).join('')}
+          </select>
+          <button class="rcl-save-btn" style="margin:0;padding:4px 10px;font-size:11px" onclick="event.stopPropagation();rclAddEntry('${p.id}')">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>`);
+    }
 
     if (d.handoverReferAt) {
       const hrTime = new Date(d.handoverReferAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
@@ -192,12 +226,7 @@ function buildDispoZone(p) {
       </div>`);
     }
 
-    // Refer action buttons
-    if (!hasAccepted) {
-      buttons += `<button class="dispo-btn dispo-refer" onclick="event.stopPropagation();openQV('${p.id}')">
-        <i class="fas fa-phone"></i> ติดต่อ Refer
-      </button>`;
-    }
+    // Refer action buttons (contact form is now inline above)
     if (hasAccepted && !d.handoverReferAt) {
       buttons += `<button class="dispo-btn dispo-refer" onclick="event.stopPropagation();dispoHandoverRefer('${p.id}')">
         <i class="fas fa-people-arrows"></i> ส่งเวร Refer
@@ -323,6 +352,7 @@ async function dispoDecideAdmit(visitId) {
   const d = getDispoState(visitId);
   d.admitAt = new Date().toISOString();
   await sb.from('visits').update({ admit_decided_at: d.admitAt }).eq('id', visitId);
+  logAudit(visitId, 'plan_admit', 'dispo', { next:'Plan Admit' });
   renderCards();
 
   const p = patients.find(x => x.id === visitId);
@@ -338,6 +368,7 @@ async function dispoDecideRefer(visitId) {
   const d = getDispoState(visitId);
   d.referAt = new Date().toISOString();
   await sb.from('visits').update({ refer_decided_at: d.referAt }).eq('id', visitId);
+  logAudit(visitId, 'plan_refer', 'dispo', { next:'Plan Refer' });
 
   const p = patients.find(x => x.id === visitId);
   if (p && p.tab === 'active') {
@@ -364,6 +395,7 @@ function dispoUndoRefer(visitId) {
     d.handoverReferAt = null;
     d.lastReferCancelReason = reason;
     await sb.from('visits').update({ refer_decided_at:null, handover_refer_at:null }).eq('id', visitId);
+    logAudit(visitId, 'plan_refer_cancel', 'dispo', { reason });
 
     const p = patients.find(x => x.id === visitId);
     if (p && (p.status === 'ติดต่อส่งตัวโรงพยาบาลอื่น' || p.status === 'รอส่งตัวโรงพยาบาลอื่น')) {
@@ -382,6 +414,7 @@ function cancelHandoverRefer(visitId) {
     d.handoverReferAt = null;
     d.handoverReferCancelReason = reason;
     await sb.from('visits').update({ handover_refer_at:null }).eq('id', visitId);
+    logAudit(visitId, 'handover_refer_cancel', 'dispo', { reason });
     renderCards();
   });
 }
@@ -394,6 +427,7 @@ function dispoUndoAdmit(visitId) {
     d.moveAt = null;
     d.lastCancelReason = reason;
     await sb.from('visits').update({ admit_decided_at:null, handover_ward_at:null, actual_move_at:null, bed_requested_ward:null }).eq('id', visitId);
+    logAudit(visitId, 'plan_admit_cancel', 'dispo', { reason });
     // Cancel all bed requests in DB
     for (const b of d.beds) {
       if (b.dbId && !b.cancelled) {
@@ -409,6 +443,7 @@ async function cancelHandover(visitId) {
   showCancelReason(visitId, 'handover', async (reason) => {
     const d = getDispoState(visitId);
     const p = patients.find(x => x.id === visitId);
+    logAudit(visitId, 'handover_cancel', 'dispo', { prev:d.handoverWard?.ward, reason });
     d.handoverWard = null;
     d.handoverCancelReason = reason;
     await sb.from('visits').update({ handover_ward_at:null, bed_requested_ward:null }).eq('id', visitId);
@@ -580,6 +615,7 @@ async function selectBedWard(visitId, ward) {
   const at = new Date().toISOString();
   const { data } = await sb.from('bed_request_log').insert({ visit_id:visitId, ward, requested_at:at }).select('id').single();
   d.beds.push({ ward, at, cancelled:false, dbId: data?.id || null });
+  logAudit(visitId, 'bed_request', 'dispo', { next:ward });
   renderCards();
 
   const p = patients.find(x => x.id === visitId);
@@ -595,6 +631,7 @@ function cancelBed(visitId, bedIndex) {
   showCancelReason(visitId, 'bed', async (reason) => {
     const d = getDispoState(visitId);
     if (d.beds[bedIndex]) {
+      logAudit(visitId, 'bed_cancel', 'dispo', { prev:d.beds[bedIndex].ward, reason });
       d.beds[bedIndex].cancelled = true;
       d.beds[bedIndex].cancelReason = reason;
       if (d.beds[bedIndex].dbId) {
@@ -625,6 +662,7 @@ async function dispoHandoverWard(visitId, ward) {
 
   const hwAt = new Date().toISOString();
   d.handoverWard = { ward, at: hwAt };
+  logAudit(visitId, 'handover_ward', 'dispo', { next:ward });
 
   // Auto-cancel all other bed requests
   for (const b of d.beds) {
@@ -664,6 +702,7 @@ async function dispoHandoverRefer(visitId) {
   const d = getDispoState(visitId);
   d.handoverReferAt = new Date().toISOString();
   await sb.from('visits').update({ handover_refer_at: d.handoverReferAt }).eq('id', visitId);
+  logAudit(visitId, 'handover_refer', 'dispo', { next:'ส่งเวร Refer' });
 
   renderCards();
 
@@ -687,6 +726,7 @@ async function dispoMoveAdmit(visitId) {
   const ward = d.handoverWard.ward;
   d.moveAt = new Date().toISOString();
   await sb.from('visits').update({ actual_move_at: d.moveAt }).eq('id', visitId);
+  logAudit(visitId, 'ward_move', 'dispo', { next:ward });
 
   // Update status to the admit ward → finalized
   p.status = ward;
@@ -718,6 +758,7 @@ async function dispoMoveRefer(visitId) {
   d.moveAt = new Date().toISOString();
   d.handoverWard = null;
   await sb.from('visits').update({ actual_move_at: d.moveAt }).eq('id', visitId);
+  logAudit(visitId, 'refer_sent', 'dispo', { next:'ส่งตัวโรงพยาบาลอื่น' });
 
   p.status = 'ส่งตัวโรงพยาบาลอื่น';
   p.tab = 'finalized';

@@ -455,6 +455,12 @@ async function submitReg(){
     return;
   }
 
+  logAudit(result.visitId, 'patient_register', 'registration', {
+    patientId: result.patientId,
+    next: hn,
+    detail: { esi, cc, status, tab, fastTrack: ftName || null }
+  });
+
   // Reload from Supabase to get the new patient
   const fresh = await loadPatients();
   patients.length = 0;

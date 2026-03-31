@@ -46,11 +46,7 @@ function openQV(id,evt){
   const p_ctx = patients.find(x=>x.id===id);
   let extraHtml = '';
 
-  // Refer contact log (ติดต่อ Refer + รอ Refer)
-  if (p_ctx && typeof buildReferContactSection === 'function' &&
-    (p_ctx.status === 'ติดต่อส่งตัวโรงพยาบาลอื่น' || p_ctx.status === 'รอส่งตัวโรงพยาบาลอื่น')) {
-    extraHtml += buildReferContactSection(p_ctx);
-  }
+  // Refer contact log — moved to dispo zone (Change 1), no longer in QV
 
   // Consult log (ปรึกษาแพทย์เฉพาะทาง)
   if (p_ctx && typeof buildConsultSection === 'function' &&
@@ -152,7 +148,7 @@ async function confirmStatus(){
     const oldEsi = p.esi;
     p.esi = 1;
     await sb.from('visits').update({ esi:1 }).eq('id',p.id);
-    console.log(`[AUDIT] ESI override: ${oldEsi}→1 (Resuscitate) visit=${p.id} at=${new Date().toISOString()}`);
+    logAudit(p.id, 'esi_override', 'triage', { field:'esi', prev:String(oldEsi), next:'1', reason:'Resuscitate auto-override', severity:'warning', patientId:p.patientId });
   }
 
   if(['active','waiting'].includes(p.tab) && (FINAL_FROM_ACTIVE.has(qvSel) || FINAL_FROM_WAITING.has(qvSel))){

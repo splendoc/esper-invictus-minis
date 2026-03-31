@@ -959,3 +959,51 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 }
 :root:not(.dark) #adm-modal{background:#fff;border-color:#d0dbe8}
 :root:not(.dark) #adm-modal .fin-input{background:#f8fafc;border-color:#d0dbe8;color:#0c2340}
+
+/* ══════════════════════════════════════════
+   COMPACT NOTES (Zone 4 on patient card)
+   ══════════════════════════════════════════ */
+.compact-notes{
+  padding:0 12px 8px;
+  border-top:1px solid var(--border-card, var(--border))
+}
+.compact-notes-hdr{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 0 2px;cursor:pointer;user-select:none
+}
+.compact-notes-body{padding:2px 0 0}
+.compact-note-entry{
+  display:flex;align-items:center;gap:8px;
+  padding:2px 0;
+  border-bottom:1px solid rgba(255,255,255,.03)
+}
+:root:not(.dark) .compact-note-entry{border-color:rgba(0,0,0,.04)}
+
+/* ══════════════════════════════════════════
+   DISPO REFER INLINE FORM
+   ══════════════════════════════════════════ */
+.dispo-refer-inline{
+  padding:6px 8px;
+  border:1px dashed rgba(192,132,252,.25);
+  border-radius:6px;
+  margin-top:2px;
+  background:rgba(192,132,252,.04)
+}
+.dispo-refer-inline .fin-input{
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  border-radius:4px;
+  color:var(--text-primary);
+  font-family:'Sarabun',sans-serif
+}
+.dispo-refer-inline .fin-select{
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  border-radius:4px;
+  color:var(--text-sub);
+  font-family:'Sarabun',sans-serif
+}
+:root:not(.dark) .dispo-refer-inline{
+  border-color:rgba(139,92,246,.2);
+  background:rgba(139,92,246,.04)
+}

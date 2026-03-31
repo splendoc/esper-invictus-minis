@@ -148,6 +148,7 @@ async function consultAdd(visitId) {
   if (input) { input.value = ''; input.classList.remove('fin-input-selected'); }
 
   const deptLabels = typeof DEPT_LABELS !== 'undefined' ? DEPT_LABELS : {};
+  logAudit(visitId, 'consult_add', 'consult', { next:pick.name, detail:{ department:pick.dept, license:pick.license } });
   showToast(`<div style="line-height:1.3">
     <div style="font-size:12px;color:var(--text-sub)">Consult ${deptLabels[pick.dept] || pick.dept}</div>
     <div style="font-size:12px;color:#60a5fa;margin-top:2px"><i class="fas fa-user-doctor" style="margin-right:4px"></i>${pick.name}</div>
