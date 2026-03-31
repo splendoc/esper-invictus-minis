@@ -169,7 +169,28 @@
 
         /* ── Portrait TV (1080×1920) ── */
         @media (orientation: portrait) and (min-height: 1400px) {
-            body { zoom: 1.35; }
+            .pv-hdr { padding: 12px 24px; }
+            .pv-brand { font-size: 36px; }
+            .pv-sub { font-size: 16px; }
+            .pv-clock { font-size: 30px; }
+            .pv-date { font-size: 19px; }
+            .banner-title { font-size: 32px; }
+            .banner-sub { font-size: 20px; }
+            .level-pill { font-size: 2rem; padding: 16px 32px; }
+            .level-pill .pill-en { font-size: 1.9rem; }
+            #banner-icon { font-size: 52px !important; }
+            .sec-title-th { font-size: 1.6rem; }
+            .sec-title-en { font-size: 1.2rem; }
+            .wcard-lbl { font-size: 1.2rem; }
+            .wcard-val { font-size: 1.6rem; }
+            .patient-card-fixed { height: 130px; }
+            .patient-card-fixed .text-2xl { font-size: 2rem; }
+            .patient-card-fixed .esi-1,
+            .patient-card-fixed .esi-2,
+            .patient-card-fixed .esi-3,
+            .patient-card-fixed .esi-4,
+            .patient-card-fixed .esi-5 { width: 96px !important; height: 96px !important; }
+            .cnt-wait, .cnt-active { font-size: 1rem; padding: 4px 12px; }
         }
     </style>
 </head>
@@ -301,11 +322,14 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     const ER_CAPACITY        = 8;
-    const CARD_H             = 110; // card height (100px) + gap (10px)
+    function getCardH() {
+        const c = document.querySelector('.patient-card-fixed');
+        return c ? (c.offsetHeight + 10) : 110;
+    }
     function getPageSize(slideId) {
         const el = document.getElementById(slideId);
         if (!el) return 3;
-        return Math.max(1, Math.floor(el.clientHeight / CARD_H));
+        return Math.max(1, Math.floor(el.clientHeight / getCardH()));
     }
     const PAGE_HOLD_MS       = 10000;
     const FADE_MS            = 800;
