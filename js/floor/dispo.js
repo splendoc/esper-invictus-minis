@@ -197,20 +197,20 @@ function buildDispoZone(p) {
     if (!hasAccepted) {
       const reasons = typeof REFERRAL_REASONS !== 'undefined' ? REFERRAL_REASONS : ['เกินศักยภาพ','ตามสิทธิ์','ตามความประสงค์ของผู้ป่วย','Emergency PCI'];
       rows.push(`<div class="dispo-refer-inline" onclick="event.stopPropagation()">
+        <div style="position:relative;margin-bottom:4px">
+          <input class="fin-input" id="rcl-hosp-${p.id}" placeholder="พิมพ์ชื่อโรงพยาบาล..."
+            style="font-size:12px;padding:6px 10px;width:100%;box-sizing:border-box"
+            oninput="rclHospSearch('${p.id}',this.value)" onfocus="rclHospSearch('${p.id}',this.value)"
+            onkeydown="if(typeof finDropKeydown==='function')finDropKeydown(event,'rcl-hosp-drop-${p.id}')">
+          <div class="rcl-hosp-drop" id="rcl-hosp-drop-${p.id}"></div>
+        </div>
         <div style="display:flex;gap:4px;align-items:center">
-          <div style="flex:1;position:relative">
-            <input class="fin-input" id="rcl-hosp-${p.id}" placeholder="ชื่อโรงพยาบาล..."
-              style="font-size:11px;padding:4px 8px;width:100%"
-              oninput="rclHospSearch('${p.id}',this.value)" onfocus="rclHospSearch('${p.id}',this.value)"
-              onkeydown="if(typeof finDropKeydown==='function')finDropKeydown(event,'rcl-hosp-drop-${p.id}')">
-            <div class="rcl-hosp-drop" id="rcl-hosp-drop-${p.id}"></div>
-          </div>
-          <select class="fin-select" id="rcl-reason-${p.id}" style="font-size:11px;padding:4px 6px;flex:0 0 auto;max-width:120px">
-            <option value="">เหตุผล</option>
+          <select class="fin-select" id="rcl-reason-${p.id}" style="font-size:12px;padding:5px 8px;flex:1">
+            <option value="">— เหตุผลส่งต่อ —</option>
             ${reasons.map(r => `<option value="${r}">${r}</option>`).join('')}
           </select>
-          <button class="rcl-save-btn" style="margin:0;padding:4px 10px;font-size:11px" onclick="event.stopPropagation();rclAddEntry('${p.id}')">
-            <i class="fas fa-plus"></i>
+          <button class="rcl-save-btn" style="margin:0;padding:5px 14px;font-size:12px;white-space:nowrap" onclick="event.stopPropagation();rclAddEntry('${p.id}')">
+            <i class="fas fa-plus" style="margin-right:3px"></i> บันทึก
           </button>
         </div>
       </div>`);
