@@ -170,8 +170,8 @@
         .sec-title-en { font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.06em; font-size:1rem; }
         .sec-companion { font-family:'Sarabun',sans-serif; font-size:14px; font-weight:700; }
 
-        /* ── TV mode (?tv in URL) ── */
-        .tv {
+        /* ── Large screen (TV) ── */
+        @media (min-height: 1200px) {
             /* Header */
             .pv-hdr { padding: 16px 24px; }
             .pv-brand { font-size: 46px; }
@@ -355,11 +355,6 @@
 </div>
 
 <script>
-// Add ?tv to URL for large screen mode
-if (new URLSearchParams(window.location.search).has('tv')) {
-    document.documentElement.classList.add('tv');
-}
-
 document.addEventListener('DOMContentLoaded', function () {
 
     const ER_CAPACITY        = 8;
