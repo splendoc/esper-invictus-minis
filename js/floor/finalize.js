@@ -501,25 +501,30 @@ function finDropKeydown(e, dropId) {
   if (!drop || drop.style.display === 'none') return;
   const items = drop.querySelectorAll('.fin-dx-item');
   if (!items.length) return;
-  if (_finDropIdx[dropId] == null) _finDropIdx[dropId] = -1;
+  const idx = (_finDropIdx[dropId] !== undefined && _finDropIdx[dropId] !== null) ? _finDropIdx[dropId] : -1;
 
   if (e.key === 'ArrowDown') {
     e.preventDefault();
-    _finDropIdx[dropId] = Math.min(_finDropIdx[dropId] + 1, items.length - 1);
-    items.forEach((el, i) => el.style.background = i === _finDropIdx[dropId] ? 'var(--item-hover-bg)' : '');
-    items[_finDropIdx[dropId]].scrollIntoView({block:'nearest'});
+    const next = Math.min(idx + 1, items.length - 1);
+    _finDropIdx[dropId] = next;
+    items.forEach((el, i) => el.style.background = i === next ? 'var(--item-hover-bg)' : '');
+    items[next].scrollIntoView({block:'nearest'});
   } else if (e.key === 'ArrowUp') {
     e.preventDefault();
-    _finDropIdx[dropId] = Math.max(_finDropIdx[dropId] - 1, 0);
-    items.forEach((el, i) => el.style.background = i === _finDropIdx[dropId] ? 'var(--item-hover-bg)' : '');
-    items[_finDropIdx[dropId]].scrollIntoView({block:'nearest'});
-  } else if (e.key === 'Enter' && _finDropIdx[dropId] >= 0 && items[_finDropIdx[dropId]]) {
-    e.preventDefault();
-    const sel = items[_finDropIdx[dropId]];
-    const md = sel.getAttribute('onmousedown');
-    if (md) eval(md);
-    _finDropIdx[dropId] = -1;
+    const prev = Math.max(idx - 1, 0);
+    _finDropIdx[dropId] = prev;
+    items.forEach((el, i) => el.style.background = i === prev ? 'var(--item-hover-bg)' : '');
+    items[prev].scrollIntoView({block:'nearest'});
+  } else if (e.key === 'Enter') {
+    if (idx >= 0 && idx < items.length) {
+      e.preventDefault();
+      const sel = items[idx];
+      const md = sel.getAttribute('onmousedown');
+      _finDropIdx[dropId] = -1;
+      if (md) eval(md);
+    }
   } else {
+    // Reset index when typing new characters so arrow starts fresh
     _finDropIdx[dropId] = -1;
   }
 }
