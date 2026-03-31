@@ -194,7 +194,7 @@
             .wcard-lbl { font-size: 1.3rem; }
             .wcard-val { font-size: 1.8rem; }
             .wcard { padding: 10px 8px; }
-            .cnt-wait, .cnt-active { font-size: 1.1rem; padding: 5px 14px; }
+            .cnt-wait, .cnt-active { font-size: 1.3rem; padding: 6px 16px; }
             .active-note { font-size: 20px; }
 
             /* Patient cards — keep height so pagination fits */
@@ -211,7 +211,8 @@
             .pv-name-area { padding-left: 14px !important; }
             .patient-card-fixed .text-2xl { font-size: 2rem !important; }
             .patient-card-fixed .pv-sub-text { font-size: 17px !important; }
-            .patient-card-fixed .pv-status-text { font-size: 19px !important; }
+            .patient-card-fixed .pv-status-text { font-size: 22px !important; }
+            .patient-card-fixed .pv-status-text span[style*="border-radius"] { width: 12px !important; height: 12px !important; }
 
             /* Page area gap */
             .page-slide { gap: 8px !important; }
@@ -291,6 +292,28 @@
     <!-- MAIN CONTENT -->
     <main id="main-content" class="flex-grow grid grid-rows-2 gap-3 p-3 min-h-0">
 
+        <!-- ACTIVE PATIENTS -->
+        <section class="section-wrap pv-section rounded-xl">
+            <div class="sec-hdr flex-shrink-0 p-4 pv-sec-border">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-stethoscope" style="color:#22c55e;font-size:16px"></i>
+                    <h2 class="sec-title-th text-xl pv-text">
+                        กำลังรับการรักษา <span class="sec-title-en text-base pv-sub-text">· Active</span>
+                    </h2>
+                    <span class="pv-sub-text" style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;margin-left:8px">เรียงตามความเร่งด่วนทางการแพทย์</span>
+                    <span id="active-count" class="ml-auto text-lg font-bold px-3 py-1 rounded-full cnt-active">0</span>
+                </div>
+                <div class="active-note">
+                    <i class="fas fa-info-circle mr-2" style="color:#4ade80"></i>ทีมแพทย์กำลังดูแลผู้ป่วยอย่างเต็มที่
+                    หากมีความคืบหน้า จะมีการแจ้งและเรียกญาติเป็นระยะ
+                    ขอความกรุณารอในบริเวณที่จัดไว้
+                    และกรุณาฝากเบอร์ติดต่อที่เคาเตอร์พยาบาล
+                </div>
+            </div>
+            <div class="page-area"><div class="page-slide" id="active-slide"></div></div>
+            <div class="page-dots" id="active-dots"></div>
+        </section>
+
         <!-- WAITING PATIENTS -->
         <section class="section-wrap pv-section rounded-xl">
             <div class="sec-hdr flex-shrink-0 p-4 pv-sec-border">
@@ -300,7 +323,7 @@
                         รอรับการรักษา <span class="sec-title-en text-base pv-sub-text">· Waiting</span>
                     </h2>
                     <span class="pv-sub-text" style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;margin-left:8px">ทีมแพทย์จะดูแลท่านตามความเร่งด่วนทางการแพทย์</span>
-                    <span id="wait-count" class="ml-auto text-sm font-bold px-2.5 py-0.5 rounded-full cnt-wait">0</span>
+                    <span id="wait-count" class="ml-auto text-lg font-bold px-3 py-1 rounded-full cnt-wait">0</span>
                 </div>
                 <div style="display:flex;gap:8px">
                     <div class="wcard wcard-3">
@@ -319,28 +342,6 @@
             </div>
             <div class="page-area"><div class="page-slide" id="waiting-slide"></div></div>
             <div class="page-dots" id="waiting-dots"></div>
-        </section>
-
-        <!-- ACTIVE PATIENTS -->
-        <section class="section-wrap pv-section rounded-xl">
-            <div class="sec-hdr flex-shrink-0 p-4 pv-sec-border">
-                <div class="flex items-center gap-2 mb-2">
-                    <i class="fas fa-stethoscope" style="color:#22c55e;font-size:16px"></i>
-                    <h2 class="sec-title-th text-xl pv-text">
-                        กำลังรับการรักษา <span class="sec-title-en text-base pv-sub-text">· Active</span>
-                    </h2>
-                    <span class="pv-sub-text" style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;margin-left:8px">เรียงตามความเร่งด่วนทางการแพทย์</span>
-                    <span id="active-count" class="ml-auto text-sm font-bold px-2.5 py-0.5 rounded-full cnt-active">0</span>
-                </div>
-                <div class="active-note">
-                    <i class="fas fa-info-circle mr-2" style="color:#4ade80"></i>ทีมแพทย์กำลังดูแลผู้ป่วยอย่างเต็มที่
-                    หากมีความคืบหน้า จะมีการแจ้งและเรียกญาติเป็นระยะ
-                    ขอความกรุณารอในบริเวณที่จัดไว้
-                    และกรุณาฝากเบอร์ติดต่อที่เคาเตอร์พยาบาล
-                </div>
-            </div>
-            <div class="page-area"><div class="page-slide" id="active-slide"></div></div>
-            <div class="page-dots" id="active-dots"></div>
         </section>
 
     </main>
