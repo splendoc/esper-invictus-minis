@@ -845,7 +845,7 @@ function renderCards(){
             <i class="fas ${lane.icon} kb-hdr-icon" style="color:${lane.color}"></i>
             <div>
               <div class="kb-hdr-label" style="color:${lane.color}">${lane.label}</div>
-              <div class="kb-hdr-en">${lane.labelTh}</div>
+              <div class="kb-hdr-en" style="font-family:'Sarabun',sans-serif;text-transform:none;margin-top:6px">${lane.labelTh}</div>
             </div>
             <div class="kb-hdr-cnt" style="color:${lane.color}">${cards.length}</div>
           </div>

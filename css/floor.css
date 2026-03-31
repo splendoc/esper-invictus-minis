@@ -870,7 +870,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg-body);color:var(--text
 }
 .kb-hdr-en{
   font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--text-dim);line-height:1
+  text-transform:uppercase;color:var(--text-dim);line-height:1;margin-top:4px
 }
 .kb-hdr-cnt{
   margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;
